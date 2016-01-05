@@ -13,8 +13,6 @@ import java.util.*;
  */
 public interface JacksonManagerService {
 
-    void registerJacksonJaxrsProvider(JacksonJsonProvider)
-
 
     void registerModulesWithObjectMapper(ObjectMapper objectMapper);
 
@@ -24,6 +22,23 @@ public interface JacksonManagerService {
 
     void updateChange();
 
+    static Set<String> getClassNames(Bundle bundle) {
+        BundleWiring bundleWiring = bundle.adapt(BundleWiring.class);
+        if (bundleWiring == null)
+            return Collections.emptySet();
+        Collection<String> resources = bundleWiring.listResources("/", "*.class", BundleWiring.LISTRESOURCES_RECURSE);
+        Set<String> classNamesOfCurrentBundle = new HashSet<>();
+        for (String resource : resources) {
+            URL localResource = bundle.getEntry(resource);
+            // Bundle.getEntry() returns null if the resource is not located in the specific bundle
+            if (localResource != null) {
+                String className = resource.replaceAll("/", ".").replaceAll("^(.*?)(\\.class)$", "$1");
+                classNamesOfCurrentBundle.add(className);
+            }
+        }
+
+        return classNamesOfCurrentBundle;
+    }
 
 
 }
