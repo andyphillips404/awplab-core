@@ -17,7 +17,6 @@
 
         <module>features</module>
         <module>scheduler</module>
-        <module>test</module>
         <module>rest</module>
         <module>ipojo</module>
         <module>common</module>

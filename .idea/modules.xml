@@ -13,7 +13,6 @@
       <module fileurl="file://$PROJECT_DIR$/scheduler/scheduler.iml" filepath="$PROJECT_DIR$/scheduler/scheduler.iml" />
       <module fileurl="file://$PROJECT_DIR$/scheduler/command/scheduler.command.iml" filepath="$PROJECT_DIR$/scheduler/command/scheduler.command.iml" />
       <module fileurl="file://$PROJECT_DIR$/scheduler/service/scheduler.service.iml" filepath="$PROJECT_DIR$/scheduler/service/scheduler.service.iml" />
-      <module fileurl="file://$PROJECT_DIR$/test/test.iml" filepath="$PROJECT_DIR$/test/test.iml" />
     </modules>
   </component>
 </project>
