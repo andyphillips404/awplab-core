@@ -19,6 +19,9 @@ public final class SchedulerEventTopics {
 
     public static final String BASE = "com/awplab/core/scheduler/events";
 
+    public static final String MANAGER_STARTED = BASE + "/MANAGER_STARTED";
+    public static final String MANAGER_STOPPED = BASE + "/MANAGER_STOPPED";
+
     public static final String JOB_SCHEDULED = BASE + "/JOB_SCHEDULED";
     public static final String JOB_UNSCHEDULED = BASE + "/JOB_UNSCHEDULED";
     public static final String TRIGGER_FINALIZED = BASE + "/TRIGGER_FINALIZED";
@@ -53,6 +56,10 @@ public final class SchedulerEventTopics {
     public static final String SCHEDULER_UNREGISTERED = BASE + "/SCHEDULER_UNREGISTERED";
 
 
+    public static void postEvent(String topic) {
+        postEvent(null, topic, new HashMap<>());
+    }
+
     public static void postEvent(Scheduler scheduler, String topic) {
         postEvent(scheduler, topic, new HashMap<>());
     }
@@ -64,8 +71,9 @@ public final class SchedulerEventTopics {
         if (ref != null)
         {
             EventAdmin eventAdmin = (EventAdmin) bundleContext.getService(ref);
-            data.put(SchedulerEventData.SCHEDULER, scheduler);
-            eventAdmin.postEvent(new Event(topic, data));
+            HashMap<String, Object> eventData = new HashMap<>(data);
+            if (scheduler != null) eventData.put(SchedulerEventData.SCHEDULER, scheduler);
+            eventAdmin.postEvent(new Event(topic, eventData));
         }
     }
 

@@ -2,7 +2,6 @@ package com.awplab.core.rest.jackson.manager;
 
 import com.awplab.core.rest.jackson.JacksonJaxrsService;
 import com.awplab.core.rest.jackson.JacksonManagerService;
-import com.awplab.core.rest.jackson.JacksonJaxrsProvider;
 import com.awplab.core.rest.jackson.JacksonModulesService;
 import com.awplab.core.rest.service.RestManagerService;
 import com.awplab.core.rest.service.RestService;
@@ -10,7 +9,6 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.cfg.Annotations;
 import org.apache.felix.ipojo.annotations.*;
-import org.osgi.framework.BundleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +74,7 @@ public class JacksonManagerProvider implements JacksonManagerService, RestServic
     }
 
     @Override
-    public synchronized void registerModules(ObjectMapper objectMapper) {
+    public synchronized void registerModulesWithObjectMapper(ObjectMapper objectMapper) {
         Logger logger = LoggerFactory.getLogger(JacksonManagerProvider.class);
         for (JacksonModulesService jacksonModulesProvider : modulesProviders) {
             try {
@@ -109,7 +107,7 @@ public class JacksonManagerProvider implements JacksonManagerService, RestServic
         for (JacksonJaxrsService jacksonJaxrsProvider : jaxrsProviders) {
             try {
                 ObjectMapper objectMapper = (ObjectMapper)jacksonJaxrsProvider.getMapperClass().newInstance();
-                registerModules(objectMapper);
+                registerModulesWithObjectMapper(objectMapper);
                 Annotations[] annotations = {Annotations.JACKSON, Annotations.JAXB};
                 singletons.add(jacksonJaxrsProvider.getProviderClass().getConstructor(objectMapper.getClass(), Annotations[].class).newInstance(objectMapper, annotations));
             }

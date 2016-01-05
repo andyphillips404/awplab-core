@@ -7,10 +7,7 @@ import com.awplab.core.scheduler.service.events.EventAdminListener;
 import com.awplab.core.scheduler.service.events.SchedulerEventTopics;
 import com.google.common.collect.Maps;
 import org.apache.felix.ipojo.annotations.*;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleEvent;
-import org.osgi.framework.BundleListener;
+import org.osgi.framework.*;
 import org.osgi.framework.wiring.BundleWiring;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
@@ -26,7 +23,7 @@ import java.util.Calendar;
  */
 
 @Component(publicFactory = false, immediate = true)
-@Provides
+@Provides(specifications = SchedulerManagerService.class)
 @Instantiate
 public class SchedulerManagerProvider implements SchedulerManagerService, BundleListener {
 
@@ -45,54 +42,68 @@ public class SchedulerManagerProvider implements SchedulerManagerService, Bundle
     private void start() {
         bundleContext.addBundleListener(this);
         logger.info("Scheduler Manager Started");
+
+        SchedulerEventTopics.postEvent(SchedulerEventTopics.MANAGER_STARTED);
     }
+
+    private String getSchedulerNameIgnoreException(Scheduler scheduler) {
+        try {
+            return scheduler.getSchedulerName();
+        }
+        catch (SchedulerException ignored) {
+            return null;
+        }
+
+    }
+
 
     @Invalidate
     public void stop() {
         bundleContext.removeBundleListener(this);
-    }
 
-    static Set<String> getClassNames(Bundle bundle) {
-        BundleWiring bundleWiring = bundle.adapt(BundleWiring.class);
-        if (bundleWiring == null)
-            return Collections.emptySet();
-        Collection<String> resources = bundleWiring.listResources("/", "*.class", BundleWiring.LISTRESOURCES_RECURSE);
-        Set<String> classNamesOfCurrentBundle = new HashSet<>();
-        for (String resource : resources) {
-            URL localResource = bundle.getEntry(resource);
-            // Bundle.getEntry() returns null if the resource is not located in the specific bundle
-            if (localResource != null) {
-                String className = resource.replaceAll("/", ".").replaceAll("^(.*?)(\\.class)$", "$1");
-                classNamesOfCurrentBundle.add(className);
+        for (Scheduler scheduler : getSchedulers()) {
+            try {
+                removeScheduler(scheduler);
+            } catch (SchedulerException ex) {
+                logger.error("Exception trying to remove scheduler: " + getSchedulerNameIgnoreException(scheduler));
             }
         }
 
-        return classNamesOfCurrentBundle;
+        logger.info("Scheduler Manager Shut Down");
+
+        SchedulerEventTopics.postEvent(SchedulerEventTopics.MANAGER_STOPPED);
+
     }
 
 
 
     @Override
     public void bundleChanged(BundleEvent bundleEvent) {
-        if (bundleEvent.getType() == BundleEvent.STOPPING) {
-            Set<String> classNames = getClassNames(bundleEvent.getBundle());
+        if (bundleEvent.getType() == BundleEvent.STOPPED) {
 
             for (Scheduler scheduler : getSchedulers()) {
-                try {
-                    for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.anyGroup())) {
-                        JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-                        if (classNames.contains(jobDetail.getJobClass().getName())) {
-                            try {
-                                forceShutdownAndDelete(scheduler, jobKey);
-                            }
-                            catch (SchedulerException ex) {
-                                logger.error("Unable to shut down and delete job with jobkey: " + jobKey.toString(), ex);
+
+                if (FrameworkUtil.getBundle(scheduler.getClass()).equals(bundleEvent.getBundle())) {
+                    try {
+                        removeScheduler(scheduler);
+                    } catch (SchedulerException ex) {
+                        logger.error("Excpetion removing scheduler: " + getSchedulerNameIgnoreException(scheduler), ex);
+                    }
+                } else {
+                    try {
+                        for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.anyGroup())) {
+                            JobDetail jobDetail = scheduler.getJobDetail(jobKey);
+                            if (bundleEvent.getBundle().equals(FrameworkUtil.getBundle(jobDetail.getClass()))) {
+                                try {
+                                    forceShutdownAndDelete(scheduler, jobKey);
+                                } catch (SchedulerException ex) {
+                                    logger.error("Unable to shut down and delete job with jobkey: " + jobKey.toString(), ex);
+                                }
                             }
                         }
+                    } catch (SchedulerException ex) {
+                        logger.error("Exception attempting to remove jobs with classes from bundle", ex);
                     }
-                }
-                catch (SchedulerException ex) {
-                    logger.error("Exception attempting to remove jobs with classes from bundle", ex);
                 }
             }
         }
@@ -184,12 +195,12 @@ public class SchedulerManagerProvider implements SchedulerManagerService, Bundle
 
     @Override
     public Set<Scheduler> getSchedulers() {
-        return new HashSet<>(schedulers);
+        return Collections.unmodifiableSet(schedulers);
     }
 
     @Override
     public Scheduler getScheduler(String name) throws SchedulerException {
-        for (Scheduler schedulerService : schedulers) {
+        for (Scheduler schedulerService : getSchedulers()) {
             if (schedulerService.getSchedulerName().equals(name)) {
                 return schedulerService;
             }
@@ -201,7 +212,7 @@ public class SchedulerManagerProvider implements SchedulerManagerService, Bundle
     @Override
     public Set<String> getSchedulerNames() throws SchedulerException {
         HashSet<String> names = new HashSet<>();
-        for (Scheduler scheduler : schedulers) {
+        for (Scheduler scheduler : getSchedulers()) {
             names.add(scheduler.getSchedulerName());
         }
         return names;

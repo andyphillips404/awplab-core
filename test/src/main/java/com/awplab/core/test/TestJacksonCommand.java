@@ -1,8 +1,6 @@
 package com.awplab.core.test;
 
 import com.awplab.core.rest.jackson.JacksonManagerService;
-import com.awplab.core.scheduler.service.SchedulerManagerService;
-import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Command;
@@ -32,7 +30,7 @@ public class TestJacksonCommand implements Action {
 
 
         ObjectMapper objectMapper  = new ObjectMapper();
-        jacksonManagerService.registerModules(objectMapper);
+        jacksonManagerService.registerModulesWithObjectMapper(objectMapper);
 
         table.print(System.out);
 

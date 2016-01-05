@@ -3,9 +3,16 @@ package com.awplab.core.rest.service.manager;
 import com.awplab.core.rest.service.RestApplication;
 import com.awplab.core.rest.service.RestManagerService;
 import com.awplab.core.rest.service.RestService;
+import com.awplab.core.rest.service.SimpleRestProvider;
+import com.awplab.core.rest.service.events.RestEventData;
+import com.awplab.core.rest.service.events.RestEventTopics;
 import org.apache.felix.ipojo.annotations.*;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleListener;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +23,15 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by andyphillips404 on 2/22/15.
  */
-@Component(immediate = true, publicFactory=false, managedservice = "com.awplab.rest.service.manager")
+@Component(immediate = true, publicFactory=false, managedservice = RestManagerProvider.CONFIG_MANAGED_SERVICE_NAME)
 @Instantiate
-@Provides
-public class RestManagerProvider implements RestManagerService {
+@Provides(specifications = RestManagerService.class)
+public class RestManagerProvider implements RestManagerService, BundleListener {
+
+    public static final String CONFIG_MANAGED_SERVICE_NAME = "com.awplab.rest.service.manager";
+
+    public static final String PROPERTY_HOLD_OFF_TIME_SECONDS = "com.awplab.rest.service.manager.holdOffTimeSeconds";
+
 
     private Set<RestService> restProviders = Collections.synchronizedSet(new HashSet<>());
 
@@ -28,16 +40,55 @@ public class RestManagerProvider implements RestManagerService {
     private Map<String, RestApplication> applications = new ConcurrentHashMap<>();
 
 
-    @ServiceProperty(name = "com.awplab.rest.service.manager.holdOffTimeSeconds", value = "10")
+    @ServiceProperty(name = PROPERTY_HOLD_OFF_TIME_SECONDS, value = "10")
     private int holdOffTimeSeconds;
 
     @Requires
     private HttpService httpService;
 
+    @Requires
+    private BundleContext bundleContext;
 
-    public RestManagerProvider() {
-        LoggerFactory.getLogger(RestManagerProvider.class).info("RestManagerProvider Starting Up");
+    private Logger logger = LoggerFactory.getLogger(RestManagerProvider.class);
 
+    @Validate
+    private void start() {
+        bundleContext.addBundleListener(this);
+        logger.info("Rest Manager Started");
+
+        RestEventTopics.postEvent(RestEventTopics.MANAGER_STARTED);
+    }
+
+    @Invalidate
+    public void stop() {
+        bundleContext.removeBundleListener(this);
+
+        for (String alias : servletContainers.keySet()) {
+            httpService.unregister(alias);
+        }
+
+        restProviders.clear();
+        servletContainers.clear();
+        applications.clear();
+
+        logger.info("Rest Manager Shut Down");
+
+        RestEventTopics.postEvent(RestEventTopics.MANAGER_STOPPED);
+
+    }
+
+
+    @Override
+    public void bundleChanged(BundleEvent bundleEvent) {
+        if (bundleEvent.getType() == BundleEvent.STOPPED) {
+            for (RestService restProvider : getProviders()) {
+                if (FrameworkUtil.getBundle(restProvider.getClass()).equals(bundleEvent.getBundle())) {
+                    unregisterProvider(restProvider);
+                }
+
+                // TODO:  Check for registered classes and singletons?
+            }
+        }
     }
 
     private Set<String> dirtyAliases = Collections.synchronizedSet(new HashSet<>());
@@ -49,32 +100,46 @@ public class RestManagerProvider implements RestManagerService {
         @Override
         public void run() {
             synchronized (dirtyTimerLock) {
-                //updateDirtyAliases();
-                Logger logger = LoggerFactory.getLogger(RestManagerProvider.class);
+
+
 
                 for (String alias : dirtyAliases) {
                     logger.info("Creating / Updating service containers and servlets for alias " + alias);
                     try {
+
+                        String eventTopic = RestEventTopics.ALIAS_STARTED;
+
                         ServletContainer container = servletContainers.get(alias);
                         if (container != null) {
                             httpService.unregister(alias);
                             servletContainers.remove(alias);
                             applications.remove(alias);
                             //  container.destroy();
+                            eventTopic = RestEventTopics.ALIAS_RESTARTED;
+
                         }
 
                         Set<RestService> providers = collectRestProviders(alias);
+                        RestApplication restApplication = null;
                         if (providers.size() > 0) {
                             providers.addAll(collectRestProviders(RestService.GLOBAL_ALIAS));
-                            RestApplication restApplication = new RestApplication(alias, providers);
+                            restApplication = new RestApplication(alias, providers);
                             applications.put(alias, restApplication);
                             container = new ServletContainer(ResourceConfig.forApplication(restApplication));
                             servletContainers.put(alias, container);
                             httpService.registerServlet(alias, container, null, null);
                         }
+                        else {
+                            eventTopic = RestEventTopics.ALIAS_STOPPED;
+                        }
+
+                        RestEventTopics.postEvent(alias, eventTopic, (restApplication != null ? Collections.singletonMap(RestEventData.APPLICATION, restApplication) : Collections.emptyMap()));
+
                     } catch (Exception ex) {
                         logger.error("Exception attempting to reload rest services for alias " + alias, ex);
                     }
+
+
                 }
 
             }
@@ -89,10 +154,6 @@ public class RestManagerProvider implements RestManagerService {
         return returnSet;
     }
 
-    //private synchronized void updateDirtyAliases() {
-
-
-//    }
 
     private void resetDirtyTimer() {
         if (dirtyTimer != null) {
@@ -100,7 +161,7 @@ public class RestManagerProvider implements RestManagerService {
         }
         dirtyTimer = new Timer();
         dirtyTimer.schedule(new DirtyAliasesTask(), holdOffTimeSeconds * 1000);
-        LoggerFactory.getLogger(RestManagerProvider.class).info("Change detected, holding off refresh for " + holdOffTimeSeconds  + " seconds for aliases: " + Arrays.toString(dirtyAliases.toArray()));
+        logger.info("Change detected, holding off refresh for " + holdOffTimeSeconds  + " seconds for aliases: " + Arrays.toString(dirtyAliases.toArray()));
     }
 
 
@@ -120,39 +181,81 @@ public class RestManagerProvider implements RestManagerService {
     }
 
 
+
+    @Override
+    public synchronized void registerProvider(RestService restProvider) {
+        String alias = restProvider.getAlias();
+        if (alias.equals(RestService.GLOBAL_ALIAS) || (alias.startsWith("/") && !alias.endsWith("/"))) {
+            restProviders.add(restProvider);
+
+            updateContainerServlet(alias);
+
+            RestEventTopics.postEvent(alias, RestEventTopics.PROVIDER_REGISTERED, Collections.singletonMap(RestEventData.PROVIDER, restProvider));
+        }
+        else {
+            throw new IllegalArgumentException("Invalid alias.  Must start with a / and not end with a /");
+        }
+    }
+
+    @Override
+    public synchronized void unregisterProvider(RestService restProvider) {
+        String alias = restProvider.getAlias();
+
+        restProviders.remove(restProvider);
+
+        updateContainerServlet(alias);
+
+        RestEventTopics.postEvent(alias, RestEventTopics.PROVIDER_UNREGISTERED, Collections.singletonMap(RestEventData.PROVIDER, restProvider));
+    }
+
+
+    @Override
+    public void registerClass(String alias, Class<?> clazz) {
+        registerProvider(new SimpleRestProvider(alias, clazz));
+    }
+
+    @Override
+    public void registerSingleton(String alias, Object singleton) {
+        registerProvider(new SimpleRestProvider(alias, singleton));
+
+    }
+
+    @Override
+    public void unregisterClass(String alias, Class<?> clazz) {
+        unregisterProvider(new SimpleRestProvider(alias, clazz));
+
+    }
+
+    @Override
+    public void unregisterSingleton(String alias, Object singleton) {
+        unregisterProvider(new SimpleRestProvider(alias, singleton));
+    }
+
+    @Override
+    public synchronized RestApplication getApplication(String alias) {
+        return applications.get(alias);
+    }
+
     private String logString(RestService provider) {
         return "RestService provider in alias " + provider.getAlias() + ", provider class: " + provider.getClass().getName();
     }
 
-
     @Bind(aggregate=true, optional=true)
-    private synchronized void bindProvider(RestService provider) {
-        Logger logger = LoggerFactory.getLogger(RestManagerProvider.class);
-
-        String alias = provider.getAlias();
+    private void bindProvider(RestService provider) {
 
         try {
+            registerProvider(provider);
 
-            if (alias.equals(RestService.GLOBAL_ALIAS) || (alias.startsWith("/") && !alias.endsWith("/"))) {
-                restProviders.add(provider);
-
-                updateContainerServlet(alias);
-
-                logger.info("Successfully added " + logString(provider));
-            }
-            else {
-                logger.error("Invalid alias, unable to add " + logString(provider));
-            }
+            logger.info("Successfully added " + logString(provider));
 
         } catch (Exception ex) {
-            logger.error("Unhandled exception attempting to add " + logString(provider), ex);
+            logger.error("Exception attempting to add " + logString(provider), ex);
         }
 
     }
 
     @Unbind
-    private synchronized void unbindProvider(RestService provider) {
-        Logger logger = LoggerFactory.getLogger(RestManagerProvider.class);
+    private void unbindProvider(RestService provider) {
 
         try {
             String alias = provider.getAlias();
@@ -176,28 +279,13 @@ public class RestManagerProvider implements RestManagerService {
 
 
     @Override
-    public synchronized Set<RestService> getProviders(String alias) {
-        return collectRestProviders(alias);
-    }
-
-    @Override
-    public synchronized Set<Class<?>> getApplicationClasses(String alias) {
-        if (!applications.containsKey(alias)) throw new IllegalArgumentException("Invalid alias: " + alias);
-
-        return new HashSet<>(applications.get(alias).getClasses());
-    }
-
-    @Override
-    public synchronized Set<Object> getApplicationSingletons(String alias) {
-        if (!applications.containsKey(alias)) throw new IllegalArgumentException("Invalid alias: " + alias);
-
-        return new HashSet<>(applications.get(alias).getSingletons());
-    }
-
-    @Override
     public synchronized void reloadAlias(String alias) {
         updateContainerServlet(alias);
 
     }
 
+    @Override
+    public Set<RestService> getProviders() {
+        return Collections.unmodifiableSet(restProviders);
+    }
 }

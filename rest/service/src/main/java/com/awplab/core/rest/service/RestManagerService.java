@@ -21,6 +21,7 @@ public interface RestManagerService {
 
     void unregisterSingleton(String alias, Object singleton);
 
+    Set<RestService> getProviders();
 
     Set<String> getAliases();
 
