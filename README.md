@@ -7,9 +7,14 @@ This is a library for use in Karaf 4 that supports the following:
     1.  Jackson support with Jackson JAX-RS providers and data modules
 
 
-Currently working on importing the code from other code bases so this repository is under construction until then.
+Currently working on documentation and additional code so this repository should be considered under development at this time
+
+## Using the library
+
+
 
 ## iPOJO native Karaf commands
+
 
 
 
