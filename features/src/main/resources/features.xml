@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0"
+          name="AWPLab Core">
+
+    <feature name="core-scheduler" version="${parent.version}">
+        <feature>ipojo</feature>
+        <feature>guava</feature>
+        <feature>guava-retrying</feature>
+        <feature>quartz</feature>
+        <feature>jackson</feature>
+
+        <bundle>mvn:com.awplab.core/scheduler.service/${version.core.scheduler.service}</bundle>
+        <bundle>mvn:com.awplab.core/scheduler.command/${version.core.scheduler.command}</bundle>
+
+    </feature>
+
+    <feature name="core-rest" version="${parent.version}">
+        <feature>ipojo</feature>
+        <feature>felix-http</feature>
+        <feature>jersey-server</feature>
+
+        <bundle>mvn:com.awplab.core/rest.service/${version.core.rest.service}</bundle>
+        <bundle>mvn:com.awplab.core/rest.command/${version.core.rest.command}</bundle>
+    </feature>
+
+    <feature name="core-rest-jackson" version="${parent.version}">
+        <feature>core-rest</feature>
+        <bundle>mvn:com.awplab.core/rest.jackson/${version.core.rest.jackson}</bundle>
+        <feature>jackson-jaxrs</feature>
+        <feature>jackson-jdk7</feature>
+        <feature>jackson-jdk8</feature>
+    </feature>
+
+
+
+    <feature name="core-ipojo" version="${parent.version}">
+        <feature>ipojo</feature>
+        <bundle>mvn:com.awplab.core/ipojo/${version.core.ipojo}</bundle>
+    </feature>
+
+
+    <feature name="ipojo" version="${version.ipojo}">
+        <feature>shell-compat</feature>
+        <feature>eventadmin</feature>
+        <bundle>mvn:org.apache.felix/org.apache.felix.ipojo/${version.ipojo}</bundle>
+        <bundle>mvn:org.apache.felix/org.apache.felix.ipojo.api/${version.ipojo}</bundle>
+        <!--<bundle>mvn:org.apache.felix/org.apache.felix.ipojo.gogo/${version.ipojo}</bundle> -->
+    </feature>
+
+    <feature name="ehcache" version="${version.ehcache}">
+        <bundle>mvn:org.ehcache/ehcache/3.0.0.m4</bundle>
+        <!-- <bundle>mvn:org.slf4j/slf4j-api/1.7.7</bundle> -->
+        <bundle>mvn:org.terracotta/offheap-store/2.1.2</bundle>
+    </feature>
+
+    <feature name="quartz" version="${version.quartz}">
+        <bundle>mvn:org.quartz-scheduler/quartz/${version.quartz}</bundle>
+        <bundle>wrap:mvn:c3p0/c3p0/0.9.1.1</bundle>
+    </feature>
+
+
+
+
+    <feature name="jackson" version="${version.jackson}">
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${version.jackson}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${version.jackson}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${version.jackson}</bundle>
+
+    </feature>
+
+    <feature name="jackson-jaxb" version="${version.jackson}">
+        <bundle>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${version.jackson}</bundle>
+
+        <config name="com.awplab.core.rest.jackson.module-jaxb">
+            com.awplab.core.rest.jackson.module.classes = {com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule}
+        </config>
+    </feature>
+
+    <feature name="jackson-csv" version="${version.jackson}">
+        <feature>jackson</feature>
+        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-csv/${version.jackson}</bundle>
+    </feature>
+
+
+    <feature name="jackson-xml" version="${version.jackson}">
+        <feature>jackson</feature>
+        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-xml/${version.jackson}</bundle>
+        <bundle>mvn:org.codehaus.woodstox/stax2-api/3.1.4</bundle>
+        <bundle>mvn:org.codehaus.woodstox/woodstox-core-asl/4.4.1</bundle>
+        <!--<bundle>wrap:mvn:javax.xml.stream/stax-api/1.0-2</bundle> -->
+    </feature>
+
+    <feature name="jackson-jdk7" version="${version.jackson}">
+        <feature>jackson</feature>
+        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jdk7/${version.jackson}</bundle>
+
+        <config name="com.awplab.core.rest.jackson.module-jdk7">
+            com.awplab.core.rest.jackson.module.classes = {com.fasterxml.jackson.datatype.jdk7.Jdk7Module}
+        </config>
+
+    </feature>
+
+    <feature name="jackson-jdk8" version="${version.jackson}">
+        <feature>jackson</feature>
+        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jdk8/${version.jackson}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jsr310/${version.jackson}</bundle>
+
+        <config name="com.awplab.core.rest.jackson.module-jdk8">
+            com.awplab.core.rest.jackson.module.classes = {com.fasterxml.jackson.datatype.jdk8.Jdk8Module, com.fasterxml.jackson.datatype.jsr310.JSR310Module}
+        </config>
+
+    </feature>
+
+    <feature name="jackson-jaxrs" version="${version.jackson}">
+        <feature>jackson</feature>
+        <feature>javax-ws-rs</feature>
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${version.jackson}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${version.jackson}</bundle>
+
+        <config name="com.awplab.core.rest.jackson.jaxrs-json">
+            com.awplab.core.rest.jackson.jaxrs.provider = com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider
+            com.awplab.core.rest.jackson.jaxrs.mapper = com.fasterxml.jackson.databind.ObjectMapper
+        </config>
+
+    </feature>
+
+    <feature name="jackson-jaxrs-xml" version="${version.jackson}">
+        <feature>jackson-jaxrs</feature>
+        <feature>jackson-xml</feature>
+        <bundle>wrap:mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-xml-provider/${version.jackson}$overwrite=merge&amp;Import-Package=com.fasterxml.jackson.*,*</bundle>
+
+        <config name="com.awplab.core.rest.jackson.jaxrs-xml">
+            com.awplab.core.rest.jackson.jaxrs.provider = com.fasterxml.jackson.jaxrs.xml.JacksonXMLProvider
+            com.awplab.core.rest.jackson.jaxrs.mapper = com.fasterxml.jackson.dataformat.xml.XmlMapper
+        </config>
+
+    </feature>
+
+    <feature name="javax-ws-rs" version="2.0.1">
+        <bundle>mvn:javax.ws.rs/javax.ws.rs-api/2.0.1</bundle>
+    </feature>
+
+    <feature name="jersey-server" version="${version.jersey}">
+        <feature>jersey-common</feature>
+        <feature>jersey-client</feature>
+        <bundle>mvn:org.glassfish.jersey.core/jersey-server/${version.jersey}</bundle>
+        <bundle>mvn:org.glassfish.jersey.containers/jersey-container-servlet/${version.jersey}</bundle>
+        <bundle>mvn:org.glassfish.jersey.containers/jersey-container-servlet-core/${version.jersey}</bundle>
+        <bundle>mvn:org.glassfish.jersey.ext/jersey-entity-filtering/${version.jersey}</bundle>
+    </feature>
+
+    <feature name="jersey-client" version="${version.jersey}">
+        <feature>jersey-common</feature>
+        <bundle>mvn:org.glassfish.jersey.core/jersey-client/${version.jersey}</bundle>
+    </feature>
+
+    <feature name="jersey-common" version="${version.jersey}">
+        <feature>javax-ws-rs</feature>
+        <feature>javassist</feature>
+        <bundle>mvn:org.glassfish.jersey.core/jersey-common/${version.jersey}</bundle>
+        <bundle>mvn:org.glassfish.jersey.bundles.repackaged/jersey-guava/${version.jersey}</bundle>
+        <bundle>mvn:org.glassfish.jersey.media/jersey-media-jaxb/${version.jersey}</bundle>
+        <bundle>mvn:org.glassfish.jersey.media/jersey-media-multipart/${version.jersey}</bundle>
+        <bundle>mvn:org.jvnet.mimepull/mimepull/1.9.6</bundle>
+        <bundle>mvn:javax.validation/validation-api/1.1.0.Final</bundle>
+        <bundle>mvn:javax.annotation/javax.annotation-api/1.2</bundle>
+        <bundle>mvn:org.glassfish.jersey.bundles.repackaged/jersey-guava/${version.jersey}</bundle>
+
+        <bundle>mvn:org.glassfish.hk2/hk2-api/2.4.0-b34</bundle>
+        <bundle>mvn:org.glassfish.hk2/hk2-utils/2.4.0-b34</bundle>
+        <bundle>mvn:org.glassfish.hk2.external/aopalliance-repackaged/2.4.0-b34</bundle>
+        <bundle>mvn:org.glassfish.hk2.external/javax.inject/2.4.0-b34</bundle>
+        <bundle>mvn:org.glassfish.hk2/hk2-locator/2.4.0-b34</bundle>
+        <bundle>mvn:org.glassfish.hk2/osgi-resource-locator/1.0.1</bundle>
+    </feature>
+
+    <feature name="felix-http" version="${version.felix.http.base}">
+        <feature>eventadmin</feature>
+        <bundle>mvn:org.apache.felix/org.apache.felix.http.base/${version.felix.http.base}</bundle>
+        <bundle>mvn:org.apache.felix/org.apache.felix.http.api/${version.felix.http.api}</bundle>
+        <bundle>mvn:org.apache.felix/org.apache.felix.http.servlet-api/${version.felix.http.servlet-api}</bundle>
+        <bundle>mvn:org.apache.felix/org.apache.felix.http.jetty/${version.felix.http.jetty}</bundle>
+        <bundle>mvn:org.apache.felix/org.apache.felix.http.sslfilter/${version.felix.http.sslfilter}</bundle>
+    </feature>
+
+    <feature name="javassist" version="${version.javassist}">
+        <bundle>mvn:org.javassist/javassist/${version.javassist}</bundle>
+    </feature>
+
+    <feature name="guava" version="${version.guava}">
+        <bundle>mvn:com.google.guava/guava/${version.guava}</bundle>
+    </feature>
+
+    <feature name="guava-retrying" version="${version.guava-retrying}">
+        <feature>guava</feature>
+        <bundle>wrap:mvn:com.github.rholder/guava-retrying/${version.guava-retrying}$Bundle-SymbolicName=com.github.rholder.retry&amp;Bundle-Version=${version.guava-retrying}&amp;overwrite=merge&amp;Import-Package=*;resolution:=optional,com.google.common;version="${version.guava}";resolution:=optional,com.google.common.*;version="${version.guava}";resolution:=optional</bundle>
+        <bundle>wrap:mvn:com.google.code.findbugs/jsr305/2.0.2</bundle>
+    </feature>
+
+
+    <feature name="commons-collections4" version="${version.commons-collections4}">
+        <bundle>mvn:org.apache.commons/commons-collections4/${version.commons-collections4}</bundle>
+    </feature>
+
+    <feature name="commons-codec" version="${version.commons-codec}">
+        <bundle>mvn:commons-codec/commons-codec/${version.commons-codec}</bundle>
+    </feature>
+
+
+</features>
