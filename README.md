@@ -51,7 +51,7 @@ In order to achieve this, a new Quartz scheduler factory was created as a OSGI s
 **Using the Scheduler Library**
 
 In your code, you will need to include a reference to the service library
-```
+```xml
         <dependency>
             <groupId>com.awplab.core</groupId>
             <artifactId>scheduler.service</artifactId>
@@ -64,7 +64,7 @@ feature:install core-scheduler
 ```
 
 **Create a simple scheduler**
-```
+```java
 @Requires
 SchedulerManagerService schedulerManagerService
 
@@ -84,7 +84,7 @@ In addition, a *AbstractStatusInterruptableJob.class* abstract class is provided
 
 Although not necessary for usage, the provided schedulers also support iPOJO instantiation of the job from a iPOJO factory.   The system will scan available factories for a factory name that matches the class name or a factory who's meta data has the associated class name with it.
 
-```
+```java
 @Component
 public class HelloWorldJob extends AbstractStatusInterruptableJob {
 
@@ -117,7 +117,7 @@ public class HelloWorldJob extends AbstractStatusInterruptableJob {
 **Schedule a job**
 
 Job scheduling can be done using traditional quartz scheduler methods.
-```
+```java
 // Get the scheduler we created before....
 Scheduler scheduler = schedulerManagerService.getScheduler("simple");
 
@@ -139,7 +139,7 @@ scheduler.scheduleJob(job, trigger);
 ```
 
 Supplemental methods are made available to help reduce quartz boiler plate code in the SchedulerManagerService:
-```
+```java
 schedulerManagerService.runJob(HelloWorldJob.class);
 schedulerManagerService.scheduleJob(HelloWorldJob.class, null, 10, TimeUnit.MINUTES);
 ```
@@ -154,7 +154,7 @@ config:property-set com.awplab.core.scheduler.volatile.threads 10
 config:update
 ```
 Example using karaf features:
-```
+```xml
 <config name="com.awplab.core.scheduler.volatile-?">
     com.awplab.core.scheduler.volatile.name = simple
     com.awplab.core.scheduler.volatile.threads = 10
