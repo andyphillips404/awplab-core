@@ -489,11 +489,13 @@
             <name>Sonatype Nexus release repository</name>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
+
         <snapshotRepository>
             <id>awplab-repository</id>
             <name>snapshots</name>
             <url>https://awplab.com/nexus/content/repositories/snapshots/</url>
         </snapshotRepository>
+
     </distributionManagement>
 
     <repositories>

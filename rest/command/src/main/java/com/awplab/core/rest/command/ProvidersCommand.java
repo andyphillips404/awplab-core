@@ -28,11 +28,9 @@ public class ProvidersCommand implements Action {
         //table.column("Bundle Id");
         //table.column("State");
 
-        for (String aliases : managerService.getAliases()) {
-            for (RestService restProvider : managerService.getProviders(aliases)) {
-                table.addRow().addContent(aliases, restProvider.getClass().getName());
+            for (RestService restProvider : managerService.getProviders()) {
+                table.addRow().addContent(restProvider.getAlias(), restProvider.getClass().getName());
             }
-        }
 
         table.print(System.out);
 

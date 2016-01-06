@@ -1,6 +1,7 @@
 package com.awplab.core.rest.command;
 
 
+import com.awplab.core.rest.service.RestApplication;
 import com.awplab.core.rest.service.RestManagerService;
 import com.awplab.core.rest.service.RestService;
 import org.apache.karaf.shell.api.action.Action;
@@ -31,12 +32,13 @@ public class ApplicationsCommand implements Action {
             logStringBuilder.append("\n");
             logStringBuilder.append(Ansi.ansi().reset().toString());
             logStringBuilder.append("Application Classes:\n");
-            for (Class<?> clazz : managerService.getApplicationClasses(aliases)) {
+            RestApplication restApplication = managerService.getApplication(aliases);
+            for (Class<?> clazz : restApplication.getClasses()) {
                 logStringBuilder.append(clazz.getName());
                 logStringBuilder.append("\n");
             }
             logStringBuilder.append("Singletons:\n");
-            for (Object singleton : managerService.getApplicationSingletons(aliases)) {
+            for (Object singleton :restApplication.getSingletons()) {
                 logStringBuilder.append(singleton.getClass().getName());
                 logStringBuilder.append("\n");
             }
