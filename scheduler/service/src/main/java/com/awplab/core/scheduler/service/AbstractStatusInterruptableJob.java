@@ -1,11 +1,11 @@
 package com.awplab.core.scheduler.service;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.rholder.retry.Retryer;
 import com.github.rholder.retry.RetryerBuilder;
 import com.github.rholder.retry.StopStrategies;
 import com.github.rholder.retry.WaitStrategies;
 import com.google.common.base.Predicates;
+import org.quartz.InterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.UnableToInterruptJobException;
@@ -16,22 +16,16 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by andyphillips404 on 2/24/15.
  */
-public abstract class AbstractJobProvider implements JobService {
+public abstract class AbstractStatusInterruptableJob implements StatusJob, InterruptableJob {
 
 
     private final Object updateLock = new Object();
 
-    private boolean cancelRequested = false;
+    private boolean interruptRequested = false;
 
-    public boolean isCancelRequested() {
+    public boolean isInterruptRequested() {
         synchronized (updateLock) {
-            return cancelRequested;
-        }
-    }
-
-    public void requestCancel() {
-        synchronized (updateLock) {
-            cancelRequested = true;
+            return interruptRequested;
         }
     }
 
@@ -49,42 +43,18 @@ public abstract class AbstractJobProvider implements JobService {
         }
     }
 
-    public void interruptThread() {
-        if (executeThread != null && executeThread.isAlive()) {
-            executeThread.interrupt();
-        }
-    }
-
-    @JsonIgnore
-    private Thread executeThread = null;
-
-    @JsonIgnore
-    @Override
-    public Thread getExecuteThread() {
-        synchronized (updateLock) {
-            return executeThread;
-        }
-    }
-
-    @JsonIgnore
-    private void setExecuteThread() {
-        synchronized (updateLock) {
-            executeThread = Thread.currentThread();
-        }
-
-    }
-
 
     @Override
     public void interrupt() throws UnableToInterruptJobException {
 
-
-        requestCancel();
+        synchronized (updateLock) {
+            interruptRequested = true;
+        }
 
         final Callable<Boolean> callable = new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                return AbstractJobProvider.this.isRunning();
+                return AbstractStatusInterruptableJob.this.isRunning();
             }
         };
 
@@ -107,10 +77,9 @@ public abstract class AbstractJobProvider implements JobService {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        setExecuteThread();
         setRunning(true);
         try {
-            cancelableExecute(context);
+            interruptableExecute(context);
         }
         finally {
             setRunning(false);
@@ -118,6 +87,6 @@ public abstract class AbstractJobProvider implements JobService {
     }
 
 
-    public abstract void cancelableExecute(JobExecutionContext context) throws JobExecutionException;
+    public abstract void interruptableExecute(JobExecutionContext context) throws JobExecutionException;
 
 }

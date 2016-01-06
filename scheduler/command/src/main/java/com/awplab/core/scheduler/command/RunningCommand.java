@@ -1,7 +1,7 @@
 package com.awplab.core.scheduler.command;
 
 
-import com.awplab.core.scheduler.service.JobService;
+import com.awplab.core.scheduler.service.StatusJob;
 import com.awplab.core.scheduler.service.SchedulerManagerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.karaf.shell.api.action.Action;
@@ -42,16 +42,16 @@ public class RunningCommand implements Action {
                 System.out.println("Job Key Name: " + context.getJobDetail().getKey().getName());
                 System.out.println("Job Key Group: " + context.getJobDetail().getKey().getGroup());
                 System.out.println("Interruptable: " + (context.getJobInstance() instanceof InterruptableJob ? "Yes" : "No"));
-                System.out.println("Thread State: " + (context.getJobInstance() instanceof JobService ? ((JobService) context.getJobInstance()).getExecuteThread().getState().toString() : "N/A"));
+                System.out.println("Thread State: " + (context.getJobInstance() instanceof StatusJob ? ((StatusJob) context.getJobInstance()).getExecuteThread().getState().toString() : "N/A"));
                 line = "Job Data";
                 System.out.println(line);
                 System.out.println(new String(new char[line.length()]).replace("\0", "-"));
                 System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(context.getJobDetail().getJobDataMap()));
-                if (context.getJobInstance() instanceof JobService) {
+                if (context.getJobInstance() instanceof StatusJob) {
                     line = "Job Status";
                     System.out.println(line);
                     System.out.println(new String(new char[line.length()]).replace("\0", "-"));
-                    System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(((JobService) context.getJobInstance()).getJobStatus()));
+                    System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(((StatusJob) context.getJobInstance()).getJobStatus()));
                 }
                 System.out.println();
             }

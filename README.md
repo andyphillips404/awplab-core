@@ -6,6 +6,7 @@ This is a library for use in [Karaf](http://karaf.apache.org/) 4 that supports t
   3. [Jersey](https://jersey.java.net/) rest server (and client) with multiple aliases
     1.  Jackson support with Jackson JAX-RS providers and data modules
     2.  Basic security support with integration in Karaf jaas
+  4. Robust features.xml will all dependencies required to run the library
 
 
 Currently working on documentation and additional code so this repository should be considered under development at this time
@@ -47,19 +48,59 @@ The motivation behind creating the quartz scheduler implemenation, as opposed to
 
 In order to achieve this, a new Quartz scheduler factory was created as a OSGI service, available as SchedulerManagerService.class and should be used to manage all schedulers.   This service is available as the SchedulerManagerService.class.  iPOJO is used in the examples, but is *not required* as the service is available as standard OSGI services.
 
+**Using the Scheduler Library**
+
+In your code, you will need to include a reference to the service library
+```
+        <dependency>
+            <groupId>com.awplab.core</groupId>
+            <artifactId>scheduler.service</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+```
+To install the library in Karaf, use the following features (after install the features as described above) which will install the core library and all dependencies (including quartz scheduler):
+```
+feature:install core-scheduler
+```
+
 **Create a simple scheduler**
 ```
 @Requires
 SchedulerManagerService schedulerManagerService
 
 private void createScheduleExample() {
-    // creates a simple schedule with a RAMJobStore and 10 initial threads in ResizableThreadPool
+    // creates a simple scheduler with a RAMJobStore and 10 initial threads using a ResizableThreadPool
     schedulerManagerService.addScheduler(new VolatileSchedulerProvider("Simple", 10));
 }
 ```
 
+**Creating a job class**
+
+Any job the implements quartz's standard job interfaces (Job.class / InterruptableJob.class) can be used.
+
+This library also provides a *StatusJob.class* interface which adds a getJobStatus() method that cna be used to return a status of the job while running.   This status will show up, if the job implements this interface, in the command line and rest client interfaces.   The returned object is serialized as a JSON string using Jackson Object Mapper so Jackson annotations on the return class will be respected.
+
+In addition, a *AbstractStatusInterruptableJob.class* abstract class is provided which can be extended to help support interrupt notifications in the job execution.
+
+Although not necessary for usage, the provided schedulers also support iPOJO instantiation of the job from a iPOJO factory.   The system will scan available factories for a factory name that matches the class name or a factory who's meta data has the associated class name with it.
+
+```
+@Component
+public class HelloWorldJob extends AbstractStatusInterruptableJob {
+
+    @Requires
+    HttpService httpService;
+
+
+
+
+}
+```
+
+
 **Schedule a job**
 
+Job scheduling can be done using traditional quartz scheduler methods.   You can pass any class that implements that standard Job.class interface.
 
 **Create a simple scheduler using the configuration admin**
 
