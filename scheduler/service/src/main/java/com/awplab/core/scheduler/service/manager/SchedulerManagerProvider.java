@@ -1,6 +1,5 @@
 package com.awplab.core.scheduler.service.manager;
 
-import com.awplab.core.scheduler.service.AbstractStatusInterruptableJob;
 import com.awplab.core.scheduler.service.SchedulerManagerService;
 import com.awplab.core.scheduler.service.events.EventAdminListener;
 import com.awplab.core.scheduler.service.events.SchedulerEventTopics;
@@ -13,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by andyphillips404 on 12/23/15.
@@ -218,34 +217,26 @@ public class SchedulerManagerProvider implements SchedulerManagerService, Bundle
         return names;
     }
 
+
     @Override
-    public String runJob(String schedulerName, Class<? extends AbstractStatusInterruptableJob> jobClass, JobDataMap jobDataMap, String jobGroup) throws SchedulerException {
-
-        return runJob(schedulerName, jobClass, jobDataMap, jobGroup, new Date());
-
+    public String runJob(String schedulerName, Class<? extends Job> jobClass) throws SchedulerException {
+        return runJob(schedulerName, jobClass, null);
     }
 
     @Override
-    public String runJob(String schedulerName, Class<? extends AbstractStatusInterruptableJob> jobClass, JobDataMap jobDataMap, String jobGroup, int inMinutes) throws SchedulerException {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MINUTE, inMinutes);
-        return runJob(schedulerName, jobClass, jobDataMap, jobGroup, calendar.getTime());
-    }
-
-    @Override
-    public String runJob(String schedulerName, Class<? extends AbstractStatusInterruptableJob> jobClass, JobDataMap jobDataMap, String jobGroup, Date triggerDate) throws SchedulerException {
+    public String runJob(String schedulerName, Class<? extends Job> jobClass, JobDataMap jobDataMap) throws SchedulerException {
         Scheduler scheduler = getScheduler(schedulerName);
 
         String id = UUID.randomUUID().toString();
         JobDetail jobDetail = JobBuilder.newJob(jobClass)
-                .withIdentity(id, jobGroup)
+                .withIdentity(id)
                 .setJobData((jobDataMap == null ? new JobDataMap() : jobDataMap))
                 .build();
 
         Trigger jobTrigger = TriggerBuilder.newTrigger()
                 .forJob(jobDetail)
-                .withIdentity(id, jobGroup)
-                .startAt(triggerDate)
+                .withIdentity(id)
+                .startNow()
                 .build();
 
         scheduler.scheduleJob(jobDetail, jobTrigger);
@@ -254,39 +245,69 @@ public class SchedulerManagerProvider implements SchedulerManagerService, Bundle
     }
 
     @Override
-    public void scheduleJob(String schedulerName, Class<? extends AbstractStatusInterruptableJob> jobClass, JobDataMap jobDataMap, JobKey jobKey, ScheduleBuilder scheduleBuilder) throws SchedulerException {
-        if (schedulerName == null) throw new IllegalArgumentException("Must give scheduler name");
-        if (jobKey == null) throw new IllegalArgumentException("Must give jobKey");
+    public String scheduleJob(String schedulerName, Class<? extends Job> jobClass, JobDataMap jobDataMap, ScheduleBuilder scheduleBuilder) throws SchedulerException {
         if (scheduleBuilder == null) throw new IllegalArgumentException("Must give Scheduler Builder");
 
         Scheduler scheduler = getScheduler(schedulerName);
+        String id = UUID.randomUUID().toString();
+
         JobDetail jobDetail = JobBuilder.newJob(jobClass)
-                .withIdentity(jobKey)
+                .withIdentity(id)
                 .setJobData((jobDataMap == null ? new JobDataMap() : jobDataMap))
                 .build();
 
         Trigger jobTrigger = TriggerBuilder.newTrigger()
                 .forJob(jobDetail)
-                .withIdentity(jobKey.getName(), jobKey.getGroup())
+                .withIdentity(id)
                 .withSchedule(scheduleBuilder)
                 .build();
 
-        scheduler.scheduleJob(jobDetail, jobTrigger);
+        scheduler.scheduleJob(jobTrigger);
 
+        return id;
     }
 
     @Override
-    public boolean isJobRunning(Class<? extends AbstractStatusInterruptableJob> jobClass) throws SchedulerException {
+    public String scheduleJob(String schedulerName, Class<? extends Job> jobClass, JobDataMap jobDataMap, String cronSchedule) throws SchedulerException {
+        return scheduleJob(schedulerName, jobClass, jobDataMap, CronScheduleBuilder.cronSchedule(cronSchedule));
+    }
+
+    @Override
+    public String scheduleJob(String schedulerName, Class<? extends Job> jobClass, JobDataMap jobDataMap, long fromNow, TimeUnit timeUnit) throws SchedulerException {
+
+        Scheduler scheduler = getScheduler(schedulerName);
+        String id = UUID.randomUUID().toString();
+
+        JobDetail jobDetail = JobBuilder.newJob(jobClass)
+                .withIdentity(id)
+                .setJobData((jobDataMap == null ? new JobDataMap() : jobDataMap))
+                .build();
+
+        Trigger jobTrigger = TriggerBuilder.newTrigger()
+                .forJob(jobDetail)
+                .withIdentity(id)
+                .startAt(new Date(new Date().getTime() + timeUnit.toMillis(fromNow)))
+                .build();
+
+        scheduler.scheduleJob(jobTrigger);
+
+        return id;
+
+    }
+
+
+    @Override
+    public boolean isJobRunning(Class<? extends Job> jobClass) throws SchedulerException {
         return isJobRunning(jobClass, null);
     }
 
     @Override
-    public boolean isJobRunning(Class<? extends AbstractStatusInterruptableJob> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
+    public boolean isJobRunning(Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
         return isJobRunning(jobClass, requiredMatchingJobDataMapEntries, null);
     }
 
     @Override
-    public boolean isJobRunning(Class<? extends AbstractStatusInterruptableJob> jobClass, JobDataMap requiredMatchingJobDataMapEntries, Job ignoreThisInstance) throws SchedulerException {
+    public boolean isJobRunning(Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries, Job ignoreThisInstance) throws SchedulerException {
 
         for (Scheduler scheduler : getSchedulers()) {
             if (isJobRunning(scheduler.getSchedulerName(), jobClass, requiredMatchingJobDataMapEntries, ignoreThisInstance)) return true;
@@ -296,7 +317,7 @@ public class SchedulerManagerProvider implements SchedulerManagerService, Bundle
     }
 
     @Override
-    public boolean isJobRunning(String schedulerName, Class<? extends AbstractStatusInterruptableJob> jobClass, JobDataMap requiredMatchingJobDataMapEntries, Job ignoreThisInstance) throws SchedulerException {
+    public boolean isJobRunning(String schedulerName, Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries, Job ignoreThisInstance) throws SchedulerException {
         for (JobExecutionContext jobContext : getScheduler(schedulerName).getCurrentlyExecutingJobs()) {
             if (jobContext.getJobInstance().getClass().isAssignableFrom(jobClass)) {
                 if (ignoreThisInstance != null && jobContext.getJobInstance().equals(ignoreThisInstance)) continue;
@@ -316,7 +337,7 @@ public class SchedulerManagerProvider implements SchedulerManagerService, Bundle
     }
 
     @Override
-    public boolean isWaitingOrRunning(Class<? extends AbstractStatusInterruptableJob> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
+    public boolean isWaitingOrRunning(Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
         for (Scheduler scheduler : getSchedulers()) {
             if (isWaitingOrRunning(scheduler.getSchedulerName(), jobClass, requiredMatchingJobDataMapEntries)) return true;
         }
@@ -325,7 +346,7 @@ public class SchedulerManagerProvider implements SchedulerManagerService, Bundle
     }
 
     @Override
-    public boolean isWaitingOrRunning(String schedulerName, Class<? extends AbstractStatusInterruptableJob> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
+    public boolean isWaitingOrRunning(String schedulerName, Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
         Scheduler scheduler = getScheduler(schedulerName);
         for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.<JobKey>anyGroup())) {
             JobDetail jobDetail = scheduler.getJobDetail(jobKey);
@@ -394,7 +415,7 @@ public class SchedulerManagerProvider implements SchedulerManagerService, Bundle
     }
 
     @Override
-    public void deleteJobs(Class<? extends AbstractStatusInterruptableJob> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
+    public void deleteJobs(Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
         for (Scheduler scheduler : getSchedulers()) {
             for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.<JobKey>anyGroup())) {
                 JobDetail jobDetail = scheduler.getJobDetail(jobKey);
@@ -420,7 +441,7 @@ public class SchedulerManagerProvider implements SchedulerManagerService, Bundle
     }
 
     @Override
-    public void interruptJobs(Class<? extends AbstractStatusInterruptableJob> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
+    public void interruptJobs(Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
         for (Scheduler scheduler : getSchedulers()) {
             for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.<JobKey>anyGroup())) {
                 JobDetail jobDetail = scheduler.getJobDetail(jobKey);
@@ -445,7 +466,7 @@ public class SchedulerManagerProvider implements SchedulerManagerService, Bundle
     }
 
     @Override
-    public void deleteAndInterruptJob(Class<? extends AbstractStatusInterruptableJob> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
+    public void deleteAndInterruptJob(Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
         for (Scheduler scheduler : getSchedulers()) {
             for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.<JobKey>anyGroup())) {
                 JobDetail jobDetail = scheduler.getJobDetail(jobKey);
@@ -484,16 +505,4 @@ public class SchedulerManagerProvider implements SchedulerManagerService, Bundle
         throw new SchedulerException("Job Key not found in executing jobs");
     }
 
-    @Override
-    public void interruptThread(String schedulerName, JobKey jobKey) throws SchedulerException {
-        /*
-        JobExecutionContext context = getRunningJob(schedulerName, jobKey);
-        if (context.getJobInstance() instanceof StatusJob) {
-            ((StatusJob) context.getJobInstance()).getExecuteThread().interrupt();
-        }
-        else {
-            throw new SchedulerException("Job is not instance of StatusJob");
-        }
-        */
-    }
 }

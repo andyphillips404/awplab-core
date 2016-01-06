@@ -42,7 +42,7 @@ public class RunningCommand implements Action {
                 System.out.println("Job Key Name: " + context.getJobDetail().getKey().getName());
                 System.out.println("Job Key Group: " + context.getJobDetail().getKey().getGroup());
                 System.out.println("Interruptable: " + (context.getJobInstance() instanceof InterruptableJob ? "Yes" : "No"));
-                System.out.println("Thread State: " + (context.getJobInstance() instanceof StatusJob ? ((StatusJob) context.getJobInstance()).getExecuteThread().getState().toString() : "N/A"));
+                //System.out.println("Thread State: " + (context.getJobInstance() instanceof StatusJob ? ((StatusJob) context.getJobInstance()).getExecuteThread().getState().toString() : "N/A"));
                 line = "Job Data";
                 System.out.println(line);
                 System.out.println(new String(new char[line.length()]).replace("\0", "-"));

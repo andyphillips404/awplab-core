@@ -89,18 +89,60 @@ Although not necessary for usage, the provided schedulers also support iPOJO ins
 public class HelloWorldJob extends AbstractStatusInterruptableJob {
 
     @Requires
-    HttpService httpService;
+    EventAdmin eventAdmin
 
+    @Override
+    public void interruptableExecute(JobExecutionContext context) throws JobExecutionException {
+        while (!isInterruptRequested()) {
+            try {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException ignored) {
+                return;
+            }
 
+            eventAdmin.postEvent(new Event("com/awplab/core/test/HELLO_WORLD", Collections.emptyMap()));
+        }
 
+    }
+
+    @Override
+    public Object getJobStatus() {
+        return "Running...  You can return any class here that is serializable by Jackson to JSON format.";
+    }
 
 }
 ```
 
-
 **Schedule a job**
 
-Job scheduling can be done using traditional quartz scheduler methods.   You can pass any class that implements that standard Job.class interface.
+Job scheduling can be done using traditional quartz scheduler methods.
+```
+// Get the scheduler we created before....
+Scheduler scheduler = schedulerManagerService.getScheduler("simple");
+
+JobDetail job = newJob(HelloWorldJob.class)
+    .withIdentity("job1", "group1")
+    .build();
+
+// Trigger the job to run now, and then repeat every 40 seconds
+Trigger trigger = newTrigger()
+    .withIdentity("trigger1", "group1")
+    .startNow()
+    .withSchedule(simpleSchedule()
+    .withIntervalInSeconds(40)
+    .repeatForever())
+    .build();
+
+scheduler.scheduleJob(job, trigger);
+
+```
+
+Supplemental methods are made available to help reduce quartz boiler plate code in the SchedulerManagerService:
+```
+schedulerManagerService.runJob(HelloWorldJob.class);
+schedulerManagerService.scheduleJob(HelloWorldJob.class, null, 10, TimeUnit.MINUTES);
+```
 
 **Create a simple scheduler using the configuration admin**
 
