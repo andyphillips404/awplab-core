@@ -2,8 +2,12 @@ package com.awplab.core.scheduler.service.scheduler;
 
 
 import com.awplab.core.scheduler.service.AbstractSchedulerProvider;
+import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.annotations.*;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.quartz.Scheduler;
 import org.quartz.core.QuartzSchedulerResources;
 import org.quartz.impl.DefaultThreadExecutor;
@@ -20,10 +24,6 @@ import java.util.UUID;
 @Provides(specifications = Scheduler.class)
 public class VolatileSchedulerProvider extends AbstractSchedulerProvider {
 
-
-    @Requires(optional = true)
-    Factory[] factories;
-
     public final static String CONFIG_FACTORY_NAME = "com.awplab.core.scheduler.volatile";
 
     public final static String PROPERTY_NAME = "com.awplab.core.scheduler.volatile.name";
@@ -35,22 +35,29 @@ public class VolatileSchedulerProvider extends AbstractSchedulerProvider {
     private IPOJOJobFactory ipojoJobFactory;
 
 
-    private class RunShellFactory extends IPOJOJobRunShellFactory {
-            @Override
-            protected Factory[] getFactories() {
-                return factories;
-            }
-    }
-
-
     private ResizableThreadPool threadPool;
     private int initialThreadPoolSize = -1;
     private int threadPriority = Thread.NORM_PRIORITY;
     private String name = null;
 
+    private VolatileSchedulerProvider() {
+
+    }
+
+    public VolatileSchedulerProvider(String name, int initialThreadPoolSize, int threadPriority) {
+        this.initialThreadPoolSize = initialThreadPoolSize;
+        this.threadPriority = threadPriority;
+        this.name = name;
+    }
+
+    public VolatileSchedulerProvider(String name, int initialThreadPoolSize) {
+        this.initialThreadPoolSize = initialThreadPoolSize;
+        this.name = name;
+    }
+
 
     @Property(name = PROPERTY_NAME, mandatory = true, immutable = true)
-    private void setName(String name) {
+    public void setName(String name) {
         if (isSchedulerCreated()) {
             throw new RuntimeException(new OperationNotSupportedException("Cannot change scheduler name after scheduler creation"));
         }
@@ -59,7 +66,7 @@ public class VolatileSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     @Property(name = PROPERTY_THREADS, mandatory = true)
-    private void setThreadPoolSize(int poolSize)  {
+    public void setThreadPoolSize(int poolSize)  {
         if (threadPool == null) {
             initialThreadPoolSize = poolSize;
         }
@@ -69,7 +76,7 @@ public class VolatileSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     @Property(name = PROPERTY_PRIORITY, immutable = true)
-    private void setThreadPriority(int priority) {
+    public void setThreadPriority(int priority) {
         if (isSchedulerCreated()) {
             throw new RuntimeException(new OperationNotSupportedException("Cannot change scheduler thread priority after scheduler creation"));
         }
@@ -85,7 +92,7 @@ public class VolatileSchedulerProvider extends AbstractSchedulerProvider {
         if (qsr == null) {
             qsr = new QuartzSchedulerResources();
             qsr.setName(name);
-            qsr.setJobRunShellFactory(new RunShellFactory());
+            qsr.setJobRunShellFactory(new IPOJOJobRunShellFactory());
             qsr.setThreadExecutor(new DefaultThreadExecutor());
             qsr.setBatchTimeWindow(0l);
             qsr.setInstanceId(name + "_" + UUID.randomUUID().toString());

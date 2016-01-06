@@ -5,6 +5,7 @@ This is a library for use in [Karaf](http://karaf.apache.org/) 4 that supports t
   2. [Quartz Scheduler](https://quartz-scheduler.org/) with support for multiple schedulers and iPOJO suport
   3. [Jersey](https://jersey.java.net/) rest server (and client) with multiple aliases
     1.  Jackson support with Jackson JAX-RS providers and data modules
+    2.  Basic security support with integration in Karaf jaas
 
 
 Currently working on documentation and additional code so this repository should be considered under development at this time
@@ -44,7 +45,21 @@ The motivation behind creating the quartz scheduler implemenation, as opposed to
   5.  Event Admin notifications
   6.  Registration of schedulers utilizing the white board pattern, configuration admin, or directly using the manager service
 
-In order to achieve this, a new Quartz scheduler factory was created as a OSGI service, available as SchedulerManagerService.class and should be used to manage all schedulers.   This service is available as the SchedulerManagerService.class.  iPOJO is used in the examples, but is not required as the services are avilable as standard OSGI services.
+In order to achieve this, a new Quartz scheduler factory was created as a OSGI service, available as SchedulerManagerService.class and should be used to manage all schedulers.   This service is available as the SchedulerManagerService.class.  iPOJO is used in the examples, but is *not required* as the service is available as standard OSGI services.
+
+**Create a simple scheduler**
+```
+@Requires
+SchedulerManagerService schedulerManagerService
+
+private void createScheduleExample() {
+    // creates a simple schedule with a RAMJobStore and 10 initial threads in ResizableThreadPool
+    schedulerManagerService.addScheduler(new VolatileSchedulerProvider("Simple", 10));
+}
+```
+
+**Schedule a job**
+
 
 **Create a simple scheduler using the configuration admin**
 
@@ -62,10 +77,7 @@ Example using karaf features:
     com.awplab.core.scheduler.volatile.threads = 10
 </config>
 ```
-Example using confiugration admin in code:
-```
 
-```
 
 
 

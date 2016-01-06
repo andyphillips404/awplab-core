@@ -1,9 +1,15 @@
 package com.awplab.core.scheduler.service.scheduler;
 
+import com.awplab.core.scheduler.service.events.SchedulerEventData;
 import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.InstanceManager;
 import org.apache.felix.ipojo.parser.PojoMetadata;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.quartz.Job;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerConfigException;
@@ -11,13 +17,35 @@ import org.quartz.SchedulerException;
 import org.quartz.core.JobRunShell;
 import org.quartz.core.JobRunShellFactory;
 import org.quartz.spi.TriggerFiredBundle;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * Created by andyphillips404 on 12/31/15.
  */
-public abstract class IPOJOJobRunShellFactory implements JobRunShellFactory {
+public class IPOJOJobRunShellFactory implements JobRunShellFactory {
 
-    protected abstract Factory[] getFactories();
+    protected Set<Factory> getFactories() {
+        Set<Factory> factories = new HashSet<>();
+
+        try {
+            BundleContext bundleContext = FrameworkUtil.getBundle(IPOJOJobRunShellFactory.class).getBundleContext();
+            ServiceReference[] refs = bundleContext.getServiceReferences(Factory.class.getName(), null);
+            if (refs != null) {
+                for (ServiceReference serviceReference : refs) {
+                    factories.add((Factory)bundleContext.getService(serviceReference));
+                }
+            }
+
+            return factories;
+        }
+        catch (Exception ex) {
+            LoggerFactory.getLogger(IPOJOJobRunShellFactory.class).error("Exception getting factories.", ex);
+            return Collections.emptySet();
+        }
+
+    }
 
     private Scheduler scheduler;
 
