@@ -18,18 +18,18 @@ Currently working on documentation and additional code so this repository should
 
 ## Installing the features
 
-```
+```shell
 feature:repo-add mvn:com.awplab.core/features/LATEST/xml/features
 ```
 
 ## iPOJO native Karaf commands
 
 To install the commands, install the core-ipojo feature:
-```
+```shell
 feature:install core-ipojo
 ```
 iPOJO native command support for Karaf allows for the use of the following commands in Karaf natively (as opposed to the iPOJO shell library):
-```
+```shell
 ipojo:instances
 ipojo:instance
 ipojo:factories
@@ -228,7 +228,7 @@ Alias naming requires the path to start with a / and not end with a /.
 Integration with Karaf jaas security is supported currently though basic HTTP username and password authentication.   This is done though an annotation of the class or methods with the @RequireBasicAuth.  A karaf realm can be specified (default is karaf) as well as access can limitation by group or role assignment.  This annotation can be applied at the class level or function level.
 
 Note: *By default the feature requires the connection to be secure (HTTPS connection or X-Forwarded-Proto header set to HTTPS), but this can be overriden by setting requiresSecure = false*
-```
+```java
 @Component(immediate = true)
 @Instantiate
 @Provides
