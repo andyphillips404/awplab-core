@@ -9,10 +9,10 @@ This is a library for use in [Karaf](http://karaf.apache.org/) 4 that supports t
   4. Robust features.xml will all dependencies required to run the library
 
 
-Currently working on documentation and additional code so this repository should be considered under development at this time
+Currently working on documentation and additional code so this repository should be considered under development at this time.  Currently only SNAPSHOT versions of the library are available until initial release
 
 ## Requirements
-  1. Java 1.8+
+  1. Java 1.8+ (sorry, default interface implementations too valuable :))
   2. Karaf 4.0+
 
 
@@ -52,11 +52,11 @@ In order to achieve this, a new Quartz scheduler factory was created as a OSGI s
 
 In your code, you will need to include a reference to the service library
 ```xml
-        <dependency>
-            <groupId>com.awplab.core</groupId>
-            <artifactId>scheduler.service</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
+<dependency>
+    <groupId>com.awplab.core</groupId>
+    <artifactId>scheduler.service</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
 ```
 To install the library in Karaf, use the following features (after install the features as described above) which will install the core library and all dependencies (including quartz scheduler):
 ```
@@ -160,8 +160,94 @@ Example using karaf features:
     com.awplab.core.scheduler.volatile.threads = 10
 </config>
 ```
+**Scheduler Commands**
 
+The library has built in some Karaf commands to help manage list running and scheduled jobs.
 
+**Event Admin Topics**
 
+All schedulers managed by the scheduler are registered with a EventAdminListener that will post event admin events for all listened events.   A list of topics is found in SchedulerEventTopics
 
+## Jersey Rest Server
 
+Jersey is the JAX-RS reference implementaton for RESTful web services.   The focus of this library is to allow for services to register itself other classes or singletons as JAX-RS service providers.
+
+The library provides a RestManagerService that manages JAX-RS applications, registering them with the HTTP service provider as a Jersey Servlet, for each unique alias regsitered with the service manager.  The default service provider here is Apache Felix's HTTP service.
+
+The RestManagerService allows multiple methods to register rest providers, classes, or singletons with the service.   This includes monitoring, utilizing a white board pattern, any service registered as a RestService.class.   Additionally the RestServiceManager has methods to manually register providers.  iPOJO is used in the examples, but is *not required* as the service(s) are available as standard OSGI services.
+
+**Using the Rest Library**
+
+In your code, you will need to include a reference to the service library
+```xml
+<dependency>
+    <groupId>com.awplab.core</groupId>
+    <artifactId>rest.service</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
+To install the library in Karaf, use the following features (after install the features as described above) which will install the core library and all dependencies (including Jersey):
+```
+feature:install core-rest
+```
+or to install the library and include Jackson JAX-RS JSON providers
+```
+feature:install core-rest-jackson
+```
+
+**Create a rest provider**
+
+This simple example will create a RESTful webservice at the default alias ("/")
+```java
+@Component(immediate = true)
+@Instantiate
+@Provides
+public class HelloRestProvider implements RestService
+{
+
+    @Path("hello")
+    @Produces("text/html")
+    public String hello(@QueryParam("name") String name) {
+        return "Hello " + name + "!";
+    }
+
+}
+```
+To specify a different root alias, you can do so by overriding the getAlias() default implementation:
+```java
+    @Override
+    public String getAlias() {
+
+        return "/root";
+    }
+```
+Alias naming requires the path to start with a / and not end with a /.
+
+**Karaf jaas security**
+
+Integration with Karaf jaas security is supported currently though basic HTTP username and password authentication.   This is done though an annotation of the class or methods with the @RequireBasicAuth.  A karaf realm can be specified (default is karaf) as well as access can limitation by group or role assignment.  This annotation can be applied at the class level or function level.
+
+Note: *By default the feature requires the connection to be secure (HTTPS connection or X-Forwarded-Proto header set to HTTPS), but this can be overriden by setting requiresSecure = false*
+```
+@Component(immediate = true)
+@Instantiate
+@Provides
+public class HelloRestProvider implements RestService
+{
+
+    // This example shows limiting access to users with admin privledges
+    @Path("hello")
+    @Produces("text/html")
+    @RequireBasicAuth(limitToRoles = {"admin"})
+    public String hello(@QueryParam("name") String name) {
+        return "Hello " + name + "!";
+    }
+
+}
+```
+
+##Credits##
+The original library was written by Andrew Phillips as part of some startup projects (HDScores, MDScores, etc...).
+
+##License##
+This software is licensed under the commercial friendly MIT License.  See LICENSE file for more details.
