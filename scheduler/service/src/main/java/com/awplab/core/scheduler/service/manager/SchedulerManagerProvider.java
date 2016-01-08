@@ -297,27 +297,27 @@ public class SchedulerManagerProvider implements SchedulerManagerService, Bundle
 
 
     @Override
-    public boolean isJobRunning(Class<? extends Job> jobClass) throws SchedulerException {
-        return isJobRunning(jobClass, null);
+    public boolean isRunning(Class<? extends Job> jobClass) throws SchedulerException {
+        return isRunning(jobClass, null);
     }
 
     @Override
-    public boolean isJobRunning(Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
-        return isJobRunning(jobClass, requiredMatchingJobDataMapEntries, null);
+    public boolean isRunning(Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
+        return isRunning(jobClass, requiredMatchingJobDataMapEntries, null);
     }
 
     @Override
-    public boolean isJobRunning(Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries, Job ignoreThisInstance) throws SchedulerException {
+    public boolean isRunning(Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries, Job ignoreThisInstance) throws SchedulerException {
 
         for (Scheduler scheduler : getSchedulers()) {
-            if (isJobRunning(scheduler.getSchedulerName(), jobClass, requiredMatchingJobDataMapEntries, ignoreThisInstance)) return true;
+            if (isRunning(scheduler.getSchedulerName(), jobClass, requiredMatchingJobDataMapEntries, ignoreThisInstance)) return true;
         }
 
         return false;
     }
 
     @Override
-    public boolean isJobRunning(String schedulerName, Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries, Job ignoreThisInstance) throws SchedulerException {
+    public boolean isRunning(String schedulerName, Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries, Job ignoreThisInstance) throws SchedulerException {
         for (JobExecutionContext jobContext : getScheduler(schedulerName).getCurrentlyExecutingJobs()) {
             if (jobContext.getJobInstance().getClass().isAssignableFrom(jobClass)) {
                 if (ignoreThisInstance != null && jobContext.getJobInstance().equals(ignoreThisInstance)) continue;
@@ -337,16 +337,16 @@ public class SchedulerManagerProvider implements SchedulerManagerService, Bundle
     }
 
     @Override
-    public boolean isWaitingOrRunning(Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
+    public boolean isScheduled(Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
         for (Scheduler scheduler : getSchedulers()) {
-            if (isWaitingOrRunning(scheduler.getSchedulerName(), jobClass, requiredMatchingJobDataMapEntries)) return true;
+            if (isScheduled(scheduler.getSchedulerName(), jobClass, requiredMatchingJobDataMapEntries)) return true;
         }
 
         return false;
     }
 
     @Override
-    public boolean isWaitingOrRunning(String schedulerName, Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
+    public boolean isScheduled(String schedulerName, Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException {
         Scheduler scheduler = getScheduler(schedulerName);
         for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.<JobKey>anyGroup())) {
             JobDetail jobDetail = scheduler.getJobDetail(jobKey);

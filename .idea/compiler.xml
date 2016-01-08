@@ -100,6 +100,13 @@
         <processorPath useClasspath="true" />
         <module name="common" />
       </profile>
+      <profile default="false" name="Annotation profile for rest.swagger" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="rest.swagger" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="command" target="1.8" />
@@ -112,6 +119,7 @@
       <module name="rest.command" target="1.8" />
       <module name="rest.jackson" target="1.8" />
       <module name="rest.service" target="1.8" />
+      <module name="rest.swagger" target="1.8" />
       <module name="scheduler" target="1.8" />
       <module name="scheduler.command" target="1.8" />
       <module name="scheduler.service" target="1.8" />

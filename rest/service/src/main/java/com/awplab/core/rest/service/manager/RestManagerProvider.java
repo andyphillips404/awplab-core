@@ -122,7 +122,7 @@ public class RestManagerProvider implements RestManagerService, BundleListener {
                         Set<RestService> providers = collectRestProviders(alias);
                         RestApplication restApplication = null;
                         if (providers.size() > 0) {
-                            providers.addAll(collectRestProviders(RestService.GLOBAL_ALIAS));
+                            providers.addAll(collectRestProviders(RestManagerService.GLOBAL_ALIAS));
                             restApplication = new RestApplication(alias, providers);
                             applications.put(alias, restApplication);
                             container = new ServletContainer(ResourceConfig.forApplication(restApplication));
@@ -167,7 +167,7 @@ public class RestManagerProvider implements RestManagerService, BundleListener {
 
     private void updateContainerServlet(String alias)  {
         synchronized (dirtyTimerLock) {
-            if (alias.equals(RestService.GLOBAL_ALIAS)) {
+            if (alias.equals(RestManagerService.GLOBAL_ALIAS)) {
                 for (String dirtyAlias : servletContainers.keySet()) {
                     dirtyAliases.add(dirtyAlias);
                 }
@@ -185,7 +185,7 @@ public class RestManagerProvider implements RestManagerService, BundleListener {
     @Override
     public synchronized void registerProvider(RestService restProvider) {
         String alias = restProvider.getAlias();
-        if (alias.equals(RestService.GLOBAL_ALIAS) || (alias.startsWith("/") && !alias.endsWith("/"))) {
+        if (alias.equals(RestManagerService.GLOBAL_ALIAS) || (alias.startsWith("/") && !alias.endsWith("/"))) {
             restProviders.add(restProvider);
 
             updateContainerServlet(alias);

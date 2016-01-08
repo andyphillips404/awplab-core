@@ -21,7 +21,7 @@
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0"
           name="AWPLab Core">
 
-    <feature name="core-scheduler" version="${parent.version}">
+    <feature name="core-scheduler" version="${version.core.scheduler.service}">
         <feature>ipojo</feature>
         <feature>guava</feature>
         <feature>guava-retrying</feature>
@@ -50,6 +50,18 @@
         <feature>jackson-jdk8</feature>
     </feature>
 
+    <feature name="core-rest-swagger" version="${parent.version}">
+        <feature>core-rest-jackson</feature>
+        <feature>jackson</feature>
+        <feature>jackson-jaxrs-yaml</feature>
+
+        <bundle>wrap:mvn:org.reflections/reflections/0.9.10</bundle>
+
+        <bundle>wrap:mvn:io.swagger/swagger-jaxrs/${versions.swagger}</bundle>
+        <bundle>wrap:mvn:io.swagger/swagger-core/${versions.swagger}</bundle>
+        <bundle>mvn:io.swagger/swagger-models/${versions.swagger}</bundle>
+        <bundle>mvn:io.swagger/swagger-annotations/${versions.swagger}</bundle>
+    </feature>
 
 
     <feature name="core-ipojo" version="${parent.version}">
@@ -109,6 +121,27 @@
         <!--<bundle>wrap:mvn:javax.xml.stream/stax-api/1.0-2</bundle> -->
     </feature>
 
+    <feature name="jackson-yaml" version="${version.jackson}">
+        <feature>jackson</feature>
+        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/${version.jackson}</bundle>
+        <bundle>mvn:org.yaml/snakeyaml/1.15</bundle>
+    </feature>
+
+    <feature name="jackson-joda" version="${version.jackson}">
+        <feature>jackson</feature>
+        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-joda/${version.jackson}</bundle>
+        <bundle>mvn:joda-time/joda-time/2.2</bundle>
+
+        <config name="com.awplab.core.rest.jackson.module-joda">
+            com.awplab.core.rest.jackson.module.classes = {com.fasterxml.jackson.datatype.joda.JodaModule}
+        </config>
+
+    </feature>
+
+
+
+
+
     <feature name="jackson-jdk7" version="${version.jackson}">
         <feature>jackson</feature>
         <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jdk7/${version.jackson}</bundle>
@@ -132,6 +165,7 @@
 
     <feature name="jackson-jaxrs" version="${version.jackson}">
         <feature>jackson</feature>
+        <feature>jackson-jaxb</feature>
         <feature>javax-ws-rs</feature>
         <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${version.jackson}</bundle>
         <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${version.jackson}</bundle>
@@ -152,8 +186,23 @@
             com.awplab.core.rest.jackson.jaxrs.provider = com.fasterxml.jackson.jaxrs.xml.JacksonXMLProvider
             com.awplab.core.rest.jackson.jaxrs.mapper = com.fasterxml.jackson.dataformat.xml.XmlMapper
         </config>
-
     </feature>
+
+    <feature name="jackson-jaxrs-yaml" version="${version.jackson}">
+        <feature>jackson-jaxrs</feature>
+        <feature>jackson-yaml</feature>
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-yaml-provider/2.6.4</bundle>
+
+        <config name="com.awplab.core.rest.jackson.jaxrs-xml">
+            com.awplab.core.rest.jackson.jaxrs.provider = com.fasterxml.jackson.jaxrs.yaml.JacksonYAMLProvider
+            com.awplab.core.rest.jackson.jaxrs.mapper = com.fasterxml.jackson.dataformat.yaml.YAMLMapper
+        </config>
+    </feature>
+
+
+
+
+
 
     <feature name="javax-ws-rs" version="2.0.1">
         <bundle>mvn:javax.ws.rs/javax.ws.rs-api/2.0.1</bundle>

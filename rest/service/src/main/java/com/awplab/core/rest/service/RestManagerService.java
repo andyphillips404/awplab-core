@@ -1,5 +1,9 @@
 package com.awplab.core.rest.service;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+
 import javax.ws.rs.core.Application;
 import java.util.Set;
 
@@ -7,6 +11,9 @@ import java.util.Set;
  * Created by andyphillips404 on 2/22/15.
  */
 public interface RestManagerService {
+
+    String DEFAULT_ALIAS = "/";
+    String GLOBAL_ALIAS = "GLOBAL";
 
 
     void registerProvider(RestService restProvider);
@@ -28,8 +35,20 @@ public interface RestManagerService {
     RestApplication getApplication(String alias);
 
     default void reloadAliases() {
-        reloadAlias(RestService.GLOBAL_ALIAS);
+        reloadAlias(RestManagerService.GLOBAL_ALIAS);
     }
 
     void reloadAlias(String alias);
+
+    static RestManagerService getProvider() {
+        BundleContext bundleContext = FrameworkUtil.getBundle(RestManagerService.class).getBundleContext();
+        ServiceReference ref = bundleContext.getServiceReference(RestManagerService.class.getName());
+        if (ref != null) {
+            return (RestManagerService)bundleContext.getService(ref);
+        }
+
+        return null;
+    }
+
+
 }

@@ -18,9 +18,11 @@
         <module>service</module>
         <module>jackson</module>
         <module>command</module>
+        <module>swagger</module>
     </modules>
 
     <packaging>pom</packaging>
+
 
 
 </project>

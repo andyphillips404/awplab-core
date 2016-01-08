@@ -32,6 +32,7 @@
 
         <version.core.rest.service>1.0.0-SNAPSHOT</version.core.rest.service>
         <version.core.rest.jackson>1.0.0-SNAPSHOT</version.core.rest.jackson>
+        <version.core.rest.swagger>1.0.0-SNAPSHOT</version.core.rest.swagger>
         <version.core.rest.command>1.0.0-SNAPSHOT</version.core.rest.command>
 
         <version.core.ipojo>1.0.0-SNAPSHOT</version.core.ipojo>
@@ -50,6 +51,8 @@
         <version.jackson>2.6.4</version.jackson>
 
         <version.jersey>2.22.1</version.jersey>
+
+        <version.swagger>1.5.5</version.swagger>
 
         <version.felix.http.base>3.0.4</version.felix.http.base>
         <version.felix.http.api>3.0.0</version.felix.http.api>
@@ -226,6 +229,42 @@
                 <version>${version.jackson}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <artifactId>jackson-jaxrs-yaml-provider</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-yaml</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+
+            <!-- swagger.io -->
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-jaxrs</artifactId>
+                <version>${version.swagger}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-core</artifactId>
+                <version>${version.swagger}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-models</artifactId>
+                <version>${version.swagger}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${version.swagger}</version>
+            </dependency>
 
             <!-- Jersey -->
             <dependency>

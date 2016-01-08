@@ -94,7 +94,7 @@ public class JacksonManagerProvider implements JacksonManagerService, RestServic
 
     @Override
     public String getAlias() {
-        return RestService.GLOBAL_ALIAS;
+        return RestManagerService.GLOBAL_ALIAS;
     }
 
     @Override
