@@ -10,8 +10,9 @@ import java.util.Set;
  */
 public interface RestService {
 
+    String DEFAULT_ALIAS = "/service";
     default String getAlias() {
-        return RestManagerService.DEFAULT_ALIAS;
+        return DEFAULT_ALIAS;
     }
 
     default Set<Class<?>> getClasses() { return Collections.emptySet(); }

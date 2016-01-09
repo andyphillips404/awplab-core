@@ -12,7 +12,7 @@ import java.util.Set;
  */
 public interface RestManagerService {
 
-    String DEFAULT_ALIAS = "/";
+    String ROOT_ALIAS = "/";
     String GLOBAL_ALIAS = "GLOBAL";
 
 

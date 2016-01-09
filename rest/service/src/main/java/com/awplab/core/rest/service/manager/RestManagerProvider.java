@@ -9,10 +9,8 @@ import com.awplab.core.rest.service.events.RestEventTopics;
 import org.apache.felix.ipojo.annotations.*;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleEvent;
-import org.osgi.framework.BundleListener;
-import org.osgi.framework.FrameworkUtil;
+import org.glassfish.jersey.servlet.ServletProperties;
+import org.osgi.framework.*;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,14 +37,13 @@ public class RestManagerProvider implements RestManagerService, BundleListener {
 
     private Map<String, RestApplication> applications = new ConcurrentHashMap<>();
 
-
     @ServiceProperty(name = PROPERTY_HOLD_OFF_TIME_SECONDS, value = "10")
     private int holdOffTimeSeconds;
 
     @Requires
-    private HttpService httpService;
+    HttpService httpService;
 
-    @Requires
+    @Context
     private BundleContext bundleContext;
 
     private Logger logger = LoggerFactory.getLogger(RestManagerProvider.class);
@@ -114,7 +111,6 @@ public class RestManagerProvider implements RestManagerService, BundleListener {
                             httpService.unregister(alias);
                             servletContainers.remove(alias);
                             applications.remove(alias);
-                            //  container.destroy();
                             eventTopic = RestEventTopics.ALIAS_RESTARTED;
 
                         }
@@ -126,8 +122,11 @@ public class RestManagerProvider implements RestManagerService, BundleListener {
                             restApplication = new RestApplication(alias, providers);
                             applications.put(alias, restApplication);
                             container = new ServletContainer(ResourceConfig.forApplication(restApplication));
+
                             servletContainers.put(alias, container);
+
                             httpService.registerServlet(alias, container, null, null);
+
                         }
                         else {
                             eventTopic = RestEventTopics.ALIAS_STOPPED;
@@ -141,6 +140,8 @@ public class RestManagerProvider implements RestManagerService, BundleListener {
 
 
                 }
+
+                dirtyAliases.clear();
 
             }
         }
@@ -176,7 +177,7 @@ public class RestManagerProvider implements RestManagerService, BundleListener {
             else {
                 dirtyAliases.add(alias);
             }
-            resetDirtyTimer();
+            if (dirtyAliases.size() > 0) resetDirtyTimer();
         }
     }
 
@@ -185,7 +186,7 @@ public class RestManagerProvider implements RestManagerService, BundleListener {
     @Override
     public synchronized void registerProvider(RestService restProvider) {
         String alias = restProvider.getAlias();
-        if (alias.equals(RestManagerService.GLOBAL_ALIAS) || (alias.startsWith("/") && !alias.endsWith("/"))) {
+        if (alias.equals(RestManagerService.GLOBAL_ALIAS) || alias.equals("/") || alias.startsWith("/") && !alias.endsWith("/")) {
             restProviders.add(restProvider);
 
             updateContainerServlet(alias);

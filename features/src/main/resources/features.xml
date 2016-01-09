@@ -51,16 +51,20 @@
     </feature>
 
     <feature name="core-rest-swagger" version="${parent.version}">
+        <feature>guava</feature>
+        <feature>commons-lang3</feature>
         <feature>core-rest-jackson</feature>
         <feature>jackson</feature>
+        <feature>jackson-jaxrs-xml</feature>
         <feature>jackson-jaxrs-yaml</feature>
 
         <bundle>wrap:mvn:org.reflections/reflections/0.9.10</bundle>
+        <bundle>mvn:com.google.code.findbugs/annotations/2.0.1</bundle>
 
-        <bundle>wrap:mvn:io.swagger/swagger-jaxrs/${versions.swagger}</bundle>
-        <bundle>wrap:mvn:io.swagger/swagger-core/${versions.swagger}</bundle>
-        <bundle>mvn:io.swagger/swagger-models/${versions.swagger}</bundle>
-        <bundle>mvn:io.swagger/swagger-annotations/${versions.swagger}</bundle>
+        <bundle>mvn:io.swagger/swagger-jaxrs/${version.swagger}</bundle>
+        <bundle>mvn:io.swagger/swagger-core/${version.swagger}</bundle>
+        <bundle>mvn:io.swagger/swagger-models/${version.swagger}</bundle>
+        <bundle>mvn:io.swagger/swagger-annotations/${version.swagger}</bundle>
     </feature>
 
 
@@ -114,16 +118,17 @@
 
 
     <feature name="jackson-xml" version="${version.jackson}">
+        <feature>woodstox</feature>
         <feature>jackson</feature>
-        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-xml/${version.jackson}</bundle>
         <bundle>mvn:org.codehaus.woodstox/stax2-api/3.1.4</bundle>
         <bundle>mvn:org.codehaus.woodstox/woodstox-core-asl/4.4.1</bundle>
+        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-xml/${version.jackson}</bundle>
         <!--<bundle>wrap:mvn:javax.xml.stream/stax-api/1.0-2</bundle> -->
     </feature>
 
     <feature name="jackson-yaml" version="${version.jackson}">
         <feature>jackson</feature>
-        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/${version.jackson}</bundle>
+        <bundle>wrap:mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/${version.jackson}$Bundle-SymbolicName=com.fasterxml.jackson.dataformat.yaml&amp;Import-Package=com.fasterxml.jackson.databind;version="${version.jackson}",org.yaml.snakeyaml;version=1.15,org.yaml.snakeyaml.*;version=1.15&amp;Export-Package=com.fasterxml.jackson.jaxrs.yaml;version="${version.jackson}"</bundle>
         <bundle>mvn:org.yaml/snakeyaml/1.15</bundle>
     </feature>
 
@@ -180,7 +185,7 @@
     <feature name="jackson-jaxrs-xml" version="${version.jackson}">
         <feature>jackson-jaxrs</feature>
         <feature>jackson-xml</feature>
-        <bundle>wrap:mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-xml-provider/${version.jackson}$overwrite=merge&amp;Import-Package=com.fasterxml.jackson.*,*</bundle>
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-xml-provider/${version.jackson}</bundle>
 
         <config name="com.awplab.core.rest.jackson.jaxrs-xml">
             com.awplab.core.rest.jackson.jaxrs.provider = com.fasterxml.jackson.jaxrs.xml.JacksonXMLProvider
@@ -191,9 +196,9 @@
     <feature name="jackson-jaxrs-yaml" version="${version.jackson}">
         <feature>jackson-jaxrs</feature>
         <feature>jackson-yaml</feature>
-        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-yaml-provider/2.6.4</bundle>
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-yaml-provider/${version.jackson}</bundle>
 
-        <config name="com.awplab.core.rest.jackson.jaxrs-xml">
+        <config name="com.awplab.core.rest.jackson.jaxrs-yaml">
             com.awplab.core.rest.jackson.jaxrs.provider = com.fasterxml.jackson.jaxrs.yaml.JacksonYAMLProvider
             com.awplab.core.rest.jackson.jaxrs.mapper = com.fasterxml.jackson.dataformat.yaml.YAMLMapper
         </config>
@@ -246,6 +251,7 @@
         <feature>eventadmin</feature>
         <bundle>mvn:org.apache.felix/org.apache.felix.http.base/${version.felix.http.base}</bundle>
         <bundle>mvn:org.apache.felix/org.apache.felix.http.api/${version.felix.http.api}</bundle>
+        <!-- <bundle>mvn:org.apache.felix/org.apache.felix.http.whiteboard/${version.felix.http.whiteboard}</bundle> -->
         <bundle>mvn:org.apache.felix/org.apache.felix.http.servlet-api/${version.felix.http.servlet-api}</bundle>
         <bundle>mvn:org.apache.felix/org.apache.felix.http.jetty/${version.felix.http.jetty}</bundle>
         <bundle>mvn:org.apache.felix/org.apache.felix.http.sslfilter/${version.felix.http.sslfilter}</bundle>
@@ -274,5 +280,8 @@
         <bundle>mvn:commons-codec/commons-codec/${version.commons-codec}</bundle>
     </feature>
 
+    <feature name="commons-lang3" version="${version.commons-lang3">
+        <bundle>mvn:org.apache.commons/commons-lang3/${version.commons-lang3}</bundle>
+    </feature>
 
 </features>

@@ -10,7 +10,6 @@ import io.swagger.util.Yaml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletConfig;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -77,7 +76,7 @@ public abstract class AbstractSwaggerRestProvider extends AbstractRestProvider {
     @ApiOperation(value = "The swagger definition in YAML", hidden = true)
     public Response getListingYaml(
             @Context Application app,
-            @Context ServletConfig sc,
+            //@Context ServletConfig sc,
             @Context HttpHeaders headers,
             @Context UriInfo uriInfo) {
         try {

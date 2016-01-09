@@ -62,12 +62,13 @@
 
         <version.javassist>3.20.0-GA</version.javassist>
 
-        <version.guava>19.0</version.guava>
+        <version.guava>18.0</version.guava>
 
         <version.guava-retrying>2.0.0</version.guava-retrying>
 
         <version.commons-collections4>4.1</version.commons-collections4>
         <version.commons-codec>1.10</version.commons-codec>
+        <version.commons-lang3>3.4</version.commons-lang3>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -299,6 +300,18 @@
                 <version>${version.felix.http.jetty}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.http.api</artifactId>
+                <version>${version.felix.http.api}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.http.whiteboard</artifactId>
+                <version>${version.felix.http.whiteboard}</version>
+            </dependency>
+
 
             <!-- Guava -->
             <dependency>
@@ -327,6 +340,12 @@
                 <version>${version.commons-codec}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${version.commons-lang3}</version>
+            </dependency>
+
 
         </dependencies>
     </dependencyManagement>
@@ -349,7 +368,7 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.0.1</version>
                     <extensions>true</extensions>
                 </plugin>
 

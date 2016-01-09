@@ -9,4 +9,5 @@ import java.util.Set;
  */
 public interface JacksonModulesService {
     Set<Class<Module>> getModuleClasses() throws ClassNotFoundException;
+
 }

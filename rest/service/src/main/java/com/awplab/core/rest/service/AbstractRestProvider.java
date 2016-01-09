@@ -25,7 +25,7 @@ public abstract class AbstractRestProvider implements RestService {
         }
     }
 
-    private String alias = RestManagerService.DEFAULT_ALIAS;
+    private String alias = RestService.DEFAULT_ALIAS;
 
     @Override
     public String getAlias() {
