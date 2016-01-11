@@ -38,12 +38,12 @@ public class SimpleRestProvider implements RestService {
     }
 
     @Override
-    public Set<Class<?>> getClasses() {
+    public Set<Class<?>> getClasses(String alias) {
         return classes;
     }
 
     @Override
-    public Set<Object> getSingletons() {
+    public Set<Object> getSingletons(String alias) {
         return singletons;
     }
 

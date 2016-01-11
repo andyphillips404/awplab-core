@@ -54,11 +54,11 @@
 
         <version.swagger>1.5.5</version.swagger>
 
-        <version.felix.http.base>3.0.4</version.felix.http.base>
-        <version.felix.http.api>3.0.0</version.felix.http.api>
-        <version.felix.http.jetty>3.1.4</version.felix.http.jetty>
-        <version.felix.http.servlet-api>1.1.2</version.felix.http.servlet-api>
-        <version.felix.http.sslfilter>1.0.4</version.felix.http.sslfilter>
+        <version.felix.http.base>2.3.0</version.felix.http.base>
+        <version.felix.http.api>2.3.0</version.felix.http.api>
+        <version.felix.http.jetty>2.3.0</version.felix.http.jetty>
+        <version.felix.http.servlet-api>1.0.0</version.felix.http.servlet-api>
+        <version.felix.http.sslfilter>0.1.0</version.felix.http.sslfilter>
 
         <version.javassist>3.20.0-GA</version.javassist>
 

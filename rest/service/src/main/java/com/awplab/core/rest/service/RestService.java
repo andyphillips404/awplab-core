@@ -15,8 +15,11 @@ public interface RestService {
         return DEFAULT_ALIAS;
     }
 
-    default Set<Class<?>> getClasses() { return Collections.emptySet(); }
+    default Set<Class<?>> getClasses(String alias) { return Collections.emptySet(); }
 
-    default Set<Object> getSingletons() {return Collections.singleton(this); }
+    default Set<Object> getSingletons(String alias) {
+        if (!getAlias().equals(RestManagerService.GLOBAL_ALIAS)) return Collections.singleton(this);
+        else return Collections.emptySet();
+    }
 
 }

@@ -13,19 +13,27 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.*;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by andyphillips404 on 1/7/16.
  */
-public abstract class AbstractSwaggerRestProvider extends AbstractRestProvider {
+@Path("/")
+public class BaseSwaggerRestProvider extends AbstractRestProvider {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public abstract void processSwagger(Swagger swagger);
 
+    @Context
+    private Application application;
+
+    protected void processSwagger(Swagger swagger) {
+
+    }
     protected HashSet<Class<?>> getSwaggerClasses() {
         HashSet<Class<?>> classes = new HashSet<>();
 
@@ -34,7 +42,7 @@ public abstract class AbstractSwaggerRestProvider extends AbstractRestProvider {
             logger.error("Unable to get RestManagerService provider");
             return null;
         }
-        RestApplication application = restManagerService.getApplication(getAlias());
+
         for (Class<?> clazz : application.getClasses()) {
             classes.add(clazz);
         }

@@ -25,8 +25,8 @@ public class RestApplication extends Application {
         classes.add(BasicAuthKarafSecurityDynamicFeature.class);
 
         for (RestService provider : providers) {
-            if (!provider.getAlias().equals(RestManagerService.GLOBAL_ALIAS)) singletons.addAll(provider.getSingletons());
-            classes.addAll(provider.getClasses());
+            singletons.addAll(provider.getSingletons(alias));
+            classes.addAll(provider.getClasses(alias));
         }
 
         StringBuilder logStringBuilder = new StringBuilder();

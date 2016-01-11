@@ -55,6 +55,7 @@
         <feature>commons-lang3</feature>
         <feature>core-rest-jackson</feature>
         <feature>jackson</feature>
+        <feature>jackson-jaxrs</feature>
         <feature>jackson-jaxrs-xml</feature>
         <feature>jackson-jaxrs-yaml</feature>
 
@@ -65,6 +66,8 @@
         <bundle>mvn:io.swagger/swagger-core/${version.swagger}</bundle>
         <bundle>mvn:io.swagger/swagger-models/${version.swagger}</bundle>
         <bundle>mvn:io.swagger/swagger-annotations/${version.swagger}</bundle>
+
+        <bundle>mvn:com.awplab.core/rest.swagger/${version.core.rest.swagger}</bundle>
     </feature>
 
 
@@ -118,7 +121,6 @@
 
 
     <feature name="jackson-xml" version="${version.jackson}">
-        <feature>woodstox</feature>
         <feature>jackson</feature>
         <bundle>mvn:org.codehaus.woodstox/stax2-api/3.1.4</bundle>
         <bundle>mvn:org.codehaus.woodstox/woodstox-core-asl/4.4.1</bundle>

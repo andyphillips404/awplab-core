@@ -31,7 +31,7 @@ public class RestManagerProvider implements RestManagerService, BundleListener {
     public static final String PROPERTY_HOLD_OFF_TIME_SECONDS = "com.awplab.rest.service.manager.holdOffTimeSeconds";
 
 
-    private Set<RestService> restProviders = Collections.synchronizedSet(new HashSet<>());
+    private Set<RestService> restProviders = ConcurrentHashMap.newKeySet();
 
     private Map<String, ServletContainer> servletContainers = new ConcurrentHashMap<>();
 
@@ -78,7 +78,7 @@ public class RestManagerProvider implements RestManagerService, BundleListener {
     @Override
     public void bundleChanged(BundleEvent bundleEvent) {
         if (bundleEvent.getType() == BundleEvent.STOPPED) {
-            for (RestService restProvider : getProviders()) {
+            for (RestService restProvider : restProviders) {
                 if (FrameworkUtil.getBundle(restProvider.getClass()).equals(bundleEvent.getBundle())) {
                     unregisterProvider(restProvider);
                 }
@@ -121,7 +121,8 @@ public class RestManagerProvider implements RestManagerService, BundleListener {
                             providers.addAll(collectRestProviders(RestManagerService.GLOBAL_ALIAS));
                             restApplication = new RestApplication(alias, providers);
                             applications.put(alias, restApplication);
-                            container = new ServletContainer(ResourceConfig.forApplication(restApplication));
+                            container = new ServletContainer( ResourceConfig.forApplication(restApplication));
+                            //container = new ServletContainer( restApplication);
 
                             servletContainers.put(alias, container);
 

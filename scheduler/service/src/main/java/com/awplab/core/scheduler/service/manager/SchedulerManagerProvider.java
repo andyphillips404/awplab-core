@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -24,9 +25,9 @@ import java.util.concurrent.TimeUnit;
 public class SchedulerManagerProvider implements SchedulerManagerService, BundleListener {
 
 
-    private Set<Scheduler> schedulers = Collections.synchronizedSet(new HashSet<>());
+    private Set<Scheduler> schedulers = ConcurrentHashMap.newKeySet();
 
-    private Map<String, EventAdminListener> listeners = Collections.synchronizedMap(new HashMap<>());
+    private Map<String, EventAdminListener> listeners = new ConcurrentHashMap<>();
 
     private Logger logger = LoggerFactory.getLogger(SchedulerManagerProvider.class);
 

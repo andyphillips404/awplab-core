@@ -98,7 +98,7 @@ public class JacksonManagerProvider implements JacksonManagerService, RestServic
     }
 
     @Override
-    public synchronized Set<Object> getSingletons() {
+    public synchronized Set<Object> getSingletons(String alias) {
 
         Logger logger = LoggerFactory.getLogger(JacksonManagerProvider.class);
 
