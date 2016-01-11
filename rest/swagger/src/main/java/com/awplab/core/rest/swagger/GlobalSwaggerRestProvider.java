@@ -46,7 +46,7 @@ public class GlobalSwaggerRestProvider implements RestService {
 
     @Property(name = PROPERTY_CORS)
     private void setEnableCors(boolean coors) {
-        enableCors = false;
+        enableCors = coors;
         RestManagerService.getProvider().reloadAliases();
     }
 
