@@ -56,9 +56,7 @@
         <feature>core-rest-jackson</feature>
         <feature>jackson</feature>
         <feature>jackson-jaxrs</feature>
-        <feature>jackson-jaxrs-xml</feature>
-        <feature>jackson-jaxrs-yaml</feature>
-
+        <feature>jackson-yaml</feature>
         <bundle>wrap:mvn:org.reflections/reflections/0.9.10</bundle>
         <bundle>mvn:com.google.code.findbugs/annotations/2.0.1</bundle>
 
@@ -130,7 +128,7 @@
 
     <feature name="jackson-yaml" version="${version.jackson}">
         <feature>jackson</feature>
-        <bundle>wrap:mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/${version.jackson}$Bundle-SymbolicName=com.fasterxml.jackson.dataformat.yaml&amp;Import-Package=com.fasterxml.jackson.databind;version="${version.jackson}",org.yaml.snakeyaml;version=1.15,org.yaml.snakeyaml.*;version=1.15&amp;Export-Package=com.fasterxml.jackson.jaxrs.yaml;version="${version.jackson}"</bundle>
+        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/${version.jackson}</bundle>
         <bundle>mvn:org.yaml/snakeyaml/1.15</bundle>
     </feature>
 
@@ -144,9 +142,6 @@
         </config>
 
     </feature>
-
-
-
 
 
     <feature name="jackson-jdk7" version="${version.jackson}">
@@ -194,20 +189,6 @@
             com.awplab.core.rest.jackson.jaxrs.mapper = com.fasterxml.jackson.dataformat.xml.XmlMapper
         </config>
     </feature>
-
-    <feature name="jackson-jaxrs-yaml" version="${version.jackson}">
-        <feature>jackson-jaxrs</feature>
-        <feature>jackson-yaml</feature>
-        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-yaml-provider/${version.jackson}</bundle>
-
-        <config name="com.awplab.core.rest.jackson.jaxrs-yaml">
-            com.awplab.core.rest.jackson.jaxrs.provider = com.fasterxml.jackson.jaxrs.yaml.JacksonYAMLProvider
-            com.awplab.core.rest.jackson.jaxrs.mapper = com.fasterxml.jackson.dataformat.yaml.YAMLMapper
-        </config>
-    </feature>
-
-
-
 
 
 
