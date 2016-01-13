@@ -3,6 +3,9 @@ package com.awplab.core.rest.jackson;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.wiring.BundleWiring;
 
 import java.net.URL;
@@ -40,5 +43,17 @@ public interface JacksonManagerService {
         return classNamesOfCurrentBundle;
     }
 
+    static JacksonManagerService getProvider() {
+        BundleContext bundleContext = FrameworkUtil.getBundle(JacksonManagerService.class).getBundleContext();
+        ServiceReference ref = bundleContext.getServiceReference(JacksonManagerService.class.getName());
+        if (ref != null) {
+            return (JacksonManagerService)bundleContext.getService(ref);
+        }
+
+        return null;
+
+
+
+    }
 
 }

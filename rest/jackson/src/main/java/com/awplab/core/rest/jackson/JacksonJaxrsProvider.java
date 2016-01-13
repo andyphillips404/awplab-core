@@ -18,19 +18,23 @@ import java.util.Set;
  * Created by andyphillips404 on 12/19/15.
  */
 
-@Component(name = "com.awplab.core.rest.jackson.jaxrs", immediate = true)
+@Component(name = JacksonJaxrsProvider.CONFIG_FACTORY_NAME, immediate = true)
 @Provides(specifications = {JacksonJaxrsService.class})
 public class JacksonJaxrsProvider implements JacksonJaxrsService, BundleListener {
 
-    @Property(name = "com.awplab.core.rest.jackson.jaxrs.provider", mandatory = true)
+    public static final String CONFIG_FACTORY_NAME = "com.awplab.core.rest.jackson.jaxrs";
+    public static final String PROPERTY_PROVIDER_CLASS = "com.awplab.core.rest.jackson.jaxrs.provider";
+    public static final String PROPERTY_OBJECT_MAPPER_CLASS = "com.awplab.core.rest.jackson.jaxrs.mapper";
+
+    @Property(name = PROPERTY_PROVIDER_CLASS, mandatory = true)
     private String providerBaseClassName;
 
-    @Property(name = "com.awplab.core.rest.jackson.jaxrs.mapper", mandatory = true)
+    @Property(name = PROPERTY_OBJECT_MAPPER_CLASS, mandatory = true)
     private String objectMapperClassName;
 
     @Updated
     private void updated() {
-        updateAfterChaange();
+        updateAfterChange();
     }
 
     @Requires
@@ -46,7 +50,7 @@ public class JacksonJaxrsProvider implements JacksonJaxrsService, BundleListener
     public void start() {
 
         context.addBundleListener(this);
-        updateAfterChaange();
+        updateAfterChange();
     }
 
     @Invalidate
@@ -74,7 +78,7 @@ public class JacksonJaxrsProvider implements JacksonJaxrsService, BundleListener
 
 
 
-    private void updateAfterChaange() {
+    private void updateAfterChange() {
         if (isValid()) {
             if (!jacksonServiceController)
                 jacksonServiceController = true;

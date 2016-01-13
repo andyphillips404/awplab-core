@@ -5,24 +5,25 @@ import org.apache.felix.ipojo.annotations.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
-import org.osgi.framework.wiring.BundleWiring;
 
-import java.net.URL;
 import java.util.*;
 
 /**
  * Created by andyphillips404 on 12/19/15.
  */
-@Component(name = "com.awplab.core.rest.jackson.module", immediate = true)
+@Component(name = JacksonModulesProvider.CONFIG_FACTORY_NAME, immediate = true)
 @Provides(specifications = {JacksonModulesService.class})
 public class JacksonModulesProvider implements JacksonModulesService, BundleListener {
 
-    @Property(name = "com.awplab.core.rest.jackson.module.classes")
+    public static final String CONFIG_FACTORY_NAME = "com.awplab.core.rest.jackson.module";
+    public static final String PROPERTY_MODULE_CLASSES = "com.awplab.core.rest.jackson.module.classes";
+
+    @Property(name = PROPERTY_MODULE_CLASSES)
     private String[] moduleClassNames;
 
     @Updated
     private void update() {
-        updateAfterChaange();
+        updateAfterChange();
     }
 
     @Requires
@@ -38,7 +39,7 @@ public class JacksonModulesProvider implements JacksonModulesService, BundleList
     @Validate
     public void start() {
         context.addBundleListener(this);
-        updateAfterChaange();
+        updateAfterChange();
     }
 
     @Invalidate
@@ -74,7 +75,7 @@ public class JacksonModulesProvider implements JacksonModulesService, BundleList
 
 
 
-    private void updateAfterChaange() {
+    private void updateAfterChange() {
         if (isValid()) {
             if (!jacksonServiceController) jacksonServiceController = true;
             else {

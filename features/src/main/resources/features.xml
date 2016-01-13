@@ -55,7 +55,7 @@
         <feature>commons-lang3</feature>
         <feature>core-rest-jackson</feature>
         <feature>jackson</feature>
-        <feature>jackson-jaxrs</feature>
+        <feature>jackson-jaxrs-json</feature>
         <feature>jackson-yaml</feature>
         <bundle>wrap:mvn:org.reflections/reflections/0.9.10</bundle>
         <bundle>mvn:com.google.code.findbugs/annotations/2.0.1</bundle>
@@ -96,13 +96,15 @@
 
 
 
-
+    <!-- Jackson -->
     <feature name="jackson" version="${version.jackson}">
         <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${version.jackson}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${version.jackson}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${version.jackson}</bundle>
 
     </feature>
+
+    <!-- Jackson Modules -->
 
     <feature name="jackson-jaxb" version="${version.jackson}">
         <bundle>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${version.jackson}</bundle>
@@ -111,6 +113,38 @@
             com.awplab.core.rest.jackson.module.classes = {com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule}
         </config>
     </feature>
+
+    <feature name="jackson-joda" version="${version.jackson}">
+        <feature>jackson</feature>
+        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-joda/${version.jackson}</bundle>
+        <bundle>mvn:joda-time/joda-time/2.2</bundle>
+
+        <config name="com.awplab.core.rest.jackson.module-joda">
+            com.awplab.core.rest.jackson.module.classes = {com.fasterxml.jackson.datatype.joda.JodaModule}
+        </config>
+    </feature>
+
+    <feature name="jackson-jdk7" version="${version.jackson}">
+        <feature>jackson</feature>
+        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jdk7/${version.jackson}</bundle>
+
+        <config name="com.awplab.core.rest.jackson.module-jdk7">
+            com.awplab.core.rest.jackson.module.classes = {com.fasterxml.jackson.datatype.jdk7.Jdk7Module}
+        </config>
+    </feature>
+
+    <feature name="jackson-jdk8" version="${version.jackson}">
+        <feature>jackson</feature>
+        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jdk8/${version.jackson}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jsr310/${version.jackson}</bundle>
+
+        <config name="com.awplab.core.rest.jackson.module-jdk8">
+            com.awplab.core.rest.jackson.module.classes = {com.fasterxml.jackson.datatype.jdk8.Jdk8Module, com.fasterxml.jackson.datatype.jsr310.JSR310Module}
+        </config>
+    </feature>
+
+
+    <!-- Jackson data formats / Object Mappers -->
 
     <feature name="jackson-csv" version="${version.jackson}">
         <feature>jackson</feature>
@@ -123,7 +157,6 @@
         <bundle>mvn:org.codehaus.woodstox/stax2-api/3.1.4</bundle>
         <bundle>mvn:org.codehaus.woodstox/woodstox-core-asl/4.4.1</bundle>
         <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-xml/${version.jackson}</bundle>
-        <!--<bundle>wrap:mvn:javax.xml.stream/stax-api/1.0-2</bundle> -->
     </feature>
 
     <feature name="jackson-yaml" version="${version.jackson}">
@@ -132,44 +165,17 @@
         <bundle>mvn:org.yaml/snakeyaml/1.15</bundle>
     </feature>
 
-    <feature name="jackson-joda" version="${version.jackson}">
-        <feature>jackson</feature>
-        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-joda/${version.jackson}</bundle>
-        <bundle>mvn:joda-time/joda-time/2.2</bundle>
-
-        <config name="com.awplab.core.rest.jackson.module-joda">
-            com.awplab.core.rest.jackson.module.classes = {com.fasterxml.jackson.datatype.joda.JodaModule}
-        </config>
-
-    </feature>
-
-
-    <feature name="jackson-jdk7" version="${version.jackson}">
-        <feature>jackson</feature>
-        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jdk7/${version.jackson}</bundle>
-
-        <config name="com.awplab.core.rest.jackson.module-jdk7">
-            com.awplab.core.rest.jackson.module.classes = {com.fasterxml.jackson.datatype.jdk7.Jdk7Module}
-        </config>
-
-    </feature>
-
-    <feature name="jackson-jdk8" version="${version.jackson}">
-        <feature>jackson</feature>
-        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jdk8/${version.jackson}</bundle>
-        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jsr310/${version.jackson}</bundle>
-
-        <config name="com.awplab.core.rest.jackson.module-jdk8">
-            com.awplab.core.rest.jackson.module.classes = {com.fasterxml.jackson.datatype.jdk8.Jdk8Module, com.fasterxml.jackson.datatype.jsr310.JSR310Module}
-        </config>
-
-    </feature>
+    <!-- Jackson JAX-RS providers -->
 
     <feature name="jackson-jaxrs" version="${version.jackson}">
         <feature>jackson</feature>
         <feature>jackson-jaxb</feature>
         <feature>javax-ws-rs</feature>
         <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${version.jackson}</bundle>
+    </feature>
+
+    <feature name="jackson-jaxrs-json" version="${version.jackson}">
+        <feature>jackson-jaxrs</feature>
         <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${version.jackson}</bundle>
 
         <config name="com.awplab.core.rest.jackson.jaxrs-json">
@@ -191,6 +197,7 @@
     </feature>
 
 
+    <!-- Jersey Features -->
 
     <feature name="javax-ws-rs" version="2.0.1">
         <bundle>mvn:javax.ws.rs/javax.ws.rs-api/2.0.1</bundle>
@@ -230,6 +237,8 @@
         <bundle>mvn:org.glassfish.hk2/osgi-resource-locator/1.0.1</bundle>
     </feature>
 
+    <!-- Apache Felix HTTP -->
+
     <feature name="felix-http" version="${version.felix.http.base}">
         <feature>eventadmin</feature>
         <bundle>mvn:org.apache.felix/org.apache.felix.http.base/${version.felix.http.base}</bundle>
@@ -239,6 +248,8 @@
         <bundle>mvn:org.apache.felix/org.apache.felix.http.jetty/${version.felix.http.jetty}</bundle>
         <bundle>mvn:org.apache.felix/org.apache.felix.http.sslfilter/${version.felix.http.sslfilter}</bundle>
     </feature>
+
+    <!-- Support Libraries -->
 
     <feature name="javassist" version="${version.javassist}">
         <bundle>mvn:org.javassist/javassist/${version.javassist}</bundle>
