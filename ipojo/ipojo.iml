@@ -4,6 +4,7 @@
     <facet type="Osmorc" name="OSGi">
       <configuration manifestGenerationMode="OsmorcControlled" manifestLocation="" jarfileLocation="ipojo-1.0.0-SNAPSHOT.jar" outputPathType="CompilerOutputPath" bndFileLocation="" bundlorFileLocation="" bundleActivator="" bundleSymbolicName="ipojo" bundleVersion="1.0.0.SNAPSHOT" ignoreFilePattern="" useProjectDefaultManifestFileLocation="true" alwaysRebuildBundleJAR="false" doNotSynchronizeWithMaven="false">
         <additionalProperties>
+          <property key="Bundle-Description" value="A library used with OSGI/Karaf supporting a improved quartz scheduler OSGI implementation and Jersey rest service impelementation with Jackson and OpenAPI/Swagger support." />
           <property key="Export-Package" value="com.awplab.core.ipojo,!com.awplab.core.ipojo.manager,com.awplab.core.ipojo.command;version=1.0.0-SNAPSHOT;-noimport:=true" />
           <property key="Karaf-Commands" value="com.awplab.core.ipojo.command" />
           <property key="Private-Package" value="com.awplab.core.ipojo.manager" />

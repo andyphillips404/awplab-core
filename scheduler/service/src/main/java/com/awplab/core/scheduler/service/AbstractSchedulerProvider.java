@@ -17,30 +17,97 @@ import java.util.*;
 /**
  * Created by andyphillips404 on 12/23/15.
  */
+
+/**
+ * Base abstract class for custom schedulers used in the library.   This class is a wrapper scheduler,
+ * lifted from StdSchedulerImpl of the Quartz library and modified to allow for better external configuration
+ * of the scheduler.
+ */
 public abstract class AbstractSchedulerProvider implements Scheduler {
 
-    public abstract QuartzSchedulerResources getQuartzSchedulerResources();
+    /**
+     * Called when the scheduler is created to return a QuartzSchedulerResources that
+     * is used to configure the scheduler.  This is called during scheduler creation only.
+     *
+     * The Quartz scheduler resource should have following set, at a minimum, to create a scheduler:
+     * <ul>
+     *     <li>Name of the scheduler (setName)</li>
+     *     <li>Instance name (setInstanceName)</li>
+     *     <li>Job run shell factory (setJobRunShellFactory)</li>
+     *     <li>Thread executor (setThreadExecutor)</li>
+     *     <li>Job store (setJobStore)</li>
+     *     <li>Thread pool (setThreadPool)</li>
+     * </ul>
+     *
+     * When the scheduler is created in the manager, the thread pool and job store will
+     * be initialized, so no need to do so in this function.
+     *
+     * Below is an example of creating and returning a scheduler resource:
+     * {@code
+     *  if (qsr == null) {
+     *          qsr = new QuartzSchedulerResources();
+     *          qsr.setName(name);
+     *          qsr.setJobRunShellFactory(new IPOJOJobRunShellFactory());
+     *          qsr.setThreadExecutor(new DefaultThreadExecutor());
+     *          qsr.setBatchTimeWindow(0l);
+     *          qsr.setInstanceId(name + "_" + UUID.randomUUID().toString());
+     *          qsr.setInterruptJobsOnShutdown(true);
+     *          qsr.setInterruptJobsOnShutdownWithWait(true);
+     *          qsr.setMaxBatchSize(1);
+     *          qsr.setJobStore(new RAMJobStore());
+     *          threadPool = new ResizableThreadPool(initialThreadPoolSize, threadPriority);
+     *          qsr.setThreadPool(threadPool);
+     *  }
+     *  return qsr;
+     * }
+     *
+     * @see #getInitialJobFactory()
+     * @see #getJobStoreClassLoadHelper()
+     * @return QuartzSchedulerResource scheduler configuration
+     */
+    protected abstract QuartzSchedulerResources getQuartzSchedulerResources();
 
-    public abstract JobFactory getJobFactory();
+    /**
+     * Called during scheduler creation to return the initial job factory that should be
+     * assigned during scheduler creation.
+     *
+     * @return JobFactory used during scheduler creation
+     */
+    protected abstract JobFactory getInitialJobFactory();
 
+    /**
+     * Get scheduler default idle wait time used during scheduler creation
+     *
+     * @return default idle wait time, defaults to -1
+     */
     protected int getDefaultIdleWaitTime() {
         return -1;
     }
 
+    /**
+     * Gets the job store class load helper used during scheduler scheduler creation to
+     * set up the job store that is assigned in the S
+     * @return
+     */
     protected ClassLoadHelper getJobStoreClassLoadHelper() {
         return new CascadingClassLoadHelper();
     }
 
-    private QuartzScheduler sched = null;
+    private QuartzScheduler scheduler = null;
 
-    protected boolean isSchedulerCreated() {
-        return !(sched == null);
+    /**
+     * Returns true or false if the scheduler has been created.
+     * @return true if the scheduler has been created, false if not
+     */
+    public boolean isSchedulerCreated() {
+        return !(scheduler == null);
     }
 
-    // lazy instantiate the QuartzScheduler....
-    protected QuartzScheduler getSched() {
-        Logger logger = LoggerFactory.getLogger(AbstractSchedulerProvider.class);
-        if (sched == null) {
+
+    private QuartzScheduler getScheduler() {
+
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+        if (scheduler == null) {
             try {
                 QuartzSchedulerResources qsr = getQuartzSchedulerResources();
                 if (qsr.getThreadExecutor() == null) {
@@ -60,26 +127,26 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
 
                 qs.initialize();
 
-                qs.setJobFactory(getJobFactory());
+                qs.setJobFactory(getInitialJobFactory());
 
                 logger.info("Quartz scheduler '" + qsr.getName());
                 logger.info("Quartz scheduler version: " + qs.getVersion());
 
-                sched = qs;
+                scheduler = qs;
 
             } catch (Exception ex) {
                 logger.error("Exception creating scheduler!", ex);
             }
         }
 
-        return sched;
+        return scheduler;
     }
 
 
 
     @Override
     public String getSchedulerName() {
-        return getSched().getSchedulerName();
+        return getScheduler().getSchedulerName();
     }
 
     /**
@@ -89,7 +156,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public String getSchedulerInstanceId() {
-        return getSched().getSchedulerInstanceId();
+        return getScheduler().getSchedulerInstanceId();
     }
 
 
@@ -98,10 +165,10 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
     public SchedulerMetaData getMetaData() {
         return new SchedulerMetaData(getSchedulerName(),
                 getSchedulerInstanceId(), getClass(), false, isStarted(),
-                isInStandbyMode(), isShutdown(), getSched().runningSince(),
-                getSched().numJobsExecuted(), getSched().getJobStoreClass(),
-                getSched().supportsPersistence(), getSched().isClustered(), getSched().getThreadPoolClass(),
-                getSched().getThreadPoolSize(), getSched().getVersion());
+                isInStandbyMode(), isShutdown(), getScheduler().runningSince(),
+                getScheduler().numJobsExecuted(), getScheduler().getJobStoreClass(),
+                getScheduler().supportsPersistence(), getScheduler().isClustered(), getScheduler().getThreadPoolClass(),
+                getScheduler().getThreadPoolSize(), getScheduler().getVersion());
 
     }
 
@@ -112,7 +179,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public SchedulerContext getContext() throws SchedulerException {
-        return getSched().getSchedulerContext();
+        return getScheduler().getSchedulerContext();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -128,7 +195,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public void start() throws SchedulerException {
-        getSched().start();
+        getScheduler().start();
     }
 
     /**
@@ -138,7 +205,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public void startDelayed(int seconds) throws SchedulerException {
-        getSched().startDelayed(seconds);
+        getScheduler().startDelayed(seconds);
     }
 
 
@@ -149,7 +216,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public void standby() {
-        getSched().standby();
+        getScheduler().standby();
     }
 
     /**
@@ -168,7 +235,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public boolean isStarted() {
-        return (getSched().runningSince() != null);
+        return (getScheduler().runningSince() != null);
     }
 
     /**
@@ -178,7 +245,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public boolean isInStandbyMode() {
-        return getSched().isInStandbyMode();
+        return getScheduler().isInStandbyMode();
     }
 
     /**
@@ -188,7 +255,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public void shutdown() {
-        getSched().shutdown();
+        getScheduler().shutdown();
     }
 
     /**
@@ -198,7 +265,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public void shutdown(boolean waitForJobsToComplete) {
-        getSched().shutdown(waitForJobsToComplete);
+        getScheduler().shutdown(waitForJobsToComplete);
     }
 
     /**
@@ -208,7 +275,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public boolean isShutdown() {
-        return getSched().isShutdown();
+        return getScheduler().isShutdown();
     }
 
     /**
@@ -218,7 +285,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public List<JobExecutionContext> getCurrentlyExecutingJobs() {
-        return getSched().getCurrentlyExecutingJobs();
+        return getScheduler().getCurrentlyExecutingJobs();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -234,7 +301,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public void clear() throws SchedulerException {
-        getSched().clear();
+        getScheduler().clear();
     }
 
     /**
@@ -245,7 +312,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
     @Override
     public Date scheduleJob(JobDetail jobDetail, Trigger trigger)
             throws SchedulerException {
-        return getSched().scheduleJob(jobDetail, trigger);
+        return getScheduler().scheduleJob(jobDetail, trigger);
     }
 
     /**
@@ -255,7 +322,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public Date scheduleJob(Trigger trigger) throws SchedulerException {
-        return getSched().scheduleJob(trigger);
+        return getScheduler().scheduleJob(trigger);
     }
 
     /**
@@ -266,35 +333,35 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
     @Override
     public void addJob(JobDetail jobDetail, boolean replace)
             throws SchedulerException {
-        getSched().addJob(jobDetail, replace);
+        getScheduler().addJob(jobDetail, replace);
     }
 
     @Override
     public void addJob(JobDetail jobDetail, boolean replace, boolean storeNonDurableWhileAwaitingScheduling)
             throws SchedulerException {
-        getSched().addJob(jobDetail, replace, storeNonDurableWhileAwaitingScheduling);
+        getScheduler().addJob(jobDetail, replace, storeNonDurableWhileAwaitingScheduling);
     }
 
 
     @Override
     public boolean deleteJobs(List<JobKey> jobKeys) throws SchedulerException {
-        return getSched().deleteJobs(jobKeys);
+        return getScheduler().deleteJobs(jobKeys);
     }
 
     @Override
     public void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> triggersAndJobs, boolean replace) throws SchedulerException {
-        getSched().scheduleJobs(triggersAndJobs, replace);
+        getScheduler().scheduleJobs(triggersAndJobs, replace);
     }
 
     @Override
     public void scheduleJob(JobDetail jobDetail, Set<? extends Trigger> triggersForJob, boolean replace) throws SchedulerException {
-        getSched().scheduleJob(jobDetail,  triggersForJob, replace);
+        getScheduler().scheduleJob(jobDetail,  triggersForJob, replace);
     }
 
     @Override
     public boolean unscheduleJobs(List<TriggerKey> triggerKeys)
             throws SchedulerException {
-        return getSched().unscheduleJobs(triggerKeys);
+        return getScheduler().unscheduleJobs(triggerKeys);
     }
 
     /**
@@ -305,7 +372,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
     @Override
     public boolean deleteJob(JobKey jobKey)
             throws SchedulerException {
-        return getSched().deleteJob(jobKey);
+        return getScheduler().deleteJob(jobKey);
     }
 
     /**
@@ -316,7 +383,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
     @Override
     public boolean unscheduleJob(TriggerKey triggerKey)
             throws SchedulerException {
-        return getSched().unscheduleJob(triggerKey);
+        return getScheduler().unscheduleJob(triggerKey);
     }
 
     /**
@@ -327,7 +394,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
     @Override
     public Date rescheduleJob(TriggerKey triggerKey,
                               Trigger newTrigger) throws SchedulerException {
-        return getSched().rescheduleJob(triggerKey, newTrigger);
+        return getScheduler().rescheduleJob(triggerKey, newTrigger);
     }
 
     /**
@@ -349,7 +416,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
     @Override
     public void triggerJob(JobKey jobKey, JobDataMap data)
             throws SchedulerException {
-        getSched().triggerJob(jobKey, data);
+        getScheduler().triggerJob(jobKey, data);
     }
 
     /**
@@ -360,7 +427,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
     @Override
     public void pauseTrigger(TriggerKey triggerKey)
             throws SchedulerException {
-        getSched().pauseTrigger(triggerKey);
+        getScheduler().pauseTrigger(triggerKey);
     }
 
     /**
@@ -370,7 +437,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public void pauseTriggers(GroupMatcher<TriggerKey> matcher) throws SchedulerException {
-        getSched().pauseTriggers(matcher);
+        getScheduler().pauseTriggers(matcher);
     }
 
     /**
@@ -381,7 +448,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
     @Override
     public void pauseJob(JobKey jobKey)
             throws SchedulerException {
-        getSched().pauseJob(jobKey);
+        getScheduler().pauseJob(jobKey);
     }
 
     /**
@@ -389,7 +456,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public Set<String> getPausedTriggerGroups() throws SchedulerException {
-        return getSched().getPausedTriggerGroups();
+        return getScheduler().getPausedTriggerGroups();
     }
 
     /**
@@ -399,7 +466,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public void pauseJobs(GroupMatcher<JobKey> matcher) throws SchedulerException {
-        getSched().pauseJobs(matcher);
+        getScheduler().pauseJobs(matcher);
     }
 
     /**
@@ -410,7 +477,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
     @Override
     public void resumeTrigger(TriggerKey triggerKey)
             throws SchedulerException {
-        getSched().resumeTrigger(triggerKey);
+        getScheduler().resumeTrigger(triggerKey);
     }
 
     /**
@@ -420,7 +487,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public void resumeTriggers(GroupMatcher<TriggerKey> matcher) throws SchedulerException {
-        getSched().resumeTriggers(matcher);
+        getScheduler().resumeTriggers(matcher);
     }
 
     /**
@@ -431,7 +498,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
     @Override
     public void resumeJob(JobKey jobKey)
             throws SchedulerException {
-        getSched().resumeJob(jobKey);
+        getScheduler().resumeJob(jobKey);
     }
 
     /**
@@ -441,7 +508,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public void resumeJobs(GroupMatcher<JobKey> matcher) throws SchedulerException {
-        getSched().resumeJobs(matcher);
+        getScheduler().resumeJobs(matcher);
     }
 
     /**
@@ -451,7 +518,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public void pauseAll() throws SchedulerException {
-        getSched().pauseAll();
+        getScheduler().pauseAll();
     }
 
     /**
@@ -461,7 +528,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public void resumeAll() throws SchedulerException {
-        getSched().resumeAll();
+        getScheduler().resumeAll();
     }
 
     /**
@@ -471,7 +538,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public List<String> getJobGroupNames() throws SchedulerException {
-        return getSched().getJobGroupNames();
+        return getScheduler().getJobGroupNames();
     }
 
     /**
@@ -482,7 +549,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
     @Override
     public List<? extends Trigger> getTriggersOfJob(JobKey jobKey)
             throws SchedulerException {
-        return getSched().getTriggersOfJob(jobKey);
+        return getScheduler().getTriggersOfJob(jobKey);
     }
 
     /**
@@ -492,7 +559,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public Set<JobKey> getJobKeys(GroupMatcher<JobKey> matcher) throws SchedulerException {
-        return getSched().getJobKeys(matcher);
+        return getScheduler().getJobKeys(matcher);
     }
 
     /**
@@ -502,7 +569,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public List<String> getTriggerGroupNames() throws SchedulerException {
-        return getSched().getTriggerGroupNames();
+        return getScheduler().getTriggerGroupNames();
     }
 
     /**
@@ -512,7 +579,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public Set<TriggerKey> getTriggerKeys(GroupMatcher<TriggerKey> matcher) throws SchedulerException {
-        return getSched().getTriggerKeys(matcher);
+        return getScheduler().getTriggerKeys(matcher);
     }
 
     /**
@@ -523,7 +590,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
     @Override
     public JobDetail getJobDetail(JobKey jobKey)
             throws SchedulerException {
-        return getSched().getJobDetail(jobKey);
+        return getScheduler().getJobDetail(jobKey);
     }
 
     /**
@@ -534,7 +601,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
     @Override
     public Trigger getTrigger(TriggerKey triggerKey)
             throws SchedulerException {
-        return getSched().getTrigger(triggerKey);
+        return getScheduler().getTrigger(triggerKey);
     }
 
     /**
@@ -545,7 +612,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
     @Override
     public Trigger.TriggerState getTriggerState(TriggerKey triggerKey)
             throws SchedulerException {
-        return getSched().getTriggerState(triggerKey);
+        return getScheduler().getTriggerState(triggerKey);
     }
 
     /**
@@ -556,7 +623,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
     @Override
     public void addCalendar(String calName, Calendar calendar, boolean replace, boolean updateTriggers)
             throws SchedulerException {
-        getSched().addCalendar(calName, calendar, replace, updateTriggers);
+        getScheduler().addCalendar(calName, calendar, replace, updateTriggers);
     }
 
     /**
@@ -566,7 +633,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public boolean deleteCalendar(String calName) throws SchedulerException {
-        return getSched().deleteCalendar(calName);
+        return getScheduler().deleteCalendar(calName);
     }
 
     /**
@@ -576,7 +643,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public Calendar getCalendar(String calName) throws SchedulerException {
-        return getSched().getCalendar(calName);
+        return getScheduler().getCalendar(calName);
     }
 
     /**
@@ -586,7 +653,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public List<String> getCalendarNames() throws SchedulerException {
-        return getSched().getCalendarNames();
+        return getScheduler().getCalendarNames();
     }
 
     /**
@@ -596,7 +663,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public boolean checkExists(JobKey jobKey) throws SchedulerException {
-        return getSched().checkExists(jobKey);
+        return getScheduler().checkExists(jobKey);
     }
 
 
@@ -607,7 +674,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public boolean checkExists(TriggerKey triggerKey) throws SchedulerException {
-        return getSched().checkExists(triggerKey);
+        return getScheduler().checkExists(triggerKey);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -622,7 +689,7 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public void setJobFactory(JobFactory factory) throws SchedulerException {
-        getSched().setJobFactory(factory);
+        getScheduler().setJobFactory(factory);
     }
 
     /**
@@ -630,17 +697,17 @@ public abstract class AbstractSchedulerProvider implements Scheduler {
      */
     @Override
     public ListenerManager getListenerManager() throws SchedulerException {
-        return getSched().getListenerManager();
+        return getScheduler().getListenerManager();
     }
 
     @Override
     public boolean interrupt(JobKey jobKey) throws UnableToInterruptJobException {
-        return getSched().interrupt(jobKey);
+        return getScheduler().interrupt(jobKey);
     }
 
     @Override
     public boolean interrupt(String fireInstanceId) throws UnableToInterruptJobException {
-        return getSched().interrupt(fireInstanceId);
+        return getScheduler().interrupt(fireInstanceId);
     }
 
 

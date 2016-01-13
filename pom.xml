@@ -11,7 +11,36 @@
 
     <packaging>pom</packaging>
 
-    <name>AWPLab Core</name>
+    <name>AWPLab Core Karaf Library</name>
+
+    <description>A library used with OSGI/Karaf supporting a improved quartz scheduler OSGI implementation and Jersey rest service impelementation with Jackson and OpenAPI/Swagger support.</description>
+
+    <inceptionYear>2013</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+
+    <scm>
+        <url>https://github.com/andyphillips404/awplab-core</url>
+        <connection>scm:git:git://github.com/andyphillips404/awplab-core.git</connection>
+        <developerConnection>scm:git:git@github.com:andyphillips404/awplab-core.git</developerConnection>
+    </scm>
+
+
+    <developers>
+        <developer>
+            <email>andyphillips@fastmail.com</email>
+            <name>Andy Phillips</name>
+            <url>https://github.com/andyphillips404</url>
+            <id>andyphillips404</id>
+        </developer>
+    </developers>
 
     <modules>
 
@@ -396,7 +425,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <version>2.3</version>
+                    <version>2.4.2</version>
                 </plugin>
 
                 <plugin>
@@ -413,11 +442,11 @@
                     </executions>
                 </plugin>
 
-                <!--
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.9.1</version>
+                    <version>2.10.3</version>
                     <executions>
                         <execution>
                             <id>attach-javadocs</id>
@@ -427,7 +456,6 @@
                         </execution>
                     </executions>
                 </plugin>
-                -->
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -444,7 +472,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>1.9.1</version>
+                    <version>1.10</version>
                 </plugin>
 
                 <plugin>
@@ -473,6 +501,10 @@
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
         </plugins>
 
 
@@ -501,12 +533,6 @@
 
     </dependencies>
 
-
-    <scm>
-        <connection>scm:git:git://github.com/andyphillips404/awplab-core.git</connection>
-        <developerConnection>scm:git:git@github.com:andyphillips404/awplab-core.git</developerConnection>
-        <url>https://github.com/andyphillips404/awplab-core.git</url>
-    </scm>
 
     <profiles>
         <profile>
@@ -562,6 +588,7 @@
             <name>HDScores Repository</name>
             <url>https://awplab.com/nexus/content/groups/public/</url>
         </repository>
+
         <repository>
             <id>jboss-snapshots</id>
             <name>JBoss Snapshots</name>

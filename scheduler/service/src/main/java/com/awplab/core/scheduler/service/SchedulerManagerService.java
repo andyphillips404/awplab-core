@@ -254,20 +254,64 @@ public interface SchedulerManagerService {
     public boolean deleteJob(String schedulerName, JobKey jobKey) throws SchedulerException ;
 
 
+    /**
+     * Delete jobs that are of jobClass and have matching job data map entries in the JobDataMap
+     * @param jobClass class to match against
+     * @param requiredMatchingJobDataMapEntries matching job data map entries to require.  Null if no matches required
+     * @throws SchedulerException
+     */
     public void deleteJobs(Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException ;
 
+    /**
+     * Interrupt job with the JobKey on the scheduler identified by the scheduler name
+     * @param schedulerName scheduler name of the scheduler to interrupt the job
+     * @param jobKey job key of the running job to interrupt
+     * @return true if interruption was successful, false if no running job was found
+     * @throws SchedulerException
+     */
     public boolean interruptJob(String schedulerName, JobKey jobKey) throws SchedulerException;
 
+    /**
+     * Interrupt all jobs of jobClass and have matching job data map entries in the JobDataMap
+     * @param jobClass class to match against
+     * @param requiredMatchingJobDataMapEntries matching job data map entries to require.  Null if no matches required
+     * @throws SchedulerException
+     */
     public void interruptJobs(Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException ;
 
+    /**
+     * Delete all scheduled jobs and interrupt all running jobs matching job key on scheduler identified by scheduler name
+     * @param schedulerName scheduler name of the scheduler to delete and interrupt the job
+     * @param jobKey job key of the running job to interrupt
+     * @return true if the interruption and/or deletion was success, false if no job was found
+     * @throws SchedulerException
+     */
     public boolean deleteAndInterruptJob(String schedulerName, JobKey jobKey) throws SchedulerException;
 
+    /**
+     * Delete all scheduled jobs and interrupt all running all jobs of jobClass and have matching job data map entries in the JobDataMap
+     * @param jobClass class to match against
+     * @param requiredMatchingJobDataMapEntries matching job data map entries to require.  Null if no matches required
+     * @throws SchedulerException
+     */
     public void deleteAndInterruptJob(Class<? extends Job> jobClass, JobDataMap requiredMatchingJobDataMapEntries) throws SchedulerException ;
 
+    /**
+     * Delete all jobs on the scheduler that the group matches the group matcher
+     * @param schedulerName scheduler name of the scheduler to delete the jobs on
+     * @param matcher matcher to match the job key group against
+     * @throws SchedulerException
+     */
     public void deleteJobs(String schedulerName, GroupMatcher<JobKey> matcher) throws SchedulerException;
 
+    /**
+     * Get the JobExecutionContext of the running job identified by jobKey and in the scheduler of scheduler name
+     * @param schedulerName scheduler name of the scheduler
+     * @param jobKey job key of the running job
+     * @return JobExecutionContext of the running job, null if not found
+     * @throws SchedulerException
+     */
     public JobExecutionContext getRunningJob(String schedulerName, JobKey jobKey) throws SchedulerException;
 
-    //public void interruptThread(String schedulerName, JobKey jobKey) throws SchedulerException;
 
 }

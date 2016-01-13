@@ -14,6 +14,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * This is the base abstract class that can be used to help support interruption gracefully and
+ * implementation of the status interface.   This will allow the job to better fully utilize the
+ * library and manager services on the command line and rest interface.
+ *
  * Created by andyphillips404 on 2/24/15.
  */
 public abstract class AbstractStatusInterruptableJob implements StatusJob, InterruptableJob {
@@ -23,6 +27,12 @@ public abstract class AbstractStatusInterruptableJob implements StatusJob, Inter
 
     private boolean interruptRequested = false;
 
+    /**
+     * Returns true if interruption of the currently executing job has been requested, i.e. the
+     * interrupt() method has been called and execution has not finalized.
+     *
+     * @return true if interrupt() has been called, false if not.
+     */
     public boolean isInterruptRequested() {
         synchronized (updateLock) {
             return interruptRequested;
@@ -31,6 +41,11 @@ public abstract class AbstractStatusInterruptableJob implements StatusJob, Inter
 
     private boolean running = true;
 
+    /**
+     * Returns true if the job is currently running.
+     *
+     * @return true if the job is running, false if not.
+     */
     public boolean isRunning() {
         synchronized (updateLock) {
             return running;
@@ -83,10 +98,19 @@ public abstract class AbstractStatusInterruptableJob implements StatusJob, Inter
         }
         finally {
             setRunning(false);
+            synchronized (updateLock) {
+                interruptRequested = false;
+            }
         }
     }
 
-
+    /**
+     * New override point for the Job.   JobExecutionContext is the context passed form the
+     * execute method in the traditional job interface
+     *
+     * @param context JobExecutionContext of the job
+     * @throws JobExecutionException
+     */
     public abstract void interruptableExecute(JobExecutionContext context) throws JobExecutionException;
 
 }

@@ -10,13 +10,28 @@ This is a library for use in [Karaf](http://karaf.apache.org/) 4 that supports t
   4. Robust features.xml will all dependencies required to run the library
 
 
-Currently working on documentation and additional code so this repository should be considered under development at this time.  Currently only SNAPSHOT versions of the library are available until initial release
+Currently working on Javadoc for initial release.  Version 1.0.0-SNAPSHOT(s) are available now in the repository below.  Once the Java Doc cleanup is done, and testing, we will release 1.0.0.
 
 # Minimum Requirements
   1. Java 1.8
   2. Karaf 4.0
 
 
+# Snapshot Repository
+The snapshots are available at [https://awplab.com/nexus/content/repositories/snapshots/](https://awplab.com/nexus/content/repositories/snapshots/)
+
+In maven, do the following:
+```xml
+    <repositories>
+        <repository>
+            <id>awplab-snapshots</id>
+            <name>AWPLab Snapshot Repository</name>
+            <url>https://awplab.com/nexus/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
+```
+You can add the repository to your settings.xml in the .m2 so you can access the features in karaf.  Or you can add the repository to the pax url config admin in karaf.
 # Installing the features
 
 ```

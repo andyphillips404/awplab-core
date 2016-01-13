@@ -24,6 +24,9 @@ import java.util.UUID;
 @Provides(specifications = Scheduler.class)
 public class VolatileSchedulerProvider extends AbstractSchedulerProvider {
 
+    /**
+     * Configuration Admin factory name to use when creating instances using the configuration admin
+     */
     public final static String CONFIG_FACTORY_NAME = "com.awplab.core.scheduler.volatile";
 
     public final static String PROPERTY_NAME = "com.awplab.core.scheduler.volatile.name";
@@ -108,7 +111,7 @@ public class VolatileSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     @Override
-    public JobFactory getJobFactory() {
+    public JobFactory getInitialJobFactory() {
         if (ipojoJobFactory == null) {
             ipojoJobFactory = new IPOJOJobFactory();
         }
