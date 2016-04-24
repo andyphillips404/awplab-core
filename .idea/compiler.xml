@@ -17,13 +17,6 @@
       <profile default="true" name="Default" enabled="false">
         <processorPath useClasspath="true" />
       </profile>
-      <profile default="false" name="Annotation profile for features" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-        <module name="features" />
-      </profile>
       <profile default="false" name="Annotation profile for service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -38,40 +31,6 @@
         <processorPath useClasspath="true" />
         <module name="command" />
       </profile>
-      <profile default="false" name="Annotation profile for test" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-      </profile>
-      <profile default="false" name="Annotation profile for scheduler.service" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-        <module name="scheduler.service" />
-      </profile>
-      <profile default="false" name="Annotation profile for scheduler.command" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-        <module name="scheduler.command" />
-      </profile>
-      <profile default="false" name="Annotation profile for rest.service" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-        <module name="rest.service" />
-      </profile>
-      <profile default="false" name="Annotation profile for rest.jackson" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-        <module name="rest.jackson" />
-      </profile>
       <profile default="false" name="Annotation profile for karaf" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -79,33 +38,22 @@
         <processorPath useClasspath="true" />
         <module name="karaf" />
       </profile>
-      <profile default="false" name="Annotation profile for rest.command" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-        <module name="rest.command" />
-      </profile>
-      <profile default="false" name="Annotation profile for ipojo" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
-        <module name="ipojo" />
-      </profile>
-      <profile default="false" name="Annotation profile for common" enabled="true">
+      <profile default="false" name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
         <module name="common" />
-      </profile>
-      <profile default="false" name="Annotation profile for rest.swagger" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
+        <module name="features" />
+        <module name="ipojo" />
+        <module name="rest.command" />
+        <module name="rest.jackson" />
+        <module name="rest.service" />
         <module name="rest.swagger" />
+        <module name="scheduler.command" />
+        <module name="scheduler.service" />
+        <module name="selenium.command" />
+        <module name="selenium.service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -123,6 +71,10 @@
       <module name="scheduler" target="1.8" />
       <module name="scheduler.command" target="1.8" />
       <module name="scheduler.service" target="1.8" />
+      <module name="selenium" target="1.8" />
+      <module name="selenium.command" target="1.8" />
+      <module name="selenium.remote" target="1.8" />
+      <module name="selenium.service" target="1.8" />
       <module name="service" target="1.8" />
       <module name="test" target="1.8" />
     </bytecodeTargetLevel>

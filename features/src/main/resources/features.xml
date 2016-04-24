@@ -68,6 +68,13 @@
         <bundle>mvn:com.awplab.core/rest.swagger/${version.core.rest.swagger}</bundle>
     </feature>
 
+    <feature name="core-selenium" version="${parent.version}">
+        <feature>ipojo</feature>
+        <feature>selenium-base</feature>
+
+        <bundle>mvn:com.awplab.core/selenium.service/${version.core.selenium.service}</bundle>
+        <bundle>mvn:com.awplab.core/selenium.command/${version.core.selenium.command}</bundle>
+    </feature>
 
     <feature name="core-ipojo" version="${parent.version}">
         <feature>ipojo</feature>
@@ -249,6 +256,41 @@
         <bundle>mvn:org.apache.felix/org.apache.felix.http.sslfilter/${version.felix.http.sslfilter}</bundle>
     </feature>
 
+    <feature name="selenium-base" version="${version.selenium}">
+        <feature>guava</feature>
+        <feature>commons-codec</feature>
+        <feature>commons-logging</feature>
+        <feature>commons-exec</feature>
+        <feature>commons-io</feature>
+
+        <bundle>wrap:mvn:org.seleniumhq.selenium/selenium-firefox-driver/${version.selenium}</bundle>
+        <bundle>wrap:mvn:org.seleniumhq.selenium/selenium-remote-driver/${version.selenium}$Bundle-SymbolicName=selenium-remote-driver&amp;Export-Package=org.openqa.selenium.browserlaunchers.locators;version="${version.sele}",org.openqa.selenium.io;version="${version.selenium}",org.openqa.selenium.mobile;version="${version.selenium}",org.openqa.selenium.net;version="${version.selenium}",org.openqa.selenium.os;version="${version.selenium}",org.openqa.selenium.remote;version="${version.selenium}";selenium-remote-driver=split;mandatory:=selenium-remote-driver,org.openqa.selenium.remote.html5;version="${version.selenium}"org.openqa.selenium.remote.http;version="${version.selenium}",org.openqa.selenium.remote.internal;version="${version.selenium}",org.openqa.selenium.remote.mobile;version="${version.selenium}",org.openqa.selenium.remote.service;version="${version.selenium}"</bundle>
+        <bundle>wrap:mvn:cglib/cglib-nodep/2.1_3</bundle>
+        <bundle>mvn:com.google.code.gson/gson/2.3.1</bundle>
+        <bundle>wrap:mvn:org.seleniumhq.selenium/selenium-api/${version.selenium}$Bundle-SymbolicName=selenium-api&amp;Export-Package=com.thoughtworks.selenium;version="${version.selenium}",org.openqa.selenium;version="${version.selenium}",org.openqa.selenium.html5;version="${version.selenium}",org.openqa.selenium.interactions;version="${version.selenium}",org.openqa.selenium.interactions.internal;version="${version.selenium}",org.openqa.selenium.interactions.touch;version="${version.selenium}",org.openqa.selenium.internal;version="${version.selenium}",org.openqa.selenium.logging;version="${version.selenium}",org.openqa.selenium.logging.profiler;version="${version.selenium}",org.openqa.selenium.remote;version="${version.selenium}";selenium-api=split;mandatory:=selenium-api,org.openqa.selenium.security;version="${version.selenium}"</bundle>
+        <bundle>wrap:mvn:org.seleniumhq.selenium/selenium-support/${version.selenium}</bundle>
+        <!--<bundle>wrap:mvn:org.seleniumhq.selenium/selenium-leg-rc/${version.selenium}</bundle> -->
+
+
+        <bundle>wrap:mvn:org.seleniumhq.selenium/selenium-chrome-driver/${version.selenium}</bundle>
+        <bundle>wrap:mvn:org.seleniumhq.selenium/selenium-ie-driver/${version.selenium}</bundle>
+        <bundle>wrap:mvn:org.seleniumhq.selenium/selenium-safari-driver/${version.selenium}</bundle>
+
+
+        <bundle>wrap:mvn:org.apache.httpcomponents/httpclient/4.5.1</bundle>
+        <bundle>wrap:mvn:org.apache.httpcomponents/httpcore/4.4.3</bundle>
+
+        <bundle>mvn:net.java.dev.jna/jna/4.1.0</bundle>
+        <bundle>mvn:net.java.dev.jna/jna-platform/4.1.0</bundle>
+
+        <bundle>mvn:io.netty/netty/3.5.7.Final</bundle>
+
+
+
+    </feature>
+
+
+
     <!-- Support Libraries -->
 
     <feature name="javassist" version="${version.javassist}">
@@ -276,6 +318,18 @@
 
     <feature name="commons-lang3" version="${version.commons-lang3">
         <bundle>mvn:org.apache.commons/commons-lang3/${version.commons-lang3}</bundle>
+    </feature>
+
+    <feature name="commons-logging" version="${version.commons-logging}">
+        <bundle>mvn:commons-logging/commons-logging/${version.commons-logging}</bundle>
+    </feature>
+
+    <feature name="commons-exec" version="${version.commons-ecex}">
+        <bundle>mvn:org.apache.commons/commons-exec/${version.commons-exec}</bundle>
+    </feature>
+
+    <feature name="commons-io" version="${version.commons-io}">
+        <bundle>mvn:commons-io/commons-io/${version.commons-io}</bundle>
     </feature>
 
 </features>

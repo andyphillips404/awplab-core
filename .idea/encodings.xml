@@ -13,6 +13,10 @@
     <file url="file://$PROJECT_DIR$/scheduler" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/scheduler/command" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/scheduler/service" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/selenium" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/selenium/command" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/selenium/remote" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/selenium/service" charset="UTF-8" />
     <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>

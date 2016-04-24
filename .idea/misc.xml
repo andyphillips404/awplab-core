@@ -15,6 +15,9 @@
     <file type="Osmorc" url="file://$PROJECT_DIR$/rest/swagger" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/scheduler/command" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/scheduler/service" />
+    <file type="Osmorc" url="file://$PROJECT_DIR$/selenium/command" />
+    <file type="Osmorc" url="file://$PROJECT_DIR$/selenium/remote" />
+    <file type="Osmorc" url="file://$PROJECT_DIR$/selenium/service" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/test" />
   </component>
   <component name="MavenProjectsManager">
@@ -25,6 +28,7 @@
     </option>
     <option name="ignoredFiles">
       <set>
+        <option value="$PROJECT_DIR$/selenium/remote/pom.xml" />
         <option value="$PROJECT_DIR$/test/pom.xml" />
       </set>
     </option>

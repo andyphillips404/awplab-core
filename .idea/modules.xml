@@ -14,6 +14,9 @@
       <module fileurl="file://$PROJECT_DIR$/scheduler/scheduler.iml" filepath="$PROJECT_DIR$/scheduler/scheduler.iml" />
       <module fileurl="file://$PROJECT_DIR$/scheduler/command/scheduler.command.iml" filepath="$PROJECT_DIR$/scheduler/command/scheduler.command.iml" />
       <module fileurl="file://$PROJECT_DIR$/scheduler/service/scheduler.service.iml" filepath="$PROJECT_DIR$/scheduler/service/scheduler.service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/selenium/selenium.iml" filepath="$PROJECT_DIR$/selenium/selenium.iml" />
+      <module fileurl="file://$PROJECT_DIR$/selenium/command/selenium.command.iml" filepath="$PROJECT_DIR$/selenium/command/selenium.command.iml" />
+      <module fileurl="file://$PROJECT_DIR$/selenium/service/selenium.service.iml" filepath="$PROJECT_DIR$/selenium/service/selenium.service.iml" />
     </modules>
   </component>
 </project>

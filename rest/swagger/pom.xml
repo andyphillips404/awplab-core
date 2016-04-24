@@ -29,12 +29,9 @@
                             ${project.artifactId}
                         </Bundle-SymbolicName>
                         <Export-Package>
-                            com.awplab.core.rest.swagger,
-                            !com.awplab.core.rest.swagger.manager,
-                            com.awplab.core.rest.swagger.command;version=${version.core.rest.swagger};-noimport:=true
+                            com.awplab.core.rest.swagger
                         </Export-Package>
-                        <Karaf-Commands>com.awplab.core.rest.swagger.command</Karaf-Commands>
-                        <Private-Package>com.awplab.core.rest.swagger.manager</Private-Package>
+                        <!-- <Private-Package>com.awplab.core.rest.swagger.manager</Private-Package> -->
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
