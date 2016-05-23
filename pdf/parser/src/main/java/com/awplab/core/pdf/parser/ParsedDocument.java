@@ -44,7 +44,9 @@ public class ParsedDocument implements AutoCloseable
 {
     private Logger logger = LoggerFactory.getLogger(ParsedDocument.class);
 
-    final private PDDocument pdDocument;
+    private PDDocument pdDocument;
+
+    private TemporaryFile temporaryFile;
 
     private BufferedImage bufferedImage = null;
 
@@ -68,12 +70,18 @@ public class ParsedDocument implements AutoCloseable
         return bufferedImage;
     }
 
-    public ParsedDocument(PDDocument pdDocument) {
-        this.pdDocument = pdDocument;
+    public ParsedDocument(TemporaryFile temporaryFile) throws IOException {
+        this.temporaryFile = temporaryFile;
+        pdDocument = PDDocument.load(temporaryFile);
 
         processDocument();
     }
 
+    public ParsedDocument(PDDocument pdDocument) throws IOException {
+        this.pdDocument = pdDocument;
+
+        processDocument();
+    }
 
     private void processDocument() {
 
@@ -104,6 +112,7 @@ public class ParsedDocument implements AutoCloseable
         private ElementRenderer(PDDocument document, boolean debug)
         {
             super(document);
+            this.debug = debug;
         }
 
         private List<ElementPageDrawer> pageDrawerList = new ArrayList<>();
@@ -128,5 +137,6 @@ public class ParsedDocument implements AutoCloseable
     @Override
     public void close() throws Exception {
         pdDocument.close();
+        if (temporaryFile != null) temporaryFile.close();
     }
 }
