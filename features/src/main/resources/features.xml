@@ -21,7 +21,15 @@
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0"
           name="AWPLab Core">
 
-    <feature name="core-scheduler" version="${version.core.scheduler.service}">
+    <feature name="core-common" version="${parent.version}">
+        <feature>commons-io</feature>
+        <feature>commons-lang3</feature>
+
+        <bundle>mvn:com.awplab.core/common/${version.core.common}</bundle>
+    </feature>
+
+
+    <feature name="core-scheduler" version="${parent.version}">
         <feature>ipojo</feature>
         <feature>guava</feature>
         <feature>guava-retrying</feature>
@@ -72,6 +80,8 @@
         <feature>ipojo</feature>
         <feature>selenium-base</feature>
 
+        <feature>core-common</feature>
+
         <bundle>mvn:com.awplab.core/selenium.service/${version.core.selenium.service}</bundle>
         <bundle>mvn:com.awplab.core/selenium.command/${version.core.selenium.command}</bundle>
     </feature>
@@ -82,6 +92,23 @@
     </feature>
 
 
+    <feature name="core-pdf" version="${parent.version}">
+        <feature>pdfbox</feature>
+        <feature>ipojo</feature>
+
+        <feature>core-common</feature>
+        <feature>commons-exec</feature>
+        <feature>commons-io</feature>
+        <feature>commons-lang3</feature>
+
+        <feature>guava-retrying</feature>
+
+        <bundle>mvn:com.awplab.core/pdf.parser/${version.core.pdf.parser}</bundle>
+        <bundle>mvn:com.awplab.core/pdf.service/${version.core.pdf.service}</bundle>
+        <bundle>mvn:com.awplab.core/pdf.command/${version.core.pdf.command}</bundle>
+
+    </feature>
+
     <feature name="ipojo" version="${version.ipojo}">
         <feature>shell-compat</feature>
         <feature>eventadmin</feature>
@@ -91,7 +118,7 @@
     </feature>
 
     <feature name="ehcache" version="${version.ehcache}">
-        <bundle>mvn:org.ehcache/ehcache/3.0.0.m4</bundle>
+        <bundle>mvn:org.ehcache/ehcache/${version.ehcache}</bundle>
         <!-- <bundle>mvn:org.slf4j/slf4j-api/1.7.7</bundle> -->
         <bundle>mvn:org.terracotta/offheap-store/2.1.2</bundle>
     </feature>
@@ -284,12 +311,15 @@
         <bundle>mvn:net.java.dev.jna/jna-platform/4.1.0</bundle>
 
         <bundle>mvn:io.netty/netty/3.5.7.Final</bundle>
-
-
-
     </feature>
 
 
+    <feature name="pdfbox" version="${version.pdfbox}">
+        <feature>commons-logging</feature>
+
+        <bundle>mvn:org.apache.pdfbox/pdfbox/2.0.0</bundle>
+        <bundle>mvn:org.apache.pdfbox/fontbox/2.0.0</bundle>
+    </feature>
 
     <!-- Support Libraries -->
 

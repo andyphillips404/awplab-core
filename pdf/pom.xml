@@ -9,24 +9,24 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>selenium</artifactId>
+    <artifactId>pdf</artifactId>
 
-    <name>AWPLab Core - Selenium</name>
+    <name>AWPLab Core - PDF</name>
 
     <modules>
         <module>service</module>
         <module>command</module>
+        <module>parser</module>
     </modules>
 
     <packaging>pom</packaging>
 
     <dependencies>
+
         <dependency>
             <groupId>com.awplab.core</groupId>
             <artifactId>common</artifactId>
         </dependency>
 
-
     </dependencies>
-
 </project>

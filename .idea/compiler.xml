@@ -46,6 +46,11 @@
         <module name="common" />
         <module name="features" />
         <module name="ipojo" />
+        <module name="pdf.command" />
+        <module name="pdf.parser" />
+        <module name="pdf.service" />
+        <module name="pdfbox.command" />
+        <module name="pdfbox.service" />
         <module name="rest.command" />
         <module name="rest.jackson" />
         <module name="rest.service" />
@@ -63,6 +68,13 @@
       <module name="features" target="1.8" />
       <module name="ipojo" target="1.8" />
       <module name="karaf" target="1.8" />
+      <module name="pdf" target="1.8" />
+      <module name="pdf.command" target="1.8" />
+      <module name="pdf.parser" target="1.8" />
+      <module name="pdf.service" target="1.8" />
+      <module name="pdfbox" target="1.8" />
+      <module name="pdfbox.command" target="1.8" />
+      <module name="pdfbox.service" target="1.8" />
       <module name="rest" target="1.8" />
       <module name="rest.command" target="1.8" />
       <module name="rest.jackson" target="1.8" />

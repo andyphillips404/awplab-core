@@ -3,19 +3,19 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>core</artifactId>
+        <artifactId>pdf</artifactId>
         <groupId>com.awplab.core</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>common</artifactId>
-
-    <name>AWPLab Core - Common</name>
-
-    <version>${version.core.common}</version>
+    <artifactId>pdf.parser</artifactId>
 
     <packaging>bundle</packaging>
+
+    <name>AWPLab Core - PDF - Parser</name>
+
+    <version>${version.core.pdf.parser}</version>
 
     <build>
         <plugins>
@@ -28,7 +28,7 @@
                             ${project.artifactId}
                         </Bundle-SymbolicName>
                         <Export-Package>
-                            com.awplab.core.common
+                            com.awplab.core.pdf.parser
                         </Export-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
@@ -45,16 +45,12 @@
 
     <dependencies>
 
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
         </dependency>
+
 
     </dependencies>
-
 </project>

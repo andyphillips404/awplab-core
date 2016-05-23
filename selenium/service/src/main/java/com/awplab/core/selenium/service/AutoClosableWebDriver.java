@@ -1,10 +1,12 @@
 package com.awplab.core.selenium.service;
 
+import com.awplab.core.common.TemporaryFile;
 import org.openqa.selenium.*;
 import org.openqa.selenium.remote.Augmenter;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.FluentWait;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -127,14 +129,16 @@ public class AutoClosableWebDriver implements WebDriver, AutoCloseable {
         wait.withTimeout(duration, timeUnit).until(condition);
     }
 
-    public byte[] takeScreenshot() {
+    public TemporaryFile getScreenshot() {
         if (webDriver instanceof TakesScreenshot) {
-            return ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.BYTES);
+            return TemporaryFile.wrapByAbsolutePath(((TakesScreenshot) webDriver).getScreenshotAs(OutputType.FILE));
         }
         else {
             WebDriver augmentedDriver = new Augmenter().augment(webDriver);
-            return ((TakesScreenshot) augmentedDriver).getScreenshotAs(OutputType.BYTES);
+            return TemporaryFile.wrapByAbsolutePath(((TakesScreenshot) augmentedDriver).getScreenshotAs(OutputType.FILE));
         }
+
     }
+
 
 }

@@ -3,19 +3,19 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>core</artifactId>
+        <artifactId>pdf</artifactId>
         <groupId>com.awplab.core</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>common</artifactId>
-
-    <name>AWPLab Core - Common</name>
-
-    <version>${version.core.common}</version>
+    <artifactId>pdf.service</artifactId>
 
     <packaging>bundle</packaging>
+
+    <name>AWPLab Core - PDF - Service</name>
+
+    <version>${version.core.pdf.service}</version>
 
     <build>
         <plugins>
@@ -28,8 +28,9 @@
                             ${project.artifactId}
                         </Bundle-SymbolicName>
                         <Export-Package>
-                            com.awplab.core.common
+                            com.awplab.core.pdf.service
                         </Export-Package>
+                        <Private-Package>com.awplab.core.pdf.service.provider</Private-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
@@ -46,6 +47,22 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.ipojo</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.awplab.core</groupId>
+            <artifactId>pdf.parser</artifactId>
+        </dependency>
+
+
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
@@ -55,6 +72,15 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
 
-    </dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-exec</artifactId>
+        </dependency>
 
+        <dependency>
+            <groupId>com.github.rholder</groupId>
+            <artifactId>guava-retrying</artifactId>
+        </dependency>
+
+    </dependencies>
 </project>

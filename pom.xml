@@ -43,19 +43,21 @@
     </developers>
 
     <modules>
-
         <module>features</module>
         <module>scheduler</module>
         <module>rest</module>
         <module>ipojo</module>
         <module>common</module>
         <module>selenium</module>
+        <module>pdf</module>
     </modules>
 
 
     <properties>
 
         <version.core.features>1.0.0-SNAPSHOT</version.core.features>
+
+        <version.core.common>1.0.0-SNAPSHOT</version.core.common>
 
         <version.core.scheduler.service>1.0.0-SNAPSHOT</version.core.scheduler.service>
         <version.core.scheduler.command>1.0.0-SNAPSHOT</version.core.scheduler.command>
@@ -67,6 +69,10 @@
 
         <version.core.selenium.command>1.0.0-SNAPSHOT</version.core.selenium.command>
         <version.core.selenium.service>1.0.0-SNAPSHOT</version.core.selenium.service>
+
+        <version.core.pdf.command>1.0.0-SNAPSHOT</version.core.pdf.command>
+        <version.core.pdf.service>1.0.0-SNAPSHOT</version.core.pdf.service>
+        <version.core.pdf.parser>1.0.0-SNAPSHOT</version.core.pdf.parser>
 
         <version.core.ipojo>1.0.0-SNAPSHOT</version.core.ipojo>
 
@@ -95,6 +101,8 @@
 
         <version.selenium>2.53.0</version.selenium>
 
+        <version.pdfbox>2.0.0</version.pdfbox>
+
         <version.javassist>3.20.0-GA</version.javassist>
 
         <version.guava>19.0</version.guava>
@@ -119,6 +127,12 @@
 
     <dependencyManagement>
         <dependencies>
+
+            <dependency>
+                <groupId>com.awplab.core</groupId>
+                <artifactId>common</artifactId>
+                <version>${version.core.common}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.awplab.core</groupId>
@@ -148,6 +162,18 @@
                 <groupId>com.awplab.core</groupId>
                 <artifactId>selenium.service</artifactId>
                 <version>${version.core.selenium.service}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.awplab.core</groupId>
+                <artifactId>pdf.parser</artifactId>
+                <version>${version.core.pdf.parser}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.awplab.core</groupId>
+                <artifactId>pdf.service</artifactId>
+                <version>${version.core.pdf.service}</version>
             </dependency>
 
             <!-- SLF4J -->
@@ -358,6 +384,13 @@
                 <version>${version.selenium}</version>
             </dependency>
 
+            <!-- PDFBox -->
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>pdfbox</artifactId>
+                <version>${version.pdfbox}</version>
+            </dependency>
+
             <!-- Guava -->
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -408,6 +441,7 @@
                 <artifactId>commons-io</artifactId>
                 <version>${version.commons-io}</version>
             </dependency>
+
 
         </dependencies>
     </dependencyManagement>
@@ -545,6 +579,7 @@
     </build>
 
     <dependencies>
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -579,7 +614,7 @@
             </activation>
             <build>
                 <plugins>
-                    <plugin>
+                    <plugin>CustomPageDrawer
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>1.6</version>

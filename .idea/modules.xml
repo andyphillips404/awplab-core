@@ -6,6 +6,10 @@
       <module fileurl="file://$PROJECT_DIR$/core.iml" filepath="$PROJECT_DIR$/core.iml" />
       <module fileurl="file://$PROJECT_DIR$/features/features.iml" filepath="$PROJECT_DIR$/features/features.iml" />
       <module fileurl="file://$PROJECT_DIR$/ipojo/ipojo.iml" filepath="$PROJECT_DIR$/ipojo/ipojo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pdf/pdf.iml" filepath="$PROJECT_DIR$/pdf/pdf.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pdf/command/pdf.command.iml" filepath="$PROJECT_DIR$/pdf/command/pdf.command.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pdf/parser/pdf.parser.iml" filepath="$PROJECT_DIR$/pdf/parser/pdf.parser.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pdf/service/pdf.service.iml" filepath="$PROJECT_DIR$/pdf/service/pdf.service.iml" />
       <module fileurl="file://$PROJECT_DIR$/rest/rest.iml" filepath="$PROJECT_DIR$/rest/rest.iml" />
       <module fileurl="file://$PROJECT_DIR$/rest/command/rest.command.iml" filepath="$PROJECT_DIR$/rest/command/rest.command.iml" />
       <module fileurl="file://$PROJECT_DIR$/rest/jackson/rest.jackson.iml" filepath="$PROJECT_DIR$/rest/jackson/rest.jackson.iml" />

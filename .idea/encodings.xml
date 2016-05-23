@@ -5,6 +5,10 @@
     <file url="file://$PROJECT_DIR$/common" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/features" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ipojo" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/pdf" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/pdf/command" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/pdf/parser" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/pdf/service" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/rest" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/rest/command" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/rest/jackson" charset="UTF-8" />
