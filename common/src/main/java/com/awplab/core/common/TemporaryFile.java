@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.UUID;
 
@@ -34,6 +35,17 @@ public class TemporaryFile extends File implements AutoCloseable {
     }
 
 
+    public static TemporaryFile randomFileWithContents(InputStream inputStream, String suffix) throws IOException {
+        TemporaryFile file = TemporaryFile.randomFile(suffix);
+        FileUtils.copyInputStreamToFile(inputStream, file);
+        return file;
+    }
+
+    public static TemporaryFile randomFileWithContents(InputStream inputStream) throws IOException {
+        return randomFileWithContents(inputStream, null);
+    }
+
+
     public static TemporaryFile wrapByAbsolutePath(File file) {
         return new TemporaryFile(file.getAbsolutePath());
     }
@@ -43,8 +55,11 @@ public class TemporaryFile extends File implements AutoCloseable {
     }
 
     public static TemporaryFile randomFile(String suffix) {
-        return new TemporaryFile(SystemUtils.getJavaIoTmpDir(), UUID.randomUUID().toString() + (suffix == null ? "" : suffix));
-
+        TemporaryFile file = null;
+        do {
+            file = new TemporaryFile(SystemUtils.getJavaIoTmpDir(), UUID.randomUUID().toString() + (suffix == null ? "" : suffix));
+        } while (file.exists());
+        return file;
     }
 
     @Override

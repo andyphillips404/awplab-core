@@ -47,6 +47,8 @@ public class PDFProvider implements PDFService {
 
     public static final String PROPERTY_DEFAULT_RETRY_MAX_RETRY_TIMEOUT_UNIT = "com.awplab.core.pdf.service.provider.defaultRetryTimeoutUnit";
 
+    public static final String PROPERTY_DEFAULT_RENDER_SCALE = "com.awplab.core.pdf.service.provider.defaultRenderScale";
+
     @ServiceProperty(name = PROPERTY_DEFAULT_NETWORK_TIMEOUT, value = "5")
     private long defaultNetworkTimeout;
 
@@ -65,6 +67,9 @@ public class PDFProvider implements PDFService {
     @ServiceProperty(name = PROPERTY_DEFAULT_RETRY_MAX_RETRY_TIMEOUT_UNIT, value = "MINUTES")
     private String defaultRetryTimeoutUnit;
 
+
+    @ServiceProperty(name = PROPERTY_DEFAULT_RENDER_SCALE, value = "10.0f")
+    private float defaultRenderScale;
 
     private File downloadDirectory = null;
 
@@ -154,7 +159,7 @@ public class PDFProvider implements PDFService {
         }
 
         try {
-            return new ParsedDocument(downloadedFile);
+            return new ParsedDocument(downloadedFile, defaultRenderScale);
         }
         catch (IOException ex) {
             logger.error("IOException attempting to return new parsed document!", ex);
@@ -168,7 +173,9 @@ public class PDFProvider implements PDFService {
     public ParsedDocument getParsedDocument(File file) {
 
         try {
-            return new ParsedDocument(PDDocument.load(file));
+            TemporaryFile temporaryFile = TemporaryFile.randomFile();
+            FileUtils.copyFile(file, temporaryFile);
+            return new ParsedDocument(temporaryFile, defaultRenderScale);
         }
         catch (IOException ex) {
             logger.error("IOException trying to read PDF document: " + file.toString());
@@ -181,7 +188,7 @@ public class PDFProvider implements PDFService {
     public ParsedDocument getParsedDocument(TemporaryFile file) {
 
         try {
-            return new ParsedDocument(file);
+            return new ParsedDocument(file, defaultRenderScale);
         }
         catch (IOException ex) {
             logger.error("IOException trying to read PDF document: " + file.toString());

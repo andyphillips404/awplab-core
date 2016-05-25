@@ -46,9 +46,9 @@ public class ParsedDocument implements AutoCloseable
 
     private PDDocument pdDocument;
 
-    private TemporaryFile temporaryFile;
+    private TemporaryFile originalFile;
 
-    private BufferedImage bufferedImage = null;
+    private TemporaryFile renderedImage;
 
     private List<List<Element>> elements = new ArrayList<>();
 
@@ -66,28 +66,29 @@ public class ParsedDocument implements AutoCloseable
         return pdDocument;
     }
 
-    public BufferedImage getBufferedImage() {
-        return bufferedImage;
+    public TemporaryFile getOriginalFile() {
+        return originalFile;
     }
 
-    public ParsedDocument(TemporaryFile temporaryFile) throws IOException {
-        this.temporaryFile = temporaryFile;
-        pdDocument = PDDocument.load(temporaryFile);
-
-        processDocument();
+    public TemporaryFile getRenderedImage() {
+        return renderedImage;
     }
 
-    public ParsedDocument(PDDocument pdDocument) throws IOException {
-        this.pdDocument = pdDocument;
+    public ParsedDocument(TemporaryFile pdfDocumentFile, float renderedScale) throws IOException {
+        this.originalFile = pdfDocumentFile;
+        pdDocument = PDDocument.load(pdfDocumentFile);
 
-        processDocument();
+        processDocument(renderedScale);
     }
 
-    private void processDocument() {
+    public void processDocument(float scale) {
 
         try {
+            if (renderedImage != null) renderedImage.close();
+            renderedImage = TemporaryFile.randomFile(".png");
             ElementRenderer renderer = new ElementRenderer(pdDocument, debugMode);
-            bufferedImage =  renderer.renderImage(0, 3.0f);
+            BufferedImage bufferedImage =  renderer.renderImage(0, scale);
+            ImageIO.write(bufferedImage, "PNG", renderedImage);
             for (ElementPageDrawer elementPageDrawer : renderer.getPageDrawerList()) {
                 elements.add(new ArrayList<>(elementPageDrawer.getElements()));
             }
@@ -137,6 +138,7 @@ public class ParsedDocument implements AutoCloseable
     @Override
     public void close() throws Exception {
         pdDocument.close();
-        if (temporaryFile != null) temporaryFile.close();
+        if (originalFile != null) originalFile.close();
+        if (renderedImage != null) renderedImage.close();
     }
 }
