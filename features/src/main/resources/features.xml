@@ -54,7 +54,6 @@
         <feature>core-rest</feature>
         <bundle>mvn:com.awplab.core/rest.jackson/${version.core.rest.jackson}</bundle>
         <feature>jackson-jaxrs</feature>
-        <feature>jackson-jdk7</feature>
         <feature>jackson-jdk8</feature>
     </feature>
 
@@ -155,15 +154,6 @@
 
         <config name="com.awplab.core.rest.jackson.module-joda">
             com.awplab.core.rest.jackson.module.classes = {com.fasterxml.jackson.datatype.joda.JodaModule}
-        </config>
-    </feature>
-
-    <feature name="jackson-jdk7" version="${version.jackson}">
-        <feature>jackson</feature>
-        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jdk7/${version.jackson}</bundle>
-
-        <config name="com.awplab.core.rest.jackson.module-jdk7">
-            com.awplab.core.rest.jackson.module.classes = {com.fasterxml.jackson.datatype.jdk7.Jdk7Module}
         </config>
     </feature>
 
