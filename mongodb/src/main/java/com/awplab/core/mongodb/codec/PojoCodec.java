@@ -12,6 +12,7 @@ import org.bson.types.ObjectId;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 /**
@@ -39,6 +40,7 @@ public class PojoCodec<T> implements CollectibleCodec<T> {
         boolean autoDetectMethods = true;
         PojoCodecInclude defaultInclude = PojoCodecInclude.NOT_EMPTY;
         boolean ignoreInherited = false;
+        boolean ignoreStaticFields = true;
 
         if (pojoCodecProperties != null) {
             ignoreUnknown = pojoCodecProperties.ignoreUnknown();
@@ -46,6 +48,7 @@ public class PojoCodec<T> implements CollectibleCodec<T> {
             autoDetectMethods = pojoCodecProperties.autoDetectMethods();
             defaultInclude = pojoCodecProperties.defaultInclude();
             ignoreInherited = pojoCodecProperties.ignoreInherited();
+            ignoreStaticFields = pojoCodecProperties.ignoreStaticFields();
         }
 
         if (defaultInclude == PojoCodecInclude.DEFAULT) {
@@ -54,6 +57,7 @@ public class PojoCodec<T> implements CollectibleCodec<T> {
 
         for (Field field : type.getFields()) {
             if (ignoreInherited && !field.getDeclaringClass().equals(type)) continue;
+            if (ignoreStaticFields && Modifier.isStatic(field.getModifiers())) continue;
 
             PojoCodecKey pojoCodecKey = field.getAnnotation(PojoCodecKey.class);
             if (pojoCodecKey != null) {

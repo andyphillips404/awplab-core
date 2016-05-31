@@ -17,4 +17,5 @@ public @interface PojoCodecProperties {
     boolean autoDetectMethods() default true;
     PojoCodecInclude defaultInclude() default PojoCodecInclude.NOT_EMPTY;
     boolean ignoreInherited() default false;
+    boolean ignoreStaticFields() default true;
 }

@@ -13,9 +13,9 @@ import java.util.Map;
  * Created by andyphillips404 on 5/31/16.
  */
 public class Log {
-    public static String MDC_KEY_DISABLE = "mongodbDisable";
-    public static String MDC_KEY_DATABASE = "mongodbDatabase";
-    public static String MDC_KEY_COLLECTION = "mongodbCollection";
+    public static String MDC_KEY_DISABLE = "mongodb-disable";
+    public static String MDC_KEY_DATABASE = "mongodb-database";
+    public static String MDC_KEY_COLLECTION = "mongodb-collection";
 
     @PojoCodecKey(value = "_id")
     private ObjectId id;
@@ -136,45 +136,4 @@ public class Log {
 
 
 
-    public static class MDCLoggerAutoClosable implements AutoCloseable {
-        private String oldDatabase;
-        private String oldCollection;
-
-        public MDCLoggerAutoClosable(String database, String collection) {
-            if (MDC.get(Log.MDC_KEY_DATABASE) != null) oldDatabase = MDC.get(Log.MDC_KEY_DATABASE).toString();
-            MDC.put(Log.MDC_KEY_DATABASE, database);
-
-            if (MDC.get(Log.MDC_KEY_COLLECTION) != null) oldCollection = MDC.get(Log.MDC_KEY_COLLECTION).toString();
-            MDC.put(Log.MDC_KEY_COLLECTION, collection);
-
-        }
-
-
-        @Override
-        public void close() throws Exception {
-            if (oldDatabase == null) MDC.remove(Log.MDC_KEY_DATABASE);
-            else MDC.put(Log.MDC_KEY_DATABASE, oldDatabase);
-            if (oldCollection == null) MDC.remove(Log.MDC_KEY_COLLECTION);
-            else MDC.put(Log.MDC_KEY_COLLECTION, oldCollection);
-
-        }
-    }
-
-    public static class MDCAutoClosable implements AutoCloseable {
-        private final String key;
-
-        private final Object oldValue;
-
-        public MDCAutoClosable(String key, Object value) {
-            oldValue = MDC.get(key);
-            MDC.put(key, value);
-            this.key = key;
-        }
-
-        @Override
-        public void close() throws Exception {
-            if (oldValue != null) MDC.put(key, oldValue);
-            else MDC.remove(key);
-        }
-    }
 }

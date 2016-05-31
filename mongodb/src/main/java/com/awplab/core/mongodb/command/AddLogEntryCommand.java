@@ -2,6 +2,7 @@ package com.awplab.core.mongodb.command;
 
 
 import com.awplab.core.mongodb.Log;
+import com.awplab.core.mongodb.MDCLoggerAutoClosable;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
@@ -35,7 +36,7 @@ public class AddLogEntryCommand implements Action {
     public Object execute() throws Exception {
 
 
-        try (Log.MDCLoggerAutoClosable ignored = new Log.MDCLoggerAutoClosable(database, collection)){
+        try (AutoCloseable ignored = new MDCLoggerAutoClosable(database, collection)) {
             if (level.equalsIgnoreCase("warn")) logger.warn(logEntry);
             if (level.equalsIgnoreCase("info")) logger.info(logEntry);
             if (level.equalsIgnoreCase("error")) logger.error(logEntry);
