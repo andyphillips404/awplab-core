@@ -90,6 +90,16 @@
         <bundle>mvn:com.awplab.core/ipojo/${version.core.ipojo}</bundle>
     </feature>
 
+    <feature name="core-mongodb" version="${parent.version}">
+        <feature>core-ipojo</feature>
+
+        <feature>core-common</feature>
+
+        <feature>mongodb</feature>
+
+        <bundle>mvn:com.awplab.core/mongodb/${version.core.mongodb}</bundle>
+    </feature>
+
 
     <feature name="core-pdf" version="${parent.version}">
         <feature>pdfbox</feature>
@@ -127,6 +137,10 @@
         <bundle>wrap:mvn:c3p0/c3p0/0.9.1.1</bundle>
     </feature>
 
+
+    <feature name="mongodb" version="${version.mongodb}">
+        <bundle>mvn:org.mongodb/mongo-java-driver/${version.mongodb}</bundle>
+    </feature>
 
 
     <!-- Jackson -->

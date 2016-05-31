@@ -50,6 +50,7 @@
         <module>common</module>
         <module>selenium</module>
         <module>pdf</module>
+        <module>mongodb</module>
     </modules>
 
 
@@ -75,7 +76,11 @@
         <version.core.pdf.parser>1.0.0-SNAPSHOT</version.core.pdf.parser>
 
         <version.core.ipojo>1.0.0-SNAPSHOT</version.core.ipojo>
+
+        <version.core.mongodb>1.0.0-SNAPSHOT</version.core.mongodb>
+
         <version.karaf>4.0.5</version.karaf>
+        <version.pax.logging>1.8.5</version.pax.logging>
 
         <version.osgi.core>5.0.0</version.osgi.core>
         <version.osgi.compendium>5.0.0</version.osgi.compendium>
@@ -94,6 +99,8 @@
         <version.jersey>2.22.2</version.jersey>
 
         <version.swagger>1.5.8</version.swagger>
+
+        <version.mongodb>3.2.2</version.mongodb>
 
         <version.felix.http.base>2.3.0</version.felix.http.base>
         <version.felix.http.api>2.3.0</version.felix.http.api>
@@ -180,6 +187,20 @@
                 <version>${version.core.pdf.service}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.awplab.core</groupId>
+                <artifactId>mongodb</artifactId>
+                <version>${version.core.mongodb}</version>
+            </dependency>
+
+
+            <!-- MongoDB -->
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongo-java-driver</artifactId>
+                <version>${version.mongodb}</version>
+            </dependency>
+
             <!-- SLF4J -->
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -220,6 +241,13 @@
                 <groupId>org.apache.karaf.jaas</groupId>
                 <artifactId>org.apache.karaf.jaas.boot</artifactId>
                 <version>${version.karaf}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-api</artifactId>
+                <version>${version.pax.logging}</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -325,6 +353,9 @@
                 <artifactId>jackson-datatype-yaml</artifactId>
                 <version>${version.jackson}</version>
             </dependency>
+
+
+
 
             <!-- swagger.io -->
             <dependency>

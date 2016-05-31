@@ -10,6 +10,7 @@
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="Osmorc" url="file://$PROJECT_DIR$/common" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/ipojo" />
+    <file type="Osmorc" url="file://$PROJECT_DIR$/mongodb" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/pdf/command" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/pdf/parser" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/pdf/service" />

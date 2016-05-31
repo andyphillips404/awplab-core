@@ -46,6 +46,7 @@
         <module name="common" />
         <module name="features" />
         <module name="ipojo" />
+        <module name="mongodb" />
         <module name="pdf.command" />
         <module name="pdf.parser" />
         <module name="pdf.service" />
@@ -68,6 +69,7 @@
       <module name="features" target="1.8" />
       <module name="ipojo" target="1.8" />
       <module name="karaf" target="1.8" />
+      <module name="mongodb" target="1.8" />
       <module name="pdf" target="1.8" />
       <module name="pdf.command" target="1.8" />
       <module name="pdf.parser" target="1.8" />
