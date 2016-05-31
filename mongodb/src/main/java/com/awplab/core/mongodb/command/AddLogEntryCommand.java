@@ -1,7 +1,7 @@
 package com.awplab.core.mongodb.command;
 
 
-import com.awplab.core.mongodb.LoggerProperties;
+import com.awplab.core.mongodb.Log;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
@@ -34,35 +34,14 @@ public class AddLogEntryCommand implements Action {
     @Override
     public Object execute() throws Exception {
 
-        String oldDatabase = null;
-        if (database != null) {
-            if (MDC.get(LoggerProperties.PROPERTY_DATABASE) != null) oldDatabase = MDC.get(LoggerProperties.PROPERTY_DATABASE).toString();
-            MDC.put(LoggerProperties.PROPERTY_DATABASE, database);
-        }
 
-        String oldCollection = null;
-        if (collection != null) {
-            if (MDC.get(LoggerProperties.PROPERTY_COLLECTION) != null) oldCollection = MDC.get(LoggerProperties.PROPERTY_COLLECTION).toString();
-            MDC.put(LoggerProperties.PROPERTY_COLLECTION, collection);
-        }
-
-        try {
+        try (Log.MDCLoggerAutoClosable ignored = new Log.MDCLoggerAutoClosable(database, collection)){
             if (level.equalsIgnoreCase("warn")) logger.warn(logEntry);
             if (level.equalsIgnoreCase("info")) logger.info(logEntry);
             if (level.equalsIgnoreCase("error")) logger.error(logEntry);
             if (level.equalsIgnoreCase("debug")) logger.debug(logEntry);
         }
-        finally {
-            if (database != null) {
-                if (oldDatabase == null) MDC.remove(LoggerProperties.PROPERTY_DATABASE);
-                else MDC.put(LoggerProperties.PROPERTY_DATABASE, oldDatabase);
-            }
-            if (collection != null) {
-                if (oldCollection == null) MDC.remove(LoggerProperties.PROPERTY_COLLECTION);
-                else MDC.put(LoggerProperties.PROPERTY_COLLECTION, oldCollection);
-            }
 
-        }
         return null;
     }
 
