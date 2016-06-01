@@ -13,6 +13,6 @@ import java.lang.annotation.Target;
 public @interface PojoCodecKey {
     String value() default DEFAULT_VALUE;
     PojoCodecInclude include() default PojoCodecInclude.DEFAULT;
-
+    boolean ignore() default false;
     static final String DEFAULT_VALUE = "#FIELD_OR_METHOD_NAME#";
 }

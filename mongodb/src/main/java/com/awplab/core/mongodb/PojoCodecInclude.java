@@ -5,6 +5,7 @@ package com.awplab.core.mongodb;
  */
 public enum PojoCodecInclude {
     DEFAULT,
+    NEVER,
     ALWAYS,
     NOT_NULL,
     NOT_EMPTY

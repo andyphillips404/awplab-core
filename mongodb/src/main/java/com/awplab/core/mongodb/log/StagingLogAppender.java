@@ -1,17 +1,29 @@
 package com.awplab.core.mongodb.log;
 
 
+import com.awplab.core.common.TemporaryFile;
 import com.awplab.core.mongodb.Log;
 import com.awplab.core.mongodb.MongoService;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSBuckets;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.felix.ipojo.annotations.*;
 import org.apache.log4j.MDC;
+import org.bson.types.ObjectId;
+import org.ops4j.pax.logging.PaxLogger;
+import org.ops4j.pax.logging.PaxLoggingManager;
 import org.ops4j.pax.logging.PaxLoggingService;
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -35,6 +47,10 @@ public class StagingLogAppender implements PaxAppender {
     @ServiceProperty(name = PROPERTY_DEFAULT_COLLECTION, value = "log")
     private String defaultCollection;
 
+    public static final String PROPERTY_DEFAULT_GRIDFS_COLLECTION = "com.hdscores.v3.log.appender.defaultGridFSCollection";
+    @ServiceProperty(name = PROPERTY_DEFAULT_GRIDFS_COLLECTION, value = "log-fs")
+    private String defaultGridFSCollection;
+
     @Requires
     MongoService mongoService;
 
@@ -57,11 +73,37 @@ public class StagingLogAppender implements PaxAppender {
             if (database == null) return;
 
             String collection = (props.containsKey(Log.MDC_KEY_COLLECTION) && props.get(Log.MDC_KEY_COLLECTION) != null ? props.get(Log.MDC_KEY_COLLECTION).toString() : defaultCollection);
+            String gridFSCollection = (props.containsKey(Log.MDC_KEY_GRIDFS_COLLECTION) && props.get(Log.MDC_KEY_GRIDFS_COLLECTION) != null ? props.get(Log.MDC_KEY_GRIDFS_COLLECTION).toString() : defaultGridFSCollection);
 
             MongoDatabase mongoDatabase = mongoService.getMongoClient().getDatabase(database);
 
             MongoCollection<Log> logCollection = mongoDatabase.getCollection(collection, Log.class);
-            logCollection.insertOne(new Log(paxLoggingEvent));
+            Log log = new Log(paxLoggingEvent);
+
+            Map<Object, ObjectId> newKeys = new HashMap<>();
+            for (Object key : log.getProperties().keySet()) {
+                Object value = log.getProperties().get(key);
+                if (value instanceof TemporaryFile) {
+                    GridFSBucket gridFSBucket = GridFSBuckets.create(mongoDatabase, gridFSCollection);
+                    FileInputStream fileInputStream = null;
+                    try {
+                        fileInputStream = new FileInputStream((TemporaryFile) value);
+                        ObjectId objectId = gridFSBucket.uploadFromStream(((TemporaryFile) value).getName(), fileInputStream);
+                        newKeys.put(key, objectId);
+                    }
+                    catch (IOException ex) {
+                        LoggerFactory.getLogger(StagingLogAppender.class).error("Exception attempting to write to grid fs log from file: " + ((TemporaryFile) value).getAbsolutePath() + "!", ex);
+                    }
+                    finally {
+                        IOUtils.closeQuietly(fileInputStream);
+                    }
+
+                }
+            }
+
+            if (newKeys.size() > 0) log.getProperties().putAll(newKeys);
+
+            logCollection.insertOne(log);
 
         }
         catch (Exception ex) {

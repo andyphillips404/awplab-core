@@ -41,6 +41,7 @@ public class PojoCodec<T> implements CollectibleCodec<T> {
         PojoCodecInclude defaultInclude = PojoCodecInclude.NOT_EMPTY;
         boolean ignoreInherited = false;
         boolean ignoreStaticFields = true;
+        boolean ignoreFinalFields = false;
 
         if (pojoCodecProperties != null) {
             ignoreUnknown = pojoCodecProperties.ignoreUnknown();
@@ -49,6 +50,7 @@ public class PojoCodec<T> implements CollectibleCodec<T> {
             defaultInclude = pojoCodecProperties.defaultInclude();
             ignoreInherited = pojoCodecProperties.ignoreInherited();
             ignoreStaticFields = pojoCodecProperties.ignoreStaticFields();
+            ignoreFinalFields = pojoCodecProperties.ignoreFinalFields();
         }
 
         if (defaultInclude == PojoCodecInclude.DEFAULT) {
@@ -58,18 +60,19 @@ public class PojoCodec<T> implements CollectibleCodec<T> {
         for (Field field : type.getFields()) {
             if (ignoreInherited && !field.getDeclaringClass().equals(type)) continue;
             if (ignoreStaticFields && Modifier.isStatic(field.getModifiers())) continue;
+            if (ignoreFinalFields && Modifier.isFinal(field.getModifiers())) continue;
 
             PojoCodecKey pojoCodecKey = field.getAnnotation(PojoCodecKey.class);
             if (pojoCodecKey != null) {
                 String key = (pojoCodecKey.value().equals(PojoCodecKey.DEFAULT_VALUE) ? field.getName() : pojoCodecKey.value());
-                setKeyLookup.put(key, field);
+                if (!Modifier.isFinal(field.getModifiers())) setKeyLookup.put(key, field);
                 getKeyLookup.put(key, field);
                 keyIncludeLookup.put(key, (pojoCodecKey.include() == PojoCodecInclude.DEFAULT ? defaultInclude : pojoCodecKey.include()));
             }
             else {
                 if (autoDetectFields) {
                     String key = field.getName();
-                    setKeyLookup.put(key, field);
+                    if (!Modifier.isFinal(field.getModifiers())) setKeyLookup.put(key, field);
                     getKeyLookup.put(key, field);
                     keyIncludeLookup.put(key, defaultInclude);
                 }
@@ -228,11 +231,16 @@ public class PojoCodec<T> implements CollectibleCodec<T> {
 
             Object docValue = getValue(key, value);
 
-            if ((docValue == null && include == PojoCodecInclude.ALWAYS) ||
-                    (docValue != null && (include == PojoCodecInclude.NOT_NULL ||
-                            ((docValue instanceof Collection  && ((Collection) docValue).size() > 0) ||
-                            (docValue.getClass().isArray() && Arrays.asList(docValue).size() > 0) ||
-                            ((!(docValue instanceof Collection) && !docValue.getClass().isArray())))))) {
+
+            if (include != PojoCodecInclude.NEVER &&
+                    ((docValue == null && include == PojoCodecInclude.ALWAYS) ||
+                            (docValue != null &&
+                            (include == PojoCodecInclude.NOT_NULL ||
+                                    ((docValue instanceof Collection  &&
+                                            ((Collection) docValue).size() > 0) ||
+                                            (docValue.getClass().isArray() && Arrays.asList(docValue).size() > 0) ||
+                                            ((!(docValue instanceof Collection) && !docValue.getClass().isArray()))))))) {
+
                 document.put(key, docValue);
 
             }

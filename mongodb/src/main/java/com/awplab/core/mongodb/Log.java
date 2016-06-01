@@ -16,6 +16,7 @@ public class Log {
     public static String MDC_KEY_DISABLE = "mongodb-disable";
     public static String MDC_KEY_DATABASE = "mongodb-database";
     public static String MDC_KEY_COLLECTION = "mongodb-collection";
+    public static String MDC_KEY_GRIDFS_COLLECTION = "mongodb-gridfs-collection";
 
     @PojoCodecKey(value = "_id")
     private ObjectId id;
@@ -56,9 +57,6 @@ public class Log {
                 properties.put(((String) key).replaceAll("\\.", "\\-"), loggingEvent.getProperties().get(key));
             }
         }
-
-
-
 
     }
 
