@@ -64,6 +64,8 @@ public class PojoCodec<T> implements CollectibleCodec<T> {
 
             PojoCodecKey pojoCodecKey = field.getAnnotation(PojoCodecKey.class);
             if (pojoCodecKey != null) {
+                if (pojoCodecKey.ignore()) continue;
+
                 String key = (pojoCodecKey.value().equals(PojoCodecKey.DEFAULT_VALUE) ? field.getName() : pojoCodecKey.value());
                 if (!Modifier.isFinal(field.getModifiers())) setKeyLookup.put(key, field);
                 getKeyLookup.put(key, field);
@@ -96,6 +98,8 @@ public class PojoCodec<T> implements CollectibleCodec<T> {
                     }
                 }
                 if (pojoCodecKey != null) {
+                    if (pojoCodecKey.ignore()) continue;
+
                     String key = (pojoCodecKey.value().equals(PojoCodecKey.DEFAULT_VALUE) ? methodKey : pojoCodecKey.value());
                     getKeyLookup.put(key, method);
                     keyIncludeLookup.put(key, (pojoCodecKey.include() == PojoCodecInclude.DEFAULT ? defaultInclude : pojoCodecKey.include()));
@@ -120,6 +124,8 @@ public class PojoCodec<T> implements CollectibleCodec<T> {
                         }
                     }
                     if (pojoCodecKey != null) {
+                        if (pojoCodecKey.ignore()) continue;
+
                         String key = (pojoCodecKey.value().equals(PojoCodecKey.DEFAULT_VALUE) ? methodKey : pojoCodecKey.value());
                         setKeyLookup.put(key, method);
                     }
