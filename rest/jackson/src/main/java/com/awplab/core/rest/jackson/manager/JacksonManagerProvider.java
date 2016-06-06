@@ -3,7 +3,7 @@ package com.awplab.core.rest.jackson.manager;
 import com.awplab.core.rest.jackson.JacksonJaxrsService;
 import com.awplab.core.rest.jackson.JacksonManagerService;
 import com.awplab.core.rest.jackson.JacksonModulesService;
-import com.awplab.core.rest.service.RestManagerService;
+import com.awplab.core.rest.service.RestManager;
 import com.awplab.core.rest.service.RestService;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,7 +27,7 @@ public class JacksonManagerProvider implements JacksonManagerService, RestServic
 
 
     @Requires
-    RestManagerService restManagerService;
+    RestManager restManager;
 
     private Set<JacksonModulesService> modulesProviders = Collections.synchronizedSet(new HashSet<>());
 
@@ -70,7 +70,7 @@ public class JacksonManagerProvider implements JacksonManagerService, RestServic
 
     @Override
     public void updateChange() {
-        restManagerService.reloadAliases();
+        restManager.reloadAliases();
     }
 
     @Override
@@ -94,7 +94,7 @@ public class JacksonManagerProvider implements JacksonManagerService, RestServic
 
     @Override
     public String getAlias() {
-        return RestManagerService.GLOBAL_ALIAS;
+        return RestManager.GLOBAL_ALIAS;
     }
 
     @Override

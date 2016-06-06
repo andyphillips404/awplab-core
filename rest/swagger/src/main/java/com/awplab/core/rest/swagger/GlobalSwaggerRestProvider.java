@@ -1,6 +1,6 @@
 package com.awplab.core.rest.swagger;
 
-import com.awplab.core.rest.service.RestManagerService;
+import com.awplab.core.rest.service.RestManager;
 import com.awplab.core.rest.service.RestService;
 import org.apache.felix.ipojo.annotations.*;
 
@@ -47,13 +47,13 @@ public class GlobalSwaggerRestProvider implements RestService {
     @Property(name = PROPERTY_CORS)
     private void setEnableCors(boolean coors) {
         enableCors = coors;
-        RestManagerService.getProvider().reloadAliases();
+        RestManager.getProvider().reloadAliases();
     }
 
 
     @Override
     public String getAlias() {
-        return RestManagerService.GLOBAL_ALIAS;
+        return RestManager.GLOBAL_ALIAS;
     }
 
     @Override

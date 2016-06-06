@@ -1,7 +1,7 @@
 package com.awplab.core.scheduler.command;
 
 
-import com.awplab.core.scheduler.service.SchedulerManagerService;
+import com.awplab.core.scheduler.service.SchedulerManager;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
@@ -17,7 +17,7 @@ import org.quartz.JobKey;
 public class InterruptCommand implements Action {
 
     @Reference
-    private SchedulerManagerService schedulerManagerService;
+    private SchedulerManager schedulerManager;
 
     @Argument(index = 0, name = "scheduler", description = "scheduler name to show", required = true, multiValued = false)
     String schedulerName = null;
@@ -32,7 +32,7 @@ public class InterruptCommand implements Action {
     public Object execute() throws Exception {
 
         JobKey jobKey = new JobKey(jobKeyName, jobKeyGroup);
-        if (!schedulerManagerService.interruptJob(schedulerName, jobKey)) {
+        if (!schedulerManager.interruptJob(schedulerName, jobKey)) {
             throw new IllegalArgumentException("Scheduler or Running job not found");
         }
 

@@ -1,7 +1,7 @@
 package com.awplab.core.rest.service.manager;
 
 import com.awplab.core.rest.service.RestApplication;
-import com.awplab.core.rest.service.RestManagerService;
+import com.awplab.core.rest.service.RestManager;
 import com.awplab.core.rest.service.RestService;
 import com.awplab.core.rest.service.SimpleRestProvider;
 import com.awplab.core.rest.service.events.RestEventData;
@@ -9,7 +9,6 @@ import com.awplab.core.rest.service.events.RestEventTopics;
 import org.apache.felix.ipojo.annotations.*;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
-import org.glassfish.jersey.servlet.ServletProperties;
 import org.osgi.framework.*;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
@@ -23,8 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Component(immediate = true, publicFactory=false, managedservice = RestManagerProvider.CONFIG_MANAGED_SERVICE_NAME)
 @Instantiate
-@Provides(specifications = RestManagerService.class)
-public class RestManagerProvider implements RestManagerService, BundleListener {
+@Provides(specifications = RestManager.class)
+public class RestManagerProvider implements RestManager, BundleListener {
 
     public static final String CONFIG_MANAGED_SERVICE_NAME = "com.awplab.core.rest.service.manager";
 
@@ -118,7 +117,7 @@ public class RestManagerProvider implements RestManagerService, BundleListener {
                         Set<RestService> providers = collectRestProviders(alias);
                         RestApplication restApplication = null;
                         if (providers.size() > 0) {
-                            providers.addAll(collectRestProviders(RestManagerService.GLOBAL_ALIAS));
+                            providers.addAll(collectRestProviders(RestManager.GLOBAL_ALIAS));
                             restApplication = new RestApplication(alias, providers);
                             applications.put(alias, restApplication);
                             container = new ServletContainer( ResourceConfig.forApplication(restApplication));
@@ -169,7 +168,7 @@ public class RestManagerProvider implements RestManagerService, BundleListener {
 
     private void updateContainerServlet(String alias)  {
         synchronized (dirtyTimerLock) {
-            if (alias.equals(RestManagerService.GLOBAL_ALIAS)) {
+            if (alias.equals(RestManager.GLOBAL_ALIAS)) {
                 for (String dirtyAlias : servletContainers.keySet()) {
                     dirtyAliases.add(dirtyAlias);
                 }
@@ -187,7 +186,7 @@ public class RestManagerProvider implements RestManagerService, BundleListener {
     @Override
     public synchronized void registerProvider(RestService restProvider) {
         String alias = restProvider.getAlias();
-        if (alias.equals(RestManagerService.GLOBAL_ALIAS) || alias.equals("/") || alias.startsWith("/") && !alias.endsWith("/")) {
+        if (alias.equals(RestManager.GLOBAL_ALIAS) || alias.equals("/") || alias.startsWith("/") && !alias.endsWith("/")) {
             restProviders.add(restProvider);
 
             updateContainerServlet(alias);

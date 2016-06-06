@@ -2,7 +2,7 @@ package com.awplab.core.scheduler.command;
 
 
 import com.awplab.core.scheduler.service.StatusJob;
-import com.awplab.core.scheduler.service.SchedulerManagerService;
+import com.awplab.core.scheduler.service.SchedulerManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Argument;
@@ -21,7 +21,7 @@ import org.quartz.Scheduler;
 public class RunningCommand implements Action {
 
     @Reference
-    private SchedulerManagerService schedulerManagerService;
+    private SchedulerManager schedulerManager;
 
     @Argument(index = 0, name = "scheduler", description = "scheduler name to show", required = false, multiValued = false)
     String schedulerName = null;
@@ -31,7 +31,7 @@ public class RunningCommand implements Action {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        for (Scheduler scheduler : schedulerManagerService.getSchedulers()) {
+        for (Scheduler scheduler : schedulerManager.getSchedulers()) {
 
             if (schedulerName != null && !scheduler.getSchedulerName().equals(schedulerName)) continue;
 

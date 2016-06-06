@@ -1,6 +1,6 @@
 package com.awplab.core.scheduler.command;
 
-import com.awplab.core.scheduler.service.SchedulerManagerService;
+import com.awplab.core.scheduler.service.SchedulerManager;
 import com.awplab.core.scheduler.service.scheduler.VolatileSchedulerProvider;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Argument;
@@ -23,7 +23,7 @@ public class VolatileCreateScheduler implements Action {
     private ConfigurationAdmin configurationAdmin;
 
     @Reference
-    private SchedulerManagerService schedulerManagerService;
+    private SchedulerManager schedulerManager;
 
     @Argument(index = 0, name = "scheduler", description = "scheduler name to show", required = true, multiValued = false)
     String schedulerName = null;
@@ -38,7 +38,7 @@ public class VolatileCreateScheduler implements Action {
     @Override
     public Object execute() throws Exception {
 
-        if (schedulerManagerService.getSchedulerNames().contains(schedulerName)) {
+        if (schedulerManager.getSchedulerNames().contains(schedulerName)) {
             throw new IllegalArgumentException("Scheduler with that name already exists");
         }
 

@@ -1,6 +1,6 @@
 package com.awplab.core.scheduler.service.manager;
 
-import com.awplab.core.scheduler.service.SchedulerManagerService;
+import com.awplab.core.scheduler.service.SchedulerManager;
 import com.awplab.core.scheduler.service.events.EventAdminListener;
 import com.awplab.core.scheduler.service.events.SchedulerEventTopics;
 import com.google.common.collect.Maps;
@@ -20,9 +20,9 @@ import java.util.concurrent.TimeUnit;
  */
 
 @Component(publicFactory = false, immediate = true)
-@Provides(specifications = SchedulerManagerService.class)
+@Provides(specifications = SchedulerManager.class)
 @Instantiate
-public class SchedulerManagerProvider implements SchedulerManagerService, BundleListener {
+public class SchedulerManagerProvider implements SchedulerManager, BundleListener {
 
 
     private Set<Scheduler> schedulers = ConcurrentHashMap.newKeySet();

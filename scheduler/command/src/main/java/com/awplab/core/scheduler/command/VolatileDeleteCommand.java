@@ -1,6 +1,6 @@
 package com.awplab.core.scheduler.command;
 
-import com.awplab.core.scheduler.service.SchedulerManagerService;
+import com.awplab.core.scheduler.service.SchedulerManager;
 import com.awplab.core.scheduler.service.scheduler.VolatileSchedulerProvider;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Argument;
@@ -21,7 +21,7 @@ public class VolatileDeleteCommand implements Action {
     private ConfigurationAdmin configurationAdmin;
 
     @Reference
-    private SchedulerManagerService schedulerManagerService;
+    private SchedulerManager schedulerManager;
 
     @Argument(index = 0, name = "scheduler", description = "scheduler name to delete", required = true, multiValued = false)
     String schedulerName = null;
@@ -29,7 +29,7 @@ public class VolatileDeleteCommand implements Action {
     @Override
     public Object execute() throws Exception {
 
-        if (schedulerManagerService.getScheduler(schedulerName) == null) {
+        if (schedulerManager.getScheduler(schedulerName) == null) {
             throw new IllegalArgumentException("Scheduler with that name doesn't exists");
         }
 

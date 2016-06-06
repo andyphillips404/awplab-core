@@ -6,7 +6,6 @@ import org.osgi.framework.ServiceReference;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 
-import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -16,13 +15,13 @@ import java.util.concurrent.TimeUnit;
  *
  * Created by andyphillips404 on 2/24/15.
  */
-public interface SchedulerManagerService {
+public interface SchedulerManager {
 
-    static SchedulerManagerService getProvider() {
-        BundleContext bundleContext = FrameworkUtil.getBundle(SchedulerManagerService.class).getBundleContext();
-        ServiceReference ref = bundleContext.getServiceReference(SchedulerManagerService.class.getName());
+    static SchedulerManager getProvider() {
+        BundleContext bundleContext = FrameworkUtil.getBundle(SchedulerManager.class).getBundleContext();
+        ServiceReference ref = bundleContext.getServiceReference(SchedulerManager.class.getName());
         if (ref != null) {
-            return (SchedulerManagerService)bundleContext.getService(ref);
+            return (SchedulerManager)bundleContext.getService(ref);
         }
 
         return null;

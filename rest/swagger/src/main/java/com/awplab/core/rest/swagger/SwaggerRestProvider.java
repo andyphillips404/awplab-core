@@ -1,7 +1,6 @@
 package com.awplab.core.rest.swagger;
 
-import com.awplab.core.rest.service.RestManagerService;
-import com.awplab.core.rest.service.RestService;
+import com.awplab.core.rest.service.RestManager;
 import io.swagger.models.*;
 import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Property;
@@ -84,7 +83,7 @@ public class SwaggerRestProvider extends BaseSwaggerRestProvider {
     @Property(name = PROPERTY_CORS)
     private void setEnableCors(boolean coors) {
         enableCors = false;
-        RestManagerService.getProvider().reloadAliases();
+        RestManager.getProvider().reloadAliases();
     }
 
     @Override

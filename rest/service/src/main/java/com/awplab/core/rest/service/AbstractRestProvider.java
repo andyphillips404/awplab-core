@@ -1,10 +1,5 @@
 package com.awplab.core.rest.service;
 
-import org.apache.felix.ipojo.annotations.Property;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
-
 /**
  * Created by andyphillips404 on 12/19/15.
  */
@@ -18,10 +13,10 @@ public abstract class AbstractRestProvider implements RestService {
         String oldAlias = this.alias;
         this.alias = alias;
 
-        RestManagerService restManagerService = RestManagerService.getProvider();
-        if (restManagerService != null) {
-            restManagerService.reloadAlias(oldAlias);
-            restManagerService.reloadAlias(this.alias);
+        RestManager restManager = RestManager.getProvider();
+        if (restManager != null) {
+            restManager.reloadAlias(oldAlias);
+            restManager.reloadAlias(this.alias);
         }
     }
 

@@ -1,8 +1,6 @@
 package com.awplab.core.rest.service;
 
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -19,7 +17,7 @@ public interface RestService {
     default Set<Class<?>> getClasses(String alias) { return Collections.emptySet(); }
 
     default Set<Object> getSingletons(String alias) {
-        if (!getAlias().equals(RestManagerService.GLOBAL_ALIAS)) return Collections.singleton(this);
+        if (!getAlias().equals(RestManager.GLOBAL_ALIAS)) return Collections.singleton(this);
         else return Collections.emptySet();
     }
 

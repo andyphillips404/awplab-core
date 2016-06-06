@@ -1,8 +1,7 @@
 package com.awplab.core.rest.swagger;
 
 import com.awplab.core.rest.service.AbstractRestProvider;
-import com.awplab.core.rest.service.RestApplication;
-import com.awplab.core.rest.service.RestManagerService;
+import com.awplab.core.rest.service.RestManager;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.jaxrs.Reader;
 import io.swagger.models.Swagger;
@@ -13,11 +12,8 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.*;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by andyphillips404 on 1/7/16.
@@ -37,9 +33,9 @@ public class BaseSwaggerRestProvider extends AbstractRestProvider {
     protected HashSet<Class<?>> getSwaggerClasses() {
         HashSet<Class<?>> classes = new HashSet<>();
 
-        RestManagerService restManagerService = RestManagerService.getProvider();
-        if (restManagerService == null) {
-            logger.error("Unable to get RestManagerService provider");
+        RestManager restManager = RestManager.getProvider();
+        if (restManager == null) {
+            logger.error("Unable to get RestManager provider");
             return null;
         }
 

@@ -2,13 +2,11 @@ package com.awplab.core.rest.command;
 
 
 import com.awplab.core.rest.service.RestApplication;
-import com.awplab.core.rest.service.RestManagerService;
-import com.awplab.core.rest.service.RestService;
+import com.awplab.core.rest.service.RestManager;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
-import org.apache.karaf.shell.support.table.ShellTable;
 import org.fusesource.jansi.Ansi;
 
 /**
@@ -19,7 +17,7 @@ import org.fusesource.jansi.Ansi;
 public class ApplicationsCommand implements Action {
 
     @Reference
-    RestManagerService managerService;
+    RestManager managerService;
 
     @Override
     public Object execute() throws Exception {

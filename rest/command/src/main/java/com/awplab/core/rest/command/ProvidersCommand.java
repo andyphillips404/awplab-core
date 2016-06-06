@@ -1,7 +1,7 @@
 package com.awplab.core.rest.command;
 
 
-import com.awplab.core.rest.service.RestManagerService;
+import com.awplab.core.rest.service.RestManager;
 import com.awplab.core.rest.service.RestService;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Command;
@@ -17,7 +17,7 @@ import org.apache.karaf.shell.support.table.ShellTable;
 public class ProvidersCommand implements Action {
 
     @Reference
-    RestManagerService managerService;
+    RestManager managerService;
 
     @Override
     public Object execute() throws Exception {
