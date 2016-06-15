@@ -4,10 +4,12 @@ import com.awplab.core.common.TemporaryFile;
 import org.openqa.selenium.*;
 import org.openqa.selenium.remote.Augmenter;
 import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -120,13 +122,22 @@ public class AutoClosableWebDriver implements WebDriver, AutoCloseable {
         this.defaultWaitUntilTimeoutUnit = defaultWaitUntilTimeoutUnit;
     }
 
-    public void waitUntil(ExpectedCondition<WebDriver> condition) {
-        waitUntil(defaultWaitUntilTimeout, defaultWaitUntilTimeoutUnit, condition);
+    public <T> T waitUntil(ExpectedCondition<T> condition) {
+        return waitUntil(defaultWaitUntilTimeout, defaultWaitUntilTimeoutUnit, condition);
     }
 
-    public void waitUntil(Long duration, TimeUnit timeUnit, ExpectedCondition<WebDriver> condition) {
+    public <T> T waitUntil(Long duration, TimeUnit timeUnit, ExpectedCondition<T> condition) {
         FluentWait<WebDriver> wait = new FluentWait<>(webDriver);
-        wait.withTimeout(duration, timeUnit).until(condition);
+        return wait.withTimeout(duration, timeUnit).until(condition);
+
+    }
+
+    public Optional<String> findOptionalElementText(By by) {
+        return this.findElements(by).stream().findFirst().flatMap(webElement -> Optional.of(webElement.getText()));
+    }
+
+    public Optional<WebElement> findOptionalElement(By by) {
+        return this.findElements(by).stream().findFirst();
     }
 
     public TemporaryFile getScreenshot() {
