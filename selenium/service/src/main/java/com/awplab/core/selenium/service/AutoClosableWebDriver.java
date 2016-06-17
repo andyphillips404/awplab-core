@@ -177,6 +177,66 @@ public class AutoClosableWebDriver implements WebDriver, AutoCloseable {
 
     }
 
+    private class RetryImmediateCondition<T> implements ExpectedCondition<Boolean> {
+        T ret;
+
+        private final ExpectedCondition<T> testCondition;
+
+        private final ExpectedCondition retryCondition;
+
+        private boolean retry = true;
+
+        public RetryImmediateCondition(ExpectedCondition<T> testCondition, ExpectedCondition retryCondition) {
+            this.testCondition = testCondition;
+            this.retryCondition = retryCondition;
+        }
+
+        @Override
+        public Boolean apply(WebDriver webDriver) {
+            RuntimeException lastException = null;
+            try {
+                ret = testCondition.apply(webDriver);
+                if (ret != null && (!(ret instanceof Boolean) || (Boolean) ret)) {
+                    retry = false;
+                    return true;
+                }
+            }
+            catch (RuntimeException e) {
+                lastException = e;
+            }
+            Object retryRet = retryCondition.apply(webDriver);
+            if (retryRet != null && (!(retryRet instanceof Boolean) || (Boolean) retryRet)) {
+                retry = true;
+                return true;
+            }
+            if (lastException != null) throw lastException;
+
+            return false;
+        }
+    }
+    public <T> T getWithRetry(String url, ExpectedCondition<T> expectedCondition, Long duration, TimeUnit timeUnit, int retryCount, ExpectedCondition retryImmediatelyCondition) {
+        TimeoutException lastException = null;
+
+        RetryImmediateCondition<T> condition = new RetryImmediateCondition<T>(expectedCondition, retryImmediatelyCondition);
+
+        for (int ctr = 0; ctr < retryCount; ctr++) {
+            try {
+                boolean gotIt = get(url, condition, duration, timeUnit);
+                if (gotIt && !condition.retry) return condition.ret;
+            }
+            catch (TimeoutException ignored) {
+                lastException = ignored;
+            }
+        }
+
+        throw lastException;
+
+    }
+
+    public <T> T getWithRetry(String url, ExpectedCondition<T> expectedCondition, ExpectedCondition retryImmediatelyCondition) {
+        return getWithRetry(url, expectedCondition, defaultWaitUntilTimeout, defaultWaitUntilTimeoutUnit, defaultRetryCount, retryImmediatelyCondition);
+    }
+
     public Optional<String> findOptionalElementText(By by) {
         return this.findElements(by).stream().findFirst().flatMap(webElement -> Optional.of(webElement.getText()));
     }
