@@ -9,19 +9,27 @@ import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
 import org.apache.felix.ipojo.annotations.*;
 import org.bson.Document;
+import org.bson.codecs.Codec;
+import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.types.Code;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by andyphillips404 on 5/27/16.
  */
 
+// TODO:  Allow multiple instances or connections to database.   Don't make this a singleton?  Not Urgent, worth looking at
 @Instantiate
 @Component(immediate = true, publicFactory=false, managedservice = MongoProvider.CONFIG_MANAGED_SERVICE_NAME)
-@Provides
-public class MongoProvider implements MongoService {
+@Provides(specifications = MongoService.class)
+public class MongoProvider implements MongoService, CodecProvider {
 
     public static final String CONFIG_MANAGED_SERVICE_NAME = "com.hdscores.v3.mongodb.provider";
 
@@ -33,13 +41,35 @@ public class MongoProvider implements MongoService {
 
     private Logger logger = LoggerFactory.getLogger(MongoProvider.class);
 
+    private Map<Class, Codec> codecs = Collections.synchronizedMap(new HashMap<>());
+
+    @Bind(aggregate = true, optional = true)
+    private void bindCodec(Codec codec) {
+
+        if (codecs.containsKey(codec.getEncoderClass())) {
+            logger.warn("Codec for class: " + codec.getEncoderClass() + " already exists!  Overwriting!");
+        }
+        registerCodec(codec.getEncoderClass(), codec);
+
+        logger.info("Registered codec service for class: " + codec.getEncoderClass());
+    }
+
+    @Unbind(aggregate = true, optional = true)
+    private void unbindCodec(Codec codec) {
+        unregisterCodec(codec.getEncoderClass());
+
+        logger.info("Unregistered codec service for class: " + codec.getEncoderClass());
+    }
+
     @Validate
     private void start() {
         try {
             if (mongoClient == null) {
 
 
-                CodecRegistry codecRegistry = CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry(),
+                CodecRegistry codecRegistry = CodecRegistries.fromRegistries(
+                        CodecRegistries.fromProviders(this),
+                        MongoClient.getDefaultCodecRegistry(),
                         CodecRegistries.fromProviders(new PojoCodecProvider()));
 
                 MongoClientOptions.Builder clientOptions = MongoClientOptions.builder()
@@ -85,5 +115,20 @@ public class MongoProvider implements MongoService {
     @Override
     public MongoClient getMongoClient() {
         return mongoClient;
+    }
+
+    @Override
+    public <T> void registerCodec(Class<T> clazz, Codec<T> codec) {
+        codecs.put(clazz, codec);
+    }
+
+    @Override
+    public void unregisterCodec(Class clazz) {
+        codecs.remove(clazz);
+    }
+
+    @Override
+    public <T> Codec<T> get(Class<T> clazz, CodecRegistry registry) {
+        return (Codec<T>)codecs.get(clazz);
     }
 }

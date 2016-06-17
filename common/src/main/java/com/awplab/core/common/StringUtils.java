@@ -18,6 +18,13 @@ public final class StringUtils {
         return string.matches(regex) ? Optional.of(string.replaceAll(regex, replacement)) : Optional.empty();
     }
 
+    public static Optional<String> matchAndReplaceAll(String string, String regex, String replacement, boolean trimmedZeroLengthStringAsEmpty) {
+        return matchAndReplaceAll(string, regex, replacement).flatMap(s -> {
+            if (s.trim().length() > 0) return Optional.of(s);
+            else return Optional.empty();
+        });
+    }
+
     public static Optional<Date> parseDate(String format, String dateString) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
         try {

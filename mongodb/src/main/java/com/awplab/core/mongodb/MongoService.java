@@ -1,6 +1,7 @@
 package com.awplab.core.mongodb;
 
 import com.mongodb.MongoClient;
+import org.bson.codecs.Codec;
 
 import java.util.List;
 
@@ -11,6 +12,8 @@ public interface MongoService {
 
     MongoClient getMongoClient();
 
+    <T> void registerCodec(Class<T> clazz, Codec<T> codec);
 
+    void unregisterCodec(Class clazz);
 
 }

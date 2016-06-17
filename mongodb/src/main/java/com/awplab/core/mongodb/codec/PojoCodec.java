@@ -137,7 +137,7 @@ public class PojoCodec<T> implements CollectibleCodec<T> {
 
                 }
                 else {
-                    if (pojoCodecKey != null) {
+                    if (pojoCodecKey != null && !pojoCodecKey.ignore()) {
                         throw new RuntimeException("Anotated method does not match standard POJO method naming convention or structure, method: " + method.getName());
                     }
 
