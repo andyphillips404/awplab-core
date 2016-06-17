@@ -103,7 +103,17 @@ public class AutoClosableWebDriver implements WebDriver, AutoCloseable {
     }
 
 
-    private long defaultWaitUntilTimeout = 5;
+    private int defaultRetryCount = 5;
+
+    public int getDefaultRetryCount() {
+        return defaultRetryCount;
+    }
+
+    public void setDefaultRetryCount(int defaultRetryCount) {
+        this.defaultRetryCount = defaultRetryCount;
+    }
+
+    private long defaultWaitUntilTimeout = 1;
 
     private TimeUnit defaultWaitUntilTimeoutUnit = TimeUnit.MINUTES;
 
@@ -128,8 +138,42 @@ public class AutoClosableWebDriver implements WebDriver, AutoCloseable {
     }
 
     public <T> T waitUntil(Long duration, TimeUnit timeUnit, ExpectedCondition<T> condition) {
-        WebDriverWait webDriverWait = new WebDriverWait(webDriver, timeUnit.toMillis(duration));
+        WebDriverWait webDriverWait = new WebDriverWait(webDriver, timeUnit.toSeconds(duration));
         return webDriverWait.until(condition);
+
+    }
+
+    public <T> T get(String url, ExpectedCondition<T> expectedCondition) {
+        this.get(url);
+        return waitUntil(expectedCondition);
+    }
+
+    public <T> T get(String url, ExpectedCondition<T> expectedCondition, Long duration, TimeUnit timeUnit) {
+        this.get(url);
+        return waitUntil(duration, timeUnit, expectedCondition);
+    }
+
+    public <T> T getWithRetry(String url, ExpectedCondition<T> expectedCondition) {
+        return getWithRetry(url, expectedCondition, defaultRetryCount);
+    }
+
+
+    public <T> T getWithRetry(String url, ExpectedCondition<T> expectedCondition, int retryCount) {
+        return this.getWithRetry(url, expectedCondition, defaultWaitUntilTimeout, defaultWaitUntilTimeoutUnit, retryCount);
+    }
+
+    public <T> T getWithRetry(String url, ExpectedCondition<T> expectedCondition, Long duration, TimeUnit timeUnit, int retryCount) {
+        TimeoutException lastException = null;
+        for (int ctr = 0; ctr < retryCount; ctr++) {
+            try {
+                return get(url, expectedCondition, duration, timeUnit);
+            }
+            catch (TimeoutException ignored) {
+                lastException = ignored;
+            }
+        }
+
+        throw lastException;
 
     }
 
