@@ -6,6 +6,7 @@ import org.openqa.selenium.remote.Augmenter;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.File;
 import java.util.List;
@@ -127,8 +128,8 @@ public class AutoClosableWebDriver implements WebDriver, AutoCloseable {
     }
 
     public <T> T waitUntil(Long duration, TimeUnit timeUnit, ExpectedCondition<T> condition) {
-        FluentWait<WebDriver> wait = new FluentWait<>(webDriver);
-        return wait.withTimeout(duration, timeUnit).until(condition);
+        WebDriverWait webDriverWait = new WebDriverWait(webDriver, timeUnit.toMillis(duration));
+        return webDriverWait.until(condition);
 
     }
 
