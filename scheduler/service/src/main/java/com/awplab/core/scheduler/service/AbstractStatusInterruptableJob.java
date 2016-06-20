@@ -27,6 +27,15 @@ public abstract class AbstractStatusInterruptableJob implements StatusJob, Inter
 
     private boolean interruptRequested = false;
 
+    private Thread executeThread = null;
+
+    public Thread getExecuteThread() {
+        synchronized (updateLock) {
+            return executeThread;
+        }
+    }
+
+
     /**
      * Returns true if interruption of the currently executing job has been requested, i.e. the
      * interrupt() method has been called and execution has not finalized.
@@ -62,8 +71,12 @@ public abstract class AbstractStatusInterruptableJob implements StatusJob, Inter
     @Override
     public void interrupt() throws UnableToInterruptJobException {
 
+        if (!isRunning()) throw new UnableToInterruptJobException("Job is not running!");
+
         synchronized (updateLock) {
             interruptRequested = true;
+
+            executeThread.interrupt();
         }
 
         final Callable<Boolean> callable = new Callable<Boolean>() {
@@ -93,10 +106,14 @@ public abstract class AbstractStatusInterruptableJob implements StatusJob, Inter
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         setRunning(true);
+        executeThread = Thread.currentThread();
         try {
             interruptableExecute(context);
         }
         finally {
+
+            executeThread = null;
+
             setRunning(false);
             synchronized (updateLock) {
                 interruptRequested = false;

@@ -30,66 +30,67 @@ import java.util.concurrent.TimeUnit;
 @Instantiate
 @Provides(specifications = SeleniumService.class)
 public class SeleniumProvider implements SeleniumService {
-    public static final String CONFIG_MANAGED_SERVICE_NAME = "com.awplab.core.selenium.service.provider";
+    public static final String CONFIG_MANAGED_SERVICE_NAME = "com.awplab.core.selenium.service";
 
 
-    public static final String PROPERTY_FORCE_LOCAL = "com.awplab.core.selenium.service.provider.forceLocal";
+    public static final String PROPERTY_FORCE_LOCAL = "com.awplab.core.selenium.service.forceLocal";
 
 
-    public static final String PROPERTY_LOCAL_DRIVER_CLASS = "com.awplab.core.selenium.service.provider.localDriverClass";
+    public static final String PROPERTY_LOCAL_DRIVER_CLASS = "com.awplab.core.selenium.service.localDriverClass";
 
 
-    public static final String PROPERTY_REMOTE_URL = "com.awplab.core.selenium.service.provider.remoteUrl";
+    public static final String PROPERTY_REMOTE_URL = "com.awplab.core.selenium.service.remoteUrl";
 
 
-    public static final String PROPERTY_REMOTE_DESIRED_BROWSER = "com.awplab.core.selenium.service.provider.remoteDesiredBrowser";
+    public static final String PROPERTY_REMOTE_DESIRED_BROWSER = "com.awplab.core.selenium.service.remoteDesiredBrowser";
 
-    public static final String PROPERTY_REMOTE_DESIRED_VERSION = "com.awplab.core.selenium.service.provider.remoteDesiredVersion";
+    public static final String PROPERTY_REMOTE_DESIRED_VERSION = "com.awplab.core.selenium.service.remoteDesiredVersion";
 
-    public static final String PROPERTY_REMOTE_DESIRED_PLATFORM = "com.awplab.core.selenium.service.provider.remoteDesiredPlatform";
-
-
-    public static final String PROPERTY_IMPLICITLY_WAIT_TIME = "com.awplab.core.selenium.service.provider.implicitlyWaitTime";
-
-    public static final String PROPERTY_IMPLICITLY_WAIT_TIME_UNIT = "com.awplab.core.selenium.service.provider.implicitlyWaitTimeUnit";
-
-    public static final String PROPERTY_PAGE_LOAD_TIMEOUT = "com.awplab.core.selenium.service.provider.pageLoadTimeout";
-
-    public static final String PROPERTY_PAGE_LOAD_TIMEOUT_UNIT = "com.awplab.core.selenium.service.provider.pageLoadTimeoutUnit";
-
-    public static final String PROPERTY_SCRIPT_TIMEOUT = "com.awplab.core.selenium.service.provider.scriptTimeout";
-
-    public static final String PROPERTY_SCRIPT_TIMEOUT_UNIT = "com.awplab.core.selenium.service.provider.scriptTimeoutUnit";
+    public static final String PROPERTY_REMOTE_DESIRED_PLATFORM = "com.awplab.core.selenium.service.remoteDesiredPlatform";
 
 
-    public static final String PROPERTY_WINDOW_WIDTH = "com.awplab.core.selenium.service.provider.windowWidth";
+    public static final String PROPERTY_IMPLICITLY_WAIT_TIME = "com.awplab.core.selenium.service.implicitlyWaitTime";
 
-    public static final String PROPERTY_WINDOW_HEIGHT = "com.awplab.core.selenium.service.provider.windowHeight";
+    public static final String PROPERTY_IMPLICITLY_WAIT_TIME_UNIT = "com.awplab.core.selenium.service.implicitlyWaitTimeUnit";
 
+    public static final String PROPERTY_PAGE_LOAD_TIMEOUT = "com.awplab.core.selenium.service.pageLoadTimeout";
 
-    public static final String PROPERTY_WAIT_UNTIL_TIMEOUT = "com.awplab.core.selenium.service.provider.waitUntilTimeout";
+    public static final String PROPERTY_PAGE_LOAD_TIMEOUT_UNIT = "com.awplab.core.selenium.service.pageLoadTimeoutUnit";
 
-    public static final String PROPERTY_WAIT_UNTIL_TIMEOUT_UNIT = "com.awplab.core.selenium.service.provider.waitUntilTimeoutUnit";
+    public static final String PROPERTY_SCRIPT_TIMEOUT = "com.awplab.core.selenium.service.scriptTimeout";
 
-
-    public static final String PROPERTY_FIREFOX_PROFILE_PREFERENCE_PAIRS = "com.awplab.core.selenium.service.provider.firefoxProfilePreferencePairs";
-
-    public static final String PROPERTY_FIREFOX_PROFILE_TRUST_ALL_CERTS = "com.awplab.core.selenium.service.provider.firefoxProfileTrustAllCerts";
+    public static final String PROPERTY_SCRIPT_TIMEOUT_UNIT = "com.awplab.core.selenium.service.scriptTimeoutUnit";
 
 
-    public static final String PROPERTY_CHROME_EXPERIMENTAL_OPTIONS = "com.awplab.core.selenium.service.provider.chromeExperimentalOptions";
+    public static final String PROPERTY_WINDOW_WIDTH = "com.awplab.core.selenium.service.windowWidth";
 
-    public static final String PROPERTY_CHROME_ARGUMENTS = "com.awplab.core.selenium.service.provider.chromeArguments";
+    public static final String PROPERTY_WINDOW_HEIGHT = "com.awplab.core.selenium.service.windowHeight";
+
+
+    public static final String PROPERTY_WAIT_UNTIL_TIMEOUT = "com.awplab.core.selenium.service.waitUntilTimeout";
+
+    public static final String PROPERTY_WAIT_UNTIL_TIMEOUT_UNIT = "com.awplab.core.selenium.service.waitUntilTimeoutUnit";
+
+
+    public static final String PROPERTY_FIREFOX_PROFILE_PREFERENCE_PAIRS = "com.awplab.core.selenium.service.firefoxProfilePreferencePairs";
+
+    public static final String PROPERTY_FIREFOX_PROFILE_TRUST_ALL_CERTS = "com.awplab.core.selenium.service.firefoxProfileTrustAllCerts";
+
+
+    public static final String PROPERTY_CHROME_EXPERIMENTAL_OPTIONS = "com.awplab.core.selenium.service.chromeExperimentalOptions";
+
+    public static final String PROPERTY_CHROME_ARGUMENTS = "com.awplab.core.selenium.service.chromeArguments";
 
 
     @ServiceProperty(name = PROPERTY_FORCE_LOCAL, value = "false")
     private boolean forceLocal;
 
     @ServiceProperty(name = PROPERTY_LOCAL_DRIVER_CLASS, value = "org.openqa.selenium.firefox.FirefoxDriver")
+    //@ServiceProperty(name = PROPERTY_LOCAL_DRIVER_CLASS, value = "org.openqa.selenium.chrome.ChromeDriver")
     private String localDriverClass;
 
     @ServiceProperty(name = PROPERTY_REMOTE_URL)
-    private String remoteUrl;
+    private String remoteUrl = null; //"http://192.168.99.100:32768/wd/hub";
 
     @ServiceProperty(name = PROPERTY_REMOTE_DESIRED_BROWSER, value = "firefox")
     private String remoteDesiredBrowser;
