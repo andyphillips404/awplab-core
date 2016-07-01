@@ -695,7 +695,7 @@
     <repositories>
         <repository>
             <id>awplab-repository</id>
-            <name>HDScores Repository</name>
+            <name>AWPLab Repository</name>
             <url>https://awplab.com/nexus/content/groups/public/</url>
         </repository>
 

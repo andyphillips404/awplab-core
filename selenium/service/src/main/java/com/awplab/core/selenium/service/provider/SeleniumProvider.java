@@ -90,7 +90,7 @@ public class SeleniumProvider implements SeleniumService {
     private String localDriverClass;
 
     @ServiceProperty(name = PROPERTY_REMOTE_URL)
-    private String remoteUrl = null; //"http://192.168.99.100:32768/wd/hub";
+    private String remoteUrl; // = null; //"http://192.168.99.100:32768/wd/hub";
 
     @ServiceProperty(name = PROPERTY_REMOTE_DESIRED_BROWSER, value = "firefox")
     private String remoteDesiredBrowser;
