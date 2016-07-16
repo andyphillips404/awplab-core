@@ -33,21 +33,6 @@ import java.util.concurrent.TimeUnit;
 public class PDFProvider implements PDFService {
     private Logger logger = LoggerFactory.getLogger(PDFProvider.class);
 
-    public static final String CONFIG_MANAGED_SERVICE_NAME = "com.awplab.core.pdf.service.provider";
-
-    public static final String PROPERTY_DEFAULT_NETWORK_TIMEOUT = "com.awplab.core.pdf.service.provider.defaultNetworkTimeout";
-
-    public static final String PROPERTY_DEFAULT_RETRY_MAX_EXPONENTIAL_WAIT_TIME = "com.awplab.core.pdf.service.provider.defaultRetryMaxExponentialWaitTime";
-
-    public static final String PROPERTY_DEFAULT_RETRY_MAX_RETRY_TIMEOUT = "com.awplab.core.pdf.service.provider.defaultRetryTimeout";
-
-    public static final String PROPERTY_DEFAULT_NETWORK_TIMEOUT_UNIT = "com.awplab.core.pdf.service.provider.defaultNetworkTimeoutUnit";
-
-    public static final String PROPERTY_DEFAULT_RETRY_MAX_EXPONENTIAL_WAIT_TIME_UNIT = "com.awplab.core.pdf.service.provider.defaultRetryMaxExponentialWaitTimeUnit";
-
-    public static final String PROPERTY_DEFAULT_RETRY_MAX_RETRY_TIMEOUT_UNIT = "com.awplab.core.pdf.service.provider.defaultRetryTimeoutUnit";
-
-    public static final String PROPERTY_DEFAULT_RENDER_SCALE = "com.awplab.core.pdf.service.provider.defaultRenderScale";
 
     @ServiceProperty(name = PROPERTY_DEFAULT_NETWORK_TIMEOUT, value = "5")
     private long defaultNetworkTimeout;

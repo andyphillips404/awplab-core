@@ -25,11 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Provides(specifications = RestManager.class)
 public class RestManagerProvider implements RestManager, BundleListener {
 
-    public static final String CONFIG_MANAGED_SERVICE_NAME = "com.awplab.core.rest.service.manager";
-
-    public static final String PROPERTY_HOLD_OFF_TIME_SECONDS = "com.awplab.core.rest.service.manager.holdOffTimeSeconds";
-
-
     private Set<RestService> restProviders = ConcurrentHashMap.newKeySet();
 
     private Map<String, ServletContainer> servletContainers = new ConcurrentHashMap<>();

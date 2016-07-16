@@ -31,11 +31,9 @@ import java.util.Map;
 @Provides(specifications = MongoService.class)
 public class MongoProvider implements MongoService, CodecProvider {
 
-    public static final String CONFIG_MANAGED_SERVICE_NAME = "com.hdscores.v3.mongodb";
 
     private MongoClient mongoClient;
 
-    public static final String PROPERTY_CONNECTION_STRING = "com.hdscores.v3.mongodb.connectionString";
     @ServiceProperty(name = PROPERTY_CONNECTION_STRING)
     private String connectionString;
 

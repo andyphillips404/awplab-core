@@ -30,56 +30,7 @@ import java.util.concurrent.TimeUnit;
 @Instantiate
 @Provides(specifications = SeleniumService.class)
 public class SeleniumProvider implements SeleniumService {
-    public static final String CONFIG_MANAGED_SERVICE_NAME = "com.awplab.core.selenium.service";
 
-
-    public static final String PROPERTY_FORCE_LOCAL = "com.awplab.core.selenium.service.forceLocal";
-
-
-    public static final String PROPERTY_LOCAL_DRIVER_CLASS = "com.awplab.core.selenium.service.localDriverClass";
-
-
-    public static final String PROPERTY_REMOTE_URL = "com.awplab.core.selenium.service.remoteUrl";
-
-
-    public static final String PROPERTY_REMOTE_DESIRED_BROWSER = "com.awplab.core.selenium.service.remoteDesiredBrowser";
-
-    public static final String PROPERTY_REMOTE_DESIRED_VERSION = "com.awplab.core.selenium.service.remoteDesiredVersion";
-
-    public static final String PROPERTY_REMOTE_DESIRED_PLATFORM = "com.awplab.core.selenium.service.remoteDesiredPlatform";
-
-
-    public static final String PROPERTY_IMPLICITLY_WAIT_TIME = "com.awplab.core.selenium.service.implicitlyWaitTime";
-
-    public static final String PROPERTY_IMPLICITLY_WAIT_TIME_UNIT = "com.awplab.core.selenium.service.implicitlyWaitTimeUnit";
-
-    public static final String PROPERTY_PAGE_LOAD_TIMEOUT = "com.awplab.core.selenium.service.pageLoadTimeout";
-
-    public static final String PROPERTY_PAGE_LOAD_TIMEOUT_UNIT = "com.awplab.core.selenium.service.pageLoadTimeoutUnit";
-
-    public static final String PROPERTY_SCRIPT_TIMEOUT = "com.awplab.core.selenium.service.scriptTimeout";
-
-    public static final String PROPERTY_SCRIPT_TIMEOUT_UNIT = "com.awplab.core.selenium.service.scriptTimeoutUnit";
-
-
-    public static final String PROPERTY_WINDOW_WIDTH = "com.awplab.core.selenium.service.windowWidth";
-
-    public static final String PROPERTY_WINDOW_HEIGHT = "com.awplab.core.selenium.service.windowHeight";
-
-
-    public static final String PROPERTY_WAIT_UNTIL_TIMEOUT = "com.awplab.core.selenium.service.waitUntilTimeout";
-
-    public static final String PROPERTY_WAIT_UNTIL_TIMEOUT_UNIT = "com.awplab.core.selenium.service.waitUntilTimeoutUnit";
-
-
-    public static final String PROPERTY_FIREFOX_PROFILE_PREFERENCE_PAIRS = "com.awplab.core.selenium.service.firefoxProfilePreferencePairs";
-
-    public static final String PROPERTY_FIREFOX_PROFILE_TRUST_ALL_CERTS = "com.awplab.core.selenium.service.firefoxProfileTrustAllCerts";
-
-
-    public static final String PROPERTY_CHROME_EXPERIMENTAL_OPTIONS = "com.awplab.core.selenium.service.chromeExperimentalOptions";
-
-    public static final String PROPERTY_CHROME_ARGUMENTS = "com.awplab.core.selenium.service.chromeArguments";
 
 
     @ServiceProperty(name = PROPERTY_FORCE_LOCAL, value = "false")

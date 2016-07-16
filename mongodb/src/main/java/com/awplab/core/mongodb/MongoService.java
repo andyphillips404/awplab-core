@@ -16,4 +16,9 @@ public interface MongoService {
 
     void unregisterCodec(Class clazz);
 
+
+    String CONFIG_MANAGED_SERVICE_NAME = "com.hdscores.v3.mongodb";
+
+    String PROPERTY_CONNECTION_STRING = "com.hdscores.v3.mongodb.connectionString";
+
 }

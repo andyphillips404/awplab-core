@@ -50,4 +50,11 @@ public interface RestManager {
     }
 
 
+    String CONFIG_MANAGED_SERVICE_NAME = "com.awplab.core.rest.service.manager";
+
+    String PROPERTY_HOLD_OFF_TIME_SECONDS = "com.awplab.core.rest.service.manager.holdOffTimeSeconds";
+
+
+
+
 }

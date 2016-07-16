@@ -23,4 +23,22 @@ public interface PDFService {
                                      final long networkTimeout, final TimeUnit networkTimeoutUnit,
                                      final long retryMaxExponentialWaitTime, final TimeUnit retryMaxExponentialWaitTimeUnit,
                                      final long retryMaxTimeoutTime, final TimeUnit retryMaxTimeoutTimeUnit);
+
+
+    String CONFIG_MANAGED_SERVICE_NAME = "com.awplab.core.pdf.service";
+
+    String PROPERTY_DEFAULT_NETWORK_TIMEOUT = "com.awplab.core.pdf.service.defaultNetworkTimeout";
+
+    String PROPERTY_DEFAULT_RETRY_MAX_EXPONENTIAL_WAIT_TIME = "com.awplab.core.pdf.service.defaultRetryMaxExponentialWaitTime";
+
+    String PROPERTY_DEFAULT_RETRY_MAX_RETRY_TIMEOUT = "com.awplab.core.pdf.service.defaultRetryTimeout";
+
+    String PROPERTY_DEFAULT_NETWORK_TIMEOUT_UNIT = "com.awplab.core.pdf.service.defaultNetworkTimeoutUnit";
+
+    String PROPERTY_DEFAULT_RETRY_MAX_EXPONENTIAL_WAIT_TIME_UNIT = "com.awplab.core.pdf.service.defaultRetryMaxExponentialWaitTimeUnit";
+
+    String PROPERTY_DEFAULT_RETRY_MAX_RETRY_TIMEOUT_UNIT = "com.awplab.core.pdf.service.defaultRetryTimeoutUnit";
+
+    String PROPERTY_DEFAULT_RENDER_SCALE = "com.awplab.core.pdf.service.defaultRenderScale";
+
 }
