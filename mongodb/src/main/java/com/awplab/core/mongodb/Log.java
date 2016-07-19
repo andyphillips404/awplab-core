@@ -5,9 +5,7 @@ import org.bson.types.ObjectId;
 import org.ops4j.pax.logging.spi.PaxLocationInfo;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by andyphillips404 on 5/31/16.
@@ -30,6 +28,8 @@ public class Log {
     private Date timeStamp;
     private String FQNOfLoggerClass;
     private Map properties;
+    private Set<LogFiles> logFiles = new HashSet<>();
+
 
     public ObjectId getId() {
         return id;
@@ -133,5 +133,11 @@ public class Log {
     }
 
 
+    public Set<LogFiles> getLogFiles() {
+        return logFiles;
+    }
 
+    public void setLogFiles(Set<LogFiles> logFiles) {
+        this.logFiles = logFiles;
+    }
 }

@@ -100,7 +100,7 @@
 
         <version.swagger>1.5.8</version.swagger>
 
-        <version.mongodb>3.2.2</version.mongodb>
+        <version.mongodb>3.3.0</version.mongodb>
 
         <version.felix.http.base>2.3.0</version.felix.http.base>
         <version.felix.http.api>2.3.0</version.felix.http.api>

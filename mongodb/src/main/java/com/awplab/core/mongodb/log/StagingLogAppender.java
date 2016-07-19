@@ -3,6 +3,7 @@ package com.awplab.core.mongodb.log;
 
 import com.awplab.core.common.TemporaryFile;
 import com.awplab.core.mongodb.Log;
+import com.awplab.core.mongodb.LogFiles;
 import com.awplab.core.mongodb.MongoService;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -24,7 +25,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by andyphillips404 on 3/6/15.
@@ -80,7 +83,7 @@ public class StagingLogAppender implements PaxAppender {
             MongoCollection<Log> logCollection = mongoDatabase.getCollection(collection, Log.class);
             Log log = new Log(paxLoggingEvent);
 
-            Map<Object, ObjectId> newKeys = new HashMap<>();
+            Set<String> fileKeys = new HashSet<>();
             for (Object key : log.getProperties().keySet()) {
                 Object value = log.getProperties().get(key);
                 if (value instanceof TemporaryFile) {
@@ -89,7 +92,8 @@ public class StagingLogAppender implements PaxAppender {
                     try {
                         fileInputStream = new FileInputStream((TemporaryFile) value);
                         ObjectId objectId = gridFSBucket.uploadFromStream(((TemporaryFile) value).getName(), fileInputStream);
-                        newKeys.put(key, objectId);
+                        log.getLogFiles().add(new LogFiles(key.toString(), objectId, gridFSCollection));
+                        fileKeys.add(key.toString());
                     }
                     catch (IOException ex) {
                         LoggerFactory.getLogger(StagingLogAppender.class).error("Exception attempting to write to grid fs log from file: " + ((TemporaryFile) value).getAbsolutePath() + "!", ex);
@@ -101,7 +105,7 @@ public class StagingLogAppender implements PaxAppender {
                 }
             }
 
-            if (newKeys.size() > 0) log.getProperties().putAll(newKeys);
+            fileKeys.forEach(log.getProperties()::remove);
 
             logCollection.insertOne(log);
 
