@@ -19,4 +19,5 @@ public @interface PojoCodecProperties {
     boolean ignoreInherited() default false;
     boolean ignoreStaticFields() default true;
     boolean ignoreFinalFields() default false;
+
 }
