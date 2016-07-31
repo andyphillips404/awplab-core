@@ -172,11 +172,18 @@ public class PojoCodec<T> implements CollectibleCodec<T> {
                     try {
                         Field field = (Field)fieldOrMethod;
 
-                        if (field.getType().isAssignableFrom(value.getClass())) {
-                            field.set(document.get(key, field.getType()), instance);
+                        if (value.getClass().isAssignableFrom(field.getType())) {
+                            field.set(instance, value); //document.get(key, field.getType()));
                         }
                         else {
-                            throw new PojoCodecDecodeException("Field " + key + " type " + field.getType().toString() + " is not assignable for return type " + value.getClass().toString());
+                            if (Collection.class.isAssignableFrom(field.getType()) && Collection.class.isAssignableFrom(value.getClass())) {
+                                Collection<?> collection = (Collection)field.getType().newInstance();
+                                collection.addAll((Collection)value);
+                                field.set(instance, collection);
+                            }
+                            else {
+                                throw new PojoCodecDecodeException("Field " + key + " type " + field.getType().toString() + " is not assignable for return type " + value.getClass().toString());
+                            }
                         }
 
                     }
@@ -186,11 +193,19 @@ public class PojoCodec<T> implements CollectibleCodec<T> {
                 }
                 else {
                     if (fieldOrMethod instanceof Method) {
+                        Method method = (Method) fieldOrMethod;
                         try {
-                            Method method = (Method) fieldOrMethod;
                             method.invoke(instance, value);
                         } catch (Exception e) {
-                            throw new PojoCodecDecodeException("Exception attempting to execute method " + ((Method) fieldOrMethod).getName() + " for field " + key, e);
+                            Class<?> setClass = method.getParameters()[0].getType();
+                            if (Collection.class.isAssignableFrom(setClass) && Collection.class.isAssignableFrom(value.getClass())) {
+                                Collection<?> collection = (Collection)setClass.newInstance();
+                                collection.addAll((Collection)value);
+                                method.invoke(instance, collection);
+                            }
+                            else {
+                                throw new PojoCodecDecodeException("Exception attempting to execute method " + ((Method) fieldOrMethod).getName() + " for field " + key, e);
+                            }
                         }
                     }
                 }
