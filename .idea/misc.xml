@@ -35,6 +35,7 @@
       <set>
         <option value="$PROJECT_DIR$/selenium/remote/pom.xml" />
         <option value="$PROJECT_DIR$/test/pom.xml" />
+        <option value="$PROJECT_DIR$/vaadin/pom.xml" />
       </set>
     </option>
   </component>

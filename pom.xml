@@ -82,6 +82,10 @@
         <version.karaf>4.0.5</version.karaf>
         <version.pax.logging>1.8.5</version.pax.logging>
 
+        <version.pax.web>4.2.6</version.pax.web>
+
+        <version.javax.servlet>3.1.0</version.javax.servlet>
+
         <version.osgi.core>5.0.0</version.osgi.core>
         <version.osgi.compendium>5.0.0</version.osgi.compendium>
 
@@ -402,25 +406,6 @@
             </dependency>
 
 
-            <!-- Felix HTTP -->
-            <dependency>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.http.servlet-api</artifactId>
-                <version>${version.felix.http.servlet-api}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.http.jetty</artifactId>
-                <version>${version.felix.http.jetty}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.http.api</artifactId>
-                <version>${version.felix.http.api}</version>
-            </dependency>
-
             <!-- Selenium -->
             <dependency>
                 <groupId>org.seleniumhq.selenium</groupId>
@@ -451,6 +436,32 @@
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-push</artifactId>
                 <version>${version.vaadin}</version>
+            </dependency>
+
+            <!-- javax.servlet -->
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${version.javax.servlet}</version>
+            </dependency>
+
+            <!-- PAX Web -->
+            <dependency>
+                <groupId>org.ops4j.pax.web</groupId>
+                <artifactId>pax-web-api</artifactId>
+                <version>${version.pax.web}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.ops4j.pax.web</groupId>
+                <artifactId>pax-web-runtime</artifactId>
+                <version>${version.pax.web}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.ops4j.pax.web</groupId>
+                <artifactId>pax-web-jetty</artifactId>
+                <version>${version.pax.web}</version>
             </dependency>
 
 

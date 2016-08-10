@@ -74,6 +74,7 @@
             <artifactId>org.apache.karaf.jaas.boot</artifactId>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.http.servlet-api</artifactId>
@@ -91,7 +92,12 @@
             <artifactId>org.apache.felix.http.api</artifactId>
             <version>${version.felix.http.api}</version>
         </dependency>
+        -->
 
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
     </dependencies>
 
 

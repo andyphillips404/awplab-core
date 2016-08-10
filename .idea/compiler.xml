@@ -91,6 +91,7 @@
       <module name="selenium.service" target="1.8" />
       <module name="service" target="1.8" />
       <module name="test" target="1.8" />
+      <module name="vaadin" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

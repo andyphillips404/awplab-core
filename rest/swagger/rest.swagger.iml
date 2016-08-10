@@ -52,22 +52,7 @@
     <orderEntry type="library" name="Maven: javax.validation:validation-api:1.1.0.Final" level="project" />
     <orderEntry type="library" name="Maven: org.glassfish.jersey.media:jersey-media-multipart:2.22.2" level="project" />
     <orderEntry type="library" name="Maven: org.jvnet.mimepull:mimepull:1.9.6" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.felix:org.apache.felix.http.servlet-api:1.0.0" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-servlet-api:7.0.8" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.felix:org.apache.felix.http.jetty:2.3.0" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-servlet:8.1.14.v20131031" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-security:8.1.14.v20131031" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-server:8.1.14.v20131031" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-continuation:8.1.14.v20131031" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-http:8.1.14.v20131031" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-io:8.1.14.v20131031" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-util:8.1.14.v20131031" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-jmx:8.1.14.v20131031" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-webapp:8.1.14.v20131031" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-xml:8.1.14.v20131031" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.felix:org.apache.felix.http.api:2.3.0" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.felix:org.apache.felix.http.base:2.3.0" level="project" />
+    <orderEntry type="library" name="Maven: javax.servlet:javax.servlet-api:3.1.0" level="project" />
     <orderEntry type="library" name="Maven: io.swagger:swagger-jaxrs:1.5.8" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.4.5" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.7.3" level="project" />

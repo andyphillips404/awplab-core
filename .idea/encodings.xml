@@ -21,6 +21,7 @@
     <file url="file://$PROJECT_DIR$/selenium" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/selenium/command" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/selenium/service" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/vaadin" charset="UTF-8" />
     <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>
