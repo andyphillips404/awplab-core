@@ -97,9 +97,21 @@
 
         <feature>mongodb</feature>
 
-        <bundle>mvn:com.awplab.core/mongodb/${version.core.mongodb}</bundle>
+        <bundle>mvn:com.awplab.core/mongodb.service/${version.core.mongodb.service}</bundle>
+        <bundle>mvn:com.awplab.core/mongodb.command/${version.core.mongodb.command}</bundle>
+        <bundle>mvn:com.awplab.core/mongodb.log/${version.core.mongodb.log}</bundle>
+
     </feature>
 
+
+    <feature name="core-mongodb-admin" version="${parent.version}">
+        <feature>core-mongodb</feature>
+        <feature>core-vaadin</feature>
+        <feature>core-admin</feature>
+        <feature>ehcache</feature>
+
+        <bundle>mvn:com.awplab.core/mongodb.admin/${version.core.mongodb.admin}</bundle>
+    </feature>
 
     <feature name="core-pdf" version="${parent.version}">
         <feature>pdfbox</feature>
@@ -116,6 +128,17 @@
         <bundle>mvn:com.awplab.core/pdf.service/${version.core.pdf.service}</bundle>
         <bundle>mvn:com.awplab.core/pdf.command/${version.core.pdf.command}</bundle>
 
+    </feature>
+
+    <feature name="core-vaadin" version="${parent.version}">
+        <feature>http</feature>
+        <bundle>mvn:com.awplab.core/vaadin.service/${version.core.vaadin.service}</bundle>
+        <bundle>mvn:com.awplab.core/vaadin.command/${version.core.vaadin.command}</bundle>
+    </feature>
+
+    <feature name="core-admin" version="${parent.version}">
+        <feature>core-vaadin</feature>
+        <bundle>mvn:com.awplab.core/admin/${version.core.admin}</bundle>
     </feature>
 
     <feature name="ipojo" version="${version.ipojo}">

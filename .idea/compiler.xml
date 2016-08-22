@@ -43,10 +43,14 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
+        <module name="admin" />
         <module name="common" />
         <module name="features" />
         <module name="ipojo" />
-        <module name="mongodb" />
+        <module name="mongodb.admin" />
+        <module name="mongodb.command" />
+        <module name="mongodb.log" />
+        <module name="mongodb.service" />
         <module name="pdf.command" />
         <module name="pdf.parser" />
         <module name="pdf.service" />
@@ -60,9 +64,12 @@
         <module name="scheduler.service" />
         <module name="selenium.command" />
         <module name="selenium.service" />
+        <module name="vaadin.command" />
+        <module name="vaadin.service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="admin" target="1.8" />
       <module name="command" target="1.8" />
       <module name="common" target="1.8" />
       <module name="core" target="1.8" />
@@ -70,6 +77,10 @@
       <module name="ipojo" target="1.8" />
       <module name="karaf" target="1.8" />
       <module name="mongodb" target="1.8" />
+      <module name="mongodb.admin" target="1.8" />
+      <module name="mongodb.command" target="1.8" />
+      <module name="mongodb.log" target="1.8" />
+      <module name="mongodb.service" target="1.8" />
       <module name="pdf" target="1.8" />
       <module name="pdf.command" target="1.8" />
       <module name="pdf.parser" target="1.8" />
@@ -92,6 +103,8 @@
       <module name="service" target="1.8" />
       <module name="test" target="1.8" />
       <module name="vaadin" target="1.8" />
+      <module name="vaadin.command" target="1.8" />
+      <module name="vaadin.service" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -2,11 +2,16 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/admin/admin.iml" filepath="$PROJECT_DIR$/admin/admin.iml" />
       <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
       <module fileurl="file://$PROJECT_DIR$/core.iml" filepath="$PROJECT_DIR$/core.iml" />
       <module fileurl="file://$PROJECT_DIR$/features/features.iml" filepath="$PROJECT_DIR$/features/features.iml" />
       <module fileurl="file://$PROJECT_DIR$/ipojo/ipojo.iml" filepath="$PROJECT_DIR$/ipojo/ipojo.iml" />
       <module fileurl="file://$PROJECT_DIR$/mongodb/mongodb.iml" filepath="$PROJECT_DIR$/mongodb/mongodb.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mongodb/admin/mongodb.admin.iml" filepath="$PROJECT_DIR$/mongodb/admin/mongodb.admin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mongodb/command/mongodb.command.iml" filepath="$PROJECT_DIR$/mongodb/command/mongodb.command.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mongodb/log/mongodb.log.iml" filepath="$PROJECT_DIR$/mongodb/log/mongodb.log.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mongodb/service/mongodb.service.iml" filepath="$PROJECT_DIR$/mongodb/service/mongodb.service.iml" />
       <module fileurl="file://$PROJECT_DIR$/pdf/pdf.iml" filepath="$PROJECT_DIR$/pdf/pdf.iml" />
       <module fileurl="file://$PROJECT_DIR$/pdf/command/pdf.command.iml" filepath="$PROJECT_DIR$/pdf/command/pdf.command.iml" />
       <module fileurl="file://$PROJECT_DIR$/pdf/parser/pdf.parser.iml" filepath="$PROJECT_DIR$/pdf/parser/pdf.parser.iml" />
@@ -22,6 +27,9 @@
       <module fileurl="file://$PROJECT_DIR$/selenium/selenium.iml" filepath="$PROJECT_DIR$/selenium/selenium.iml" />
       <module fileurl="file://$PROJECT_DIR$/selenium/command/selenium.command.iml" filepath="$PROJECT_DIR$/selenium/command/selenium.command.iml" />
       <module fileurl="file://$PROJECT_DIR$/selenium/service/selenium.service.iml" filepath="$PROJECT_DIR$/selenium/service/selenium.service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/vaadin/vaadin.iml" filepath="$PROJECT_DIR$/vaadin/vaadin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/vaadin/command/vaadin.command.iml" filepath="$PROJECT_DIR$/vaadin/command/vaadin.command.iml" />
+      <module fileurl="file://$PROJECT_DIR$/vaadin/service/vaadin.service.iml" filepath="$PROJECT_DIR$/vaadin/service/vaadin.service.iml" />
     </modules>
   </component>
 </project>

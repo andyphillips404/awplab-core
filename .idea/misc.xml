@@ -8,6 +8,7 @@
     </list>
   </component>
   <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="Osmorc" url="file://$PROJECT_DIR$/admin" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/common" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/ipojo" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/mongodb" />
@@ -24,6 +25,8 @@
     <file type="Osmorc" url="file://$PROJECT_DIR$/selenium/remote" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/selenium/service" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/test" />
+    <file type="Osmorc" url="file://$PROJECT_DIR$/vaadin/command" />
+    <file type="Osmorc" url="file://$PROJECT_DIR$/vaadin/service" />
   </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">

@@ -51,6 +51,8 @@
         <module>selenium</module>
         <module>pdf</module>
         <module>mongodb</module>
+        <module>admin</module>
+        <module>vaadin</module>
     </modules>
 
 
@@ -77,9 +79,19 @@
 
         <version.core.ipojo>1.0.0-SNAPSHOT</version.core.ipojo>
 
-        <version.core.mongodb>1.0.0-SNAPSHOT</version.core.mongodb>
+        <version.core.mongodb.service>1.0.0-SNAPSHOT</version.core.mongodb.service>
+        <version.core.mongodb.command>1.0.0-SNAPSHOT</version.core.mongodb.command>
+        <version.core.mongodb.log>1.0.0-SNAPSHOT</version.core.mongodb.log>
+        <version.core.mongodb.admin>1.0.0-SNAPSHOT</version.core.mongodb.admin>
+
+        <version.core.vaadin.service>1.0.0-SNAPSHOT</version.core.vaadin.service>
+        <version.core.vaadin.command>1.0.0-SNAPSHOT</version.core.vaadin.command>
+
+        <version.core.admin>1.0.0-SNAPSHOT</version.core.admin>
+
 
         <version.karaf>4.0.5</version.karaf>
+
         <version.pax.logging>1.8.5</version.pax.logging>
 
         <version.pax.web>4.2.6</version.pax.web>
@@ -94,7 +106,7 @@
         <version.ipojo>1.12.1</version.ipojo>
         <version.ipojo.eventadmin>1.8.0</version.ipojo.eventadmin>
 
-        <version.ehcache>3.0.0</version.ehcache>
+        <version.ehcache>3.1.1</version.ehcache>
 
         <version.quartz>2.2.3</version.quartz>
 
@@ -193,10 +205,27 @@
 
             <dependency>
                 <groupId>com.awplab.core</groupId>
-                <artifactId>mongodb</artifactId>
-                <version>${version.core.mongodb}</version>
+                <artifactId>mongodb.service</artifactId>
+                <version>${version.core.mongodb.service}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.awplab.core</groupId>
+                <artifactId>mongodb.log</artifactId>
+                <version>${version.core.mongodb.log}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.awplab.core</groupId>
+                <artifactId>vaadin.service</artifactId>
+                <version>${version.core.vaadin.service}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.awplab.core</groupId>
+                <artifactId>admin</artifactId>
+                <version>${version.core.admin}</version>
+            </dependency>
 
             <!-- MongoDB -->
             <dependency>
