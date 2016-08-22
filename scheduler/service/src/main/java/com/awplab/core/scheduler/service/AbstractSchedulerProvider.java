@@ -1,18 +1,21 @@
 
 package com.awplab.core.scheduler.service;
 
-import org.quartz.Calendar;
 import org.quartz.*;
 import org.quartz.core.QuartzScheduler;
 import org.quartz.core.QuartzSchedulerResources;
 import org.quartz.impl.DefaultThreadExecutor;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.simpl.CascadingClassLoadHelper;
-import org.quartz.spi.*;
+import org.quartz.spi.ClassLoadHelper;
+import org.quartz.spi.JobFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by andyphillips404 on 12/23/15.

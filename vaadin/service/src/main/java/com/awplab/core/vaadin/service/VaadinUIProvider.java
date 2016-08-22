@@ -4,9 +4,6 @@ import com.vaadin.server.ServiceException;
 import com.vaadin.server.SessionDestroyEvent;
 import com.vaadin.server.SessionInitEvent;
 import com.vaadin.server.UIProvider;
-import com.vaadin.ui.UI;
-
-import java.util.Collection;
 
 /**
  * Created by andyphillips404 on 8/11/16.

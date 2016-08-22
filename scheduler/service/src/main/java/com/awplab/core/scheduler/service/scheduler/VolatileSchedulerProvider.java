@@ -2,12 +2,9 @@ package com.awplab.core.scheduler.service.scheduler;
 
 
 import com.awplab.core.scheduler.service.AbstractSchedulerProvider;
-import org.apache.felix.ipojo.ComponentInstance;
-import org.apache.felix.ipojo.Factory;
-import org.apache.felix.ipojo.annotations.*;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
+import org.apache.felix.ipojo.annotations.Component;
+import org.apache.felix.ipojo.annotations.Property;
+import org.apache.felix.ipojo.annotations.Provides;
 import org.quartz.Scheduler;
 import org.quartz.core.QuartzSchedulerResources;
 import org.quartz.impl.DefaultThreadExecutor;

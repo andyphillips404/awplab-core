@@ -1,7 +1,6 @@
 package com.awplab.core.scheduler.service.scheduler;
 
 import org.quartz.SchedulerConfigException;
-import org.quartz.core.QuartzSchedulerThread;
 import org.quartz.spi.ThreadPool;
 
 import java.util.concurrent.Executors;

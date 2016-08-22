@@ -3,7 +3,6 @@ package com.awplab.core.pdf.parser.text;
 import com.awplab.core.pdf.parser.Element;
 import com.awplab.core.pdf.parser.GlyphElement;
 import com.awplab.core.pdf.parser.ParsedDocument;
-import org.apache.pdfbox.pdmodel.PDDocument;
 
 import java.awt.geom.Rectangle2D;
 import java.util.*;

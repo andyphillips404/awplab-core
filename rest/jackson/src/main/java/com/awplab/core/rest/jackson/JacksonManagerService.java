@@ -1,7 +1,6 @@
 package com.awplab.core.rest.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -9,7 +8,10 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.wiring.BundleWiring;
 
 import java.net.URL;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by andyphillips404 on 12/19/15.

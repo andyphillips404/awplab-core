@@ -217,6 +217,12 @@
 
             <dependency>
                 <groupId>com.awplab.core</groupId>
+                <artifactId>mongodb.admin</artifactId>
+                <version>${version.core.mongodb.admin}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.awplab.core</groupId>
                 <artifactId>vaadin.service</artifactId>
                 <version>${version.core.vaadin.service}</version>
             </dependency>

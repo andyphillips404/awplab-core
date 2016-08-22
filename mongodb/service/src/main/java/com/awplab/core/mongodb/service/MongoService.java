@@ -3,8 +3,6 @@ package com.awplab.core.mongodb.service;
 import com.mongodb.MongoClient;
 import org.bson.codecs.Codec;
 
-import java.util.List;
-
 /**
  * Created by andyphillips404 on 5/27/16.
  */

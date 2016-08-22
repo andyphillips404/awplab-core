@@ -4,11 +4,8 @@ import com.awplab.core.common.TemporaryFile;
 import org.openqa.selenium.*;
 import org.openqa.selenium.remote.Augmenter;
 import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;

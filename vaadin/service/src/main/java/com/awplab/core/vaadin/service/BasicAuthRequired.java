@@ -3,10 +3,8 @@ package com.awplab.core.vaadin.service;
 import com.vaadin.server.VaadinRequest;
 import org.apache.karaf.jaas.boot.principal.GroupPrincipal;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
-import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 
 import javax.security.auth.Subject;
-import java.security.Principal;
 import java.util.Optional;
 
 /**

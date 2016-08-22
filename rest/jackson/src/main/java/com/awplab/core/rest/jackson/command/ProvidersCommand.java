@@ -3,7 +3,6 @@ package com.awplab.core.rest.jackson.command;
 
 import com.awplab.core.rest.jackson.JacksonJaxrsService;
 import com.awplab.core.rest.jackson.JacksonManagerService;
-import com.awplab.core.rest.jackson.JacksonJaxrsProvider;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;

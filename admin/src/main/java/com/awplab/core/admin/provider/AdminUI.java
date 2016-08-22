@@ -4,6 +4,7 @@ import com.awplab.core.admin.AdminUIConfiguration;
 import com.awplab.core.admin.AdminView;
 import com.awplab.core.admin.AdminViewProvider;
 import com.awplab.core.vaadin.service.BasicAuthRequired;
+import com.awplab.core.vaadin.service.VaadinProvider;
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
@@ -16,10 +17,8 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import org.apache.felix.ipojo.annotations.Bind;
+import org.apache.felix.ipojo.annotations.*;
 import org.apache.felix.ipojo.annotations.Component;
-import org.apache.felix.ipojo.annotations.Property;
-import org.apache.felix.ipojo.annotations.Unbind;
 
 import javax.security.auth.Subject;
 import java.util.*;
@@ -50,11 +49,7 @@ public class AdminUI extends UI {
 
 
     private void doAccess(Runnable runnable) {
-        if (isAttached()) {
-            super.access(runnable);
-        } else {
-            runnable.run();
-        }
+        VaadinProvider.doAccess(this, runnable);
     }
 
     @Property(name = AdminUIConfiguration.PROPERTY_TITLE)
@@ -64,6 +59,10 @@ public class AdminUI extends UI {
     private String[] categories;
 
 
+    @Updated
+    private void update() {
+        updateMenuAndNavigator();
+    }
 
 
     private Subject subject;
@@ -83,6 +82,7 @@ public class AdminUI extends UI {
         if (navigator != null) navigator.removeView(adminView.getNavigatorViewName());
         updateMenuAndNavigator();
     }
+
 
 
 

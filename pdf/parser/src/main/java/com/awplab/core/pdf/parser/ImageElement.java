@@ -2,7 +2,6 @@ package com.awplab.core.pdf.parser;
 
 import org.apache.pdfbox.pdmodel.graphics.image.PDImage;
 
-import java.awt.*;
 import java.awt.geom.Rectangle2D;
 
 /**

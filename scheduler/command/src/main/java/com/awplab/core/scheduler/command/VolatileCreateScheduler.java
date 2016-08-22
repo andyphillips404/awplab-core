@@ -10,7 +10,8 @@ import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
-import java.util.*;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 /**
  * Created by andyphillips404 on 2/24/15.

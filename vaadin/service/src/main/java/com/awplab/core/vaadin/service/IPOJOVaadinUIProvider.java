@@ -1,6 +1,8 @@
 package com.awplab.core.vaadin.service;
 
-import com.vaadin.server.*;
+import com.vaadin.server.SessionDestroyEvent;
+import com.vaadin.server.UIClassSelectionEvent;
+import com.vaadin.server.UICreateEvent;
 import com.vaadin.ui.UI;
 import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.Factory;
@@ -11,7 +13,6 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.Subject;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

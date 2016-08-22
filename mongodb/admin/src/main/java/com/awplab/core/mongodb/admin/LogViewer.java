@@ -5,7 +5,9 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import com.vaadin.external.org.slf4j.Logger;
 import com.vaadin.external.org.slf4j.LoggerFactory;
-import com.vaadin.ui.*;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 import org.bson.conversions.Bson;
 
 import java.beans.IntrospectionException;

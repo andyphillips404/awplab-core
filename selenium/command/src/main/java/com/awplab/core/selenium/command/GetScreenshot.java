@@ -7,12 +7,8 @@ import com.awplab.core.selenium.service.SeleniumService;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
-import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
-import org.openqa.selenium.OutputType;
-
-import java.io.File;
 
 /**
  * Created by andyphillips404 on 2/25/15.

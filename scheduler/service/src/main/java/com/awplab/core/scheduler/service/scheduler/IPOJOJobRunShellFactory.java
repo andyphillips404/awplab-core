@@ -1,6 +1,5 @@
 package com.awplab.core.scheduler.service.scheduler;
 
-import com.awplab.core.scheduler.service.events.SchedulerEventData;
 import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.InstanceManager;
@@ -8,8 +7,6 @@ import org.apache.felix.ipojo.parser.PojoMetadata;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
 import org.quartz.Job;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerConfigException;
@@ -19,7 +16,9 @@ import org.quartz.core.JobRunShellFactory;
 import org.quartz.spi.TriggerFiredBundle;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by andyphillips404 on 12/31/15.

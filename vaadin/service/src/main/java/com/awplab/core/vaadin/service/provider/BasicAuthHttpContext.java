@@ -1,11 +1,12 @@
 package com.awplab.core.vaadin.service.provider;
 
 import com.awplab.core.vaadin.service.BasicAuthRequired;
-import com.awplab.core.vaadin.service.VaadinProvider;
 import org.osgi.service.http.HttpContext;
 
 import javax.security.auth.Subject;
-import javax.security.auth.callback.*;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

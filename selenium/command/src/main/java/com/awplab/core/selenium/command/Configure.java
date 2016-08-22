@@ -1,24 +1,17 @@
 package com.awplab.core.selenium.command;
 
 
-import com.awplab.core.selenium.service.AutoClosableWebDriver;
-import com.awplab.core.selenium.service.SeleniumService;
 import com.awplab.core.selenium.service.provider.SeleniumProvider;
 import org.apache.karaf.shell.api.action.Action;
-import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.Platform;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
-import java.io.File;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by andyphillips404 on 2/25/15.

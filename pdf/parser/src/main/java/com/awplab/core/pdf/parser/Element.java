@@ -1,7 +1,6 @@
 package com.awplab.core.pdf.parser;
 
 
-import java.awt.*;
 import java.awt.geom.Rectangle2D;
 
 /**
