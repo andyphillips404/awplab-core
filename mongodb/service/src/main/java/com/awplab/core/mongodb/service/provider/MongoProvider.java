@@ -33,7 +33,7 @@ public class MongoProvider implements MongoService, CodecProvider {
 
     private MongoClient mongoClient;
 
-    @ServiceProperty(name = PROPERTY_CONNECTION_STRING)
+    @ServiceProperty(name = PROPERTY_CONNECTION_STRING, mandatory = true)
     private String connectionString;
 
     private Logger logger = LoggerFactory.getLogger(MongoProvider.class);
@@ -72,11 +72,11 @@ public class MongoProvider implements MongoService, CodecProvider {
                 MongoClientOptions.Builder clientOptions = MongoClientOptions.builder()
                         .codecRegistry(codecRegistry);
 
-                if (connectionString == null) {
-                    mongoClient = new MongoClient(new ServerAddress(), clientOptions.build());
-                } else {
+                //if (connectionString == null) {
+                //    mongoClient = new MongoClient(new ServerAddress(), clientOptions.build());
+                //} else {
                     mongoClient = new MongoClient(new MongoClientURI(connectionString, clientOptions));
-                }
+                //}
 
                 MongoDatabase adminDatabase = mongoClient.getDatabase("admin");
                 Document document = adminDatabase.runCommand(new Document("serverStatus", 1));
@@ -107,6 +107,13 @@ public class MongoProvider implements MongoService, CodecProvider {
         catch (Exception ex) {
             logger.error("Unable to stop MongoClinet!", ex);
         }
+    }
+
+    @Updated
+    private void updated() {
+        logger.info("Restarting mongo client due to reconfiguration!");
+        stop();
+        start();
     }
 
     @Override

@@ -60,6 +60,8 @@ public class MongoLogAppender implements PaxAppender {
     public synchronized void doAppend(PaxLoggingEvent paxLoggingEvent) {
 
         MDC.put(PROPERTY_INTERNAL_DISABLE, true);
+        if (paxLoggingEvent.getLoggerName().equals(this.getClass().getName())) return;
+
         try {
             Map props = paxLoggingEvent.getProperties();
             if ((Boolean) props.getOrDefault(PROPERTY_INTERNAL_DISABLE, Boolean.FALSE)) return;

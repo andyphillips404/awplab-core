@@ -132,6 +132,9 @@
 
     <feature name="core-vaadin" version="${parent.version}">
         <feature>http</feature>
+
+        <feature>vaadin</feature>
+
         <bundle>mvn:com.awplab.core/vaadin.service/${version.core.vaadin.service}</bundle>
         <bundle>mvn:com.awplab.core/vaadin.command/${version.core.vaadin.command}</bundle>
     </feature>

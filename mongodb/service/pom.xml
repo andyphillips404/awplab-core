@@ -28,8 +28,8 @@
                         <Bundle-SymbolicName>
                             ${project.artifactId}
                         </Bundle-SymbolicName>
-                        <Export-Package>com.awplab.core.mongodb.service</Export-Package>
-                        <Private-Package>com.awplab.core.mongodb.service.*</Private-Package>
+                        <Export-Package>com.awplab.core.mongodb.service, com.awplab.core.mongodb.service.codec</Export-Package>
+                        <Private-Package>com.awplab.core.mongodb.service.provider</Private-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
 
                     </instructions>
