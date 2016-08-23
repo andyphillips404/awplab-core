@@ -1,11 +1,9 @@
-package com.awplab.core.mongodb.service.provider;
+package com.awplab.core.mongodb.service;
 
-import com.awplab.core.mongodb.service.MongoService;
 import com.awplab.core.mongodb.service.codec.PojoCodecProvider;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoClientURI;
-import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
 import org.apache.felix.ipojo.annotations.*;
 import org.bson.Document;
@@ -24,16 +22,14 @@ import java.util.Map;
  * Created by andyphillips404 on 5/27/16.
  */
 
-// TODO:  Allow multiple instances or connections to database.   Don't make this a singleton?  Not Urgent, worth looking at
-@Instantiate
-@Component(immediate = true, publicFactory=false, managedservice = MongoProvider.CONFIG_MANAGED_SERVICE_NAME)
+@Component(immediate = true, name = MongoService.CONFIG_FACTORY_NAME)
 @Provides(specifications = MongoService.class)
 public class MongoProvider implements MongoService, CodecProvider {
 
 
     private MongoClient mongoClient;
 
-    @ServiceProperty(name = PROPERTY_CONNECTION_STRING, mandatory = true)
+    @Property(name = PROPERTY_CONNECTION_STRING, mandatory = true)
     private String connectionString;
 
     private Logger logger = LoggerFactory.getLogger(MongoProvider.class);
@@ -111,9 +107,12 @@ public class MongoProvider implements MongoService, CodecProvider {
 
     @Updated
     private void updated() {
-        logger.info("Restarting mongo client due to reconfiguration!");
-        stop();
-        start();
+        // don't update if the service has been started already
+        if (mongoClient != null) {
+            logger.info("Restarting mongo client due to reconfiguration!");
+            stop();
+            start();
+        }
     }
 
     @Override

@@ -15,7 +15,7 @@ public interface MongoService {
     void unregisterCodec(Class clazz);
 
 
-    String CONFIG_MANAGED_SERVICE_NAME = "com.awplab.core.mongodb";
+    String CONFIG_FACTORY_NAME = "com.awplab.core.mongodb";
 
     String PROPERTY_CONNECTION_STRING = "com.awplab.core.mongodb.connectionString";
 

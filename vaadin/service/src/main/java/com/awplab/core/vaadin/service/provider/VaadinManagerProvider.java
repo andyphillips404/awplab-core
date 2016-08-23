@@ -15,6 +15,9 @@ import java.util.*;
 /**
  * Created by andyphillips404 on 8/11/16.
  */
+@Component(publicFactory = false, immediate = true)
+@Instantiate
+@Provides(specifications = {VaadinManager.class})
 public class VaadinManagerProvider implements VaadinManager {
 
     Set<BaseVaadinServlet> servlets = Collections.synchronizedSet(new HashSet<>());

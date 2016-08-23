@@ -6,7 +6,6 @@
         <additionalProperties>
           <property key="Bundle-Description" value="A library used with OSGI/Karaf supporting a improved quartz scheduler OSGI implementation and Jersey rest service impelementation with Jackson and OpenAPI/Swagger support." />
           <property key="Export-Package" value="com.awplab.core.mongodb.service, com.awplab.core.mongodb.service.codec" />
-          <property key="Private-Package" value="com.awplab.core.mongodb.service.provider" />
           <property key="DynamicImport-Package" value="*" />
           <property key="Bundle-Name" value="AWPLab Core - MongoDB - Service" />
         </additionalProperties>
