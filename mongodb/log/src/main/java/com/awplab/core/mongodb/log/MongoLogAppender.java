@@ -3,10 +3,12 @@ package com.awplab.core.mongodb.log;
 
 import com.awplab.core.common.TemporaryFile;
 import com.awplab.core.mongodb.service.MongoService;
+import com.mongodb.WriteConcern;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSBuckets;
+import com.mongodb.client.model.InsertOneOptions;
 import org.apache.commons.io.IOUtils;
 import org.apache.felix.ipojo.annotations.*;
 import org.apache.log4j.MDC;
@@ -76,6 +78,7 @@ public class MongoLogAppender implements PaxAppender {
             MongoDatabase mongoDatabase = mongoService.getMongoClient().getDatabase(database);
 
             MongoCollection<Log> logCollection = mongoDatabase.getCollection(collection, Log.class);
+            logCollection = logCollection.withWriteConcern(WriteConcern.UNACKNOWLEDGED);
             Log log = new Log(paxLoggingEvent);
 
             Set<String> fileKeys = new HashSet<>();

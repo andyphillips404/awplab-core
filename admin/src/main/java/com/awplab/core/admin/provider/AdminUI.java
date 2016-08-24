@@ -9,6 +9,7 @@ import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.Navigator;
+import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
@@ -52,7 +53,7 @@ public class AdminUI extends UI {
         VaadinProvider.doAccess(this, runnable);
     }
 
-    @Property(name = AdminUIConfiguration.PROPERTY_TITLE)
+    @Property(name = AdminUIConfiguration.PROPERTY_TITLE, value = "Admin Portal")
     private String title;
 
     @Property(name = AdminUIConfiguration.PROPERTY_CATEGORIES)
@@ -92,7 +93,7 @@ public class AdminUI extends UI {
 
         doAccess(() -> {
 
-            String selectedViewName = navigator.getCurrentView() != null ? ((AdminView)navigator.getCurrentView()).getNavigatorViewName() : null;
+            String selectedViewName = (navigator.getCurrentView() != null && !(navigator.getCurrentView() instanceof NoAdminErrorView)) ? ((AdminView)navigator.getCurrentView()).getNavigatorViewName() : null;
             boolean foundSelection = false;
 
             HashMap<AdminViewProvider, AdminView> updates = new HashMap<>();
@@ -169,6 +170,9 @@ public class AdminUI extends UI {
                 }
                 navigator.setErrorView(views.get(0));
             }
+            else {
+                navigator.setErrorView(new NoAdminErrorView());
+            }
 
 
 
@@ -177,6 +181,21 @@ public class AdminUI extends UI {
     }
 
 
+    private class NoAdminErrorView extends HorizontalLayout implements View {
+        @Override
+        public void enter(ViewChangeListener.ViewChangeEvent event) {
+
+
+        }
+
+        public NoAdminErrorView() {
+            Label error = new Label("No admin view providers found!");
+
+            error.setSizeFull();
+
+            this.addComponent(error);
+        }
+    }
 
     @Override
     protected void init(VaadinRequest request) {
@@ -204,14 +223,22 @@ public class AdminUI extends UI {
             public void afterViewChange(ViewChangeEvent event) {
 
                 for (AdminView adminView : providers.values()) {
+                    if (adminView == null) continue;
+
                     if (adminView.getNavigatorViewName().equals(event.getViewName())) {
                         adminView.getMenuButton().addStyleName("selected");
                     }
-                    adminView.getMenuButton().removeStyleName("selected");
+                    else {
+                        adminView.getMenuButton().removeStyleName("selected");
+                    }
                 }
 
             }
         });
+
+        navigator.setErrorView(new NoAdminErrorView());
+
+        updateMenuAndNavigator();
     }
 
     private CssLayout buildMenu() {

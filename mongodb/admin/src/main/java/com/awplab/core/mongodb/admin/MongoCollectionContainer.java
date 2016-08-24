@@ -16,10 +16,12 @@ import org.bson.conversions.Bson;
 import org.ehcache.UserManagedCache;
 import org.ehcache.config.builders.UserManagedCacheBuilder;
 import org.ehcache.expiry.Expirations;
+import org.slf4j.LoggerFactory;
 
 import java.beans.FeatureDescriptor;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -29,7 +31,7 @@ import java.util.stream.Collectors;
 /**
  * Created by andyphillips404 on 8/16/16.
  */
-public class MongoCollectionContainer<T> extends AbstractContainer implements Container.Sortable, Container.Indexed, AutoCloseable {
+public class MongoCollectionContainer<T, GT extends WrappedObject<T>> extends AbstractContainer implements Container.Sortable, Container.Indexed, AutoCloseable {
 
     final private MongoCollection<T> mongoCollection;
 
@@ -42,18 +44,22 @@ public class MongoCollectionContainer<T> extends AbstractContainer implements Co
 
     private final PojoCodec<T> pojoCodec;
 
-    private final Class<T> type;
+    private final Class<T> databaseType;
 
-    private UserManagedCache<Integer, T> itemCache;
+    private final Class<GT> gridPojoType;
 
-    public MongoCollectionContainer(MongoCollection<T> mongoCollection, Bson filter) throws IntrospectionException {
+    private UserManagedCache<Integer, GT> itemCache;
+
+
+    public MongoCollectionContainer(MongoCollection<T> mongoCollection, Class<GT> gridPojoType, Bson filter) throws IntrospectionException {
         this.mongoCollection = mongoCollection;
-        this.type = mongoCollection.getDocumentClass();
+        this.databaseType = mongoCollection.getDocumentClass();
         this.filter = filter;
-
-        this.propertyDescriptors = BeanUtil.getBeanPropertyDescriptor(type);
+        this.gridPojoType = gridPojoType;
+        this.propertyDescriptors = BeanUtil.getBeanPropertyDescriptor(gridPojoType);
         this.names = this.propertyDescriptors.stream().map(FeatureDescriptor::getName).collect(Collectors.toList());
-        this.pojoCodec = new PojoCodec<>(type, new DocumentCodec());
+
+        this.pojoCodec = new PojoCodec<>(databaseType, new DocumentCodec());
 
         rebuildCache();
 
@@ -68,8 +74,8 @@ public class MongoCollectionContainer<T> extends AbstractContainer implements Co
             itemCache.close();
         }
 
-        itemCache = UserManagedCacheBuilder.newUserManagedCacheBuilder(Integer.class, type)
-                .withExpiry(Expirations.<Integer, T>timeToIdleExpiration(new org.ehcache.expiry.Duration(cacheTimeToIdle.toMillis(), TimeUnit.MILLISECONDS)))
+        itemCache = UserManagedCacheBuilder.newUserManagedCacheBuilder(Integer.class, gridPojoType)
+                .withExpiry(Expirations.<Integer, GT>timeToIdleExpiration(new org.ehcache.expiry.Duration(cacheTimeToIdle.toMillis(), TimeUnit.MILLISECONDS)))
                 .build(true);
     }
 
@@ -136,14 +142,20 @@ public class MongoCollectionContainer<T> extends AbstractContainer implements Co
         fireItemSetChange();
     }
 
-    private T getObject(Object itemId) {
-        T ret = itemCache.get((Integer) itemId);
+    private GT getObject(Object itemId) {
+        GT ret = itemCache.get((Integer) itemId);
         if (ret != null) return ret;
 
 
         final int[] startingIndex = {(Integer) itemId};
         getIterable().skip(startingIndex[0]).limit(cachePageSizeLookAhead).forEach((Consumer<? super T>) t -> {
-            itemCache.put(startingIndex[0]++, t);
+            try {
+                GT wrapper = gridPojoType.getConstructor(databaseType).newInstance(t);
+                itemCache.put(startingIndex[0]++, wrapper);
+            } catch (Exception ex) {
+                LoggerFactory.getLogger(MongoCollectionContainer.class).error("Exception instantiating wrapper class!", ex);
+            }
+
         });
 
         return itemCache.get((Integer) itemId);
@@ -158,7 +170,7 @@ public class MongoCollectionContainer<T> extends AbstractContainer implements Co
 
 
     private FindIterable<T> getIterable(Bson addedFilter) {
-        return getIterable(addedFilter, type);
+        return getIterable(addedFilter, databaseType);
     }
 
     private <A> FindIterable<A> getIterable(Bson addedFilter, Class<A> aClass) {
@@ -191,7 +203,7 @@ public class MongoCollectionContainer<T> extends AbstractContainer implements Co
     @Override
     public Item getItem(Object itemId) {
         updateCount(false);
-        return new BeanItem<T>(getObject(itemId));
+        return new BeanItem<GT>(getObject(itemId));
     }
 
     @Override

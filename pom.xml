@@ -140,7 +140,7 @@
         <version.commons-logging>1.2</version.commons-logging>
         <version.commons-exec>1.3</version.commons-exec>
         <version.commons-io>2.5</version.commons-io>
-
+        <version.commons-net>3.5</version.commons-net>
 
         <version.vaadin>7.6.8</version.vaadin>
 
@@ -395,7 +395,6 @@
 
 
 
-
             <!-- swagger.io -->
             <dependency>
                 <groupId>io.swagger</groupId>
@@ -558,6 +557,12 @@
                 <version>${version.commons-io}</version>
             </dependency>
 
+            <dependency>
+                <groupId>commons-net</groupId>
+                <artifactId>commons-net</artifactId>
+                <version>${version.commons-net}</version>
+            </dependency>
+
 
         </dependencies>
     </dependencyManagement>
@@ -710,6 +715,7 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
         </dependency>
+
 
     </dependencies>
 

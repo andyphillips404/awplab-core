@@ -24,7 +24,7 @@ public class Log {
     private String renderedMessage;
     private String threadName;
     private String[] throwableStrRep;
-    private PaxLocationInfo locationInfo;
+    private LocationInfo locationInfo;
     private Date timeStamp;
     private String FQNOfLoggerClass;
     private Map properties;
@@ -48,7 +48,7 @@ public class Log {
         this.renderedMessage = loggingEvent.getRenderedMessage();
         this.threadName = loggingEvent.getThreadName();
         this.throwableStrRep = loggingEvent.getThrowableStrRep();
-        this.locationInfo = loggingEvent.getLocationInformation();
+        this.locationInfo = new LocationInfo(loggingEvent.getLocationInformation());
         this.timeStamp = new Date(loggingEvent.getTimeStamp());
         this.FQNOfLoggerClass = loggingEvent.getFQNOfLoggerClass();
         this.properties = new HashMap<>();
@@ -100,11 +100,11 @@ public class Log {
         this.throwableStrRep = throwableStrRep;
     }
 
-    public PaxLocationInfo getLocationInfo() {
+    public LocationInfo getLocationInfo() {
         return locationInfo;
     }
 
-    public void setLocationInfo(PaxLocationInfo locationInfo) {
+    public void setLocationInfo(LocationInfo locationInfo) {
         this.locationInfo = locationInfo;
     }
 
@@ -139,5 +139,62 @@ public class Log {
 
     public void setLogFiles(Set<LogFiles> logFiles) {
         this.logFiles = logFiles;
+    }
+
+
+    public static class LocationInfo implements PaxLocationInfo {
+
+        private String fileName;
+        private String className;
+        private String lineNumber;
+        private String methodName;
+
+        public LocationInfo() {
+        }
+
+        public LocationInfo(PaxLocationInfo source) {
+            if (source == null) return;
+
+            this.fileName = source.getFileName();
+            this.className = source.getClassName();
+            this.lineNumber = source.getLineNumber();
+            this.methodName = source.getMethodName();
+        }
+
+        public void setFileName(String fileName) {
+            this.fileName = fileName;
+        }
+
+        public void setClassName(String className) {
+            this.className = className;
+        }
+
+        public void setLineNumber(String lineNumber) {
+            this.lineNumber = lineNumber;
+        }
+
+        public void setMethodName(String methodName) {
+            this.methodName = methodName;
+        }
+
+        @Override
+        public String getFileName() {
+            return null;
+        }
+
+        @Override
+        public String getClassName() {
+            return null;
+        }
+
+        @Override
+        public String getLineNumber() {
+            return null;
+        }
+
+        @Override
+        public String getMethodName() {
+            return null;
+        }
     }
 }

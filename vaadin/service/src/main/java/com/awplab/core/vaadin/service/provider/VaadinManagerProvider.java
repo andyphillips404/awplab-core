@@ -64,7 +64,6 @@ public class VaadinManagerProvider implements VaadinManager {
     public void unbindProvider(VaadinProvider vaadinProvider) {
 
         try {
-
             unregisterProvider(vaadinProvider);
         }
         catch (Exception ex) {
@@ -112,6 +111,7 @@ public class VaadinManagerProvider implements VaadinManager {
         vaadinProvider.closeIdleSessions().ifPresent(close -> {initParams.put("closeIdleSessions", close); });
         vaadinProvider.pushMode().ifPresent(pushMode -> {initParams.put("pushmode", pushMode.toString().toLowerCase());});
         webContainer.registerServlet(baseVaadinServlet, new String[] { vaadinProvider.getPath() + "/*"}, initParams, 0, true, (baseVaadinServlet instanceof BasicAuthRequired ? new BasicAuthHttpContext(webContainer.getDefaultSharedHttpContext(), (BasicAuthRequired)baseVaadinServlet) : webContainer.getDefaultSharedHttpContext()));
+        servlets.add(baseVaadinServlet);
     }
 
     @Override

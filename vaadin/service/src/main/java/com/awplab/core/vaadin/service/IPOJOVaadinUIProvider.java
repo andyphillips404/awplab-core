@@ -43,7 +43,7 @@ public class IPOJOVaadinUIProvider extends VaadinUIProvider {
 
         try {
             BundleContext bundleContext = FrameworkUtil.getBundle(IPOJOVaadinUIProvider.class).getBundleContext();
-            ServiceReference[] refs = bundleContext.getServiceReferences(Factory.class.getName(), "|(instance.name=" + uiClass.getName() +")(service.pid=" + uiClass.getName() +")");
+            ServiceReference[] refs = bundleContext.getServiceReferences(Factory.class.getName(), "(|(instance.name=" + uiClass.getName() +")(service.pid=" + uiClass.getName() +"))");
             if (refs != null && refs.length > 0) {
                 Factory factory = (Factory) bundleContext.getService(refs[0]);
                 ComponentInstance componentInstance = factory.createComponentInstance(null);
@@ -64,6 +64,8 @@ public class IPOJOVaadinUIProvider extends VaadinUIProvider {
 
     @Override
     public void sessionDestroy(SessionDestroyEvent sessionDestroyEvent) {
+        super.sessionDestroy(sessionDestroyEvent);
+
         instanceManagers.removeIf(instanceManager -> {
             if (sessionDestroyEvent.getSession().getUIs().contains((UI)instanceManager.getPojoObject())) {
                 instanceManager.dispose();
@@ -77,6 +79,8 @@ public class IPOJOVaadinUIProvider extends VaadinUIProvider {
 
     @Override
     public void shutdown() {
+        super.shutdown();
+
         for (InstanceManager instanceManager : instanceManagers) {
             instanceManager.dispose();
         }

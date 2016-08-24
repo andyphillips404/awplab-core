@@ -64,14 +64,12 @@ public abstract class AdminView extends VerticalLayout implements View {
 
     public void updateMenuButton() {
 
-        VaadinProvider.doAccess(getUI(), () -> {
-            if (getMenuBadge().isPresent()) {
-                menuButton.setCaption(getMenuTitle() + "<span class=\"valo-menu-badge\">" + getMenuBadge().get() + "</span>");
-            }
-            else {
-                menuButton.setCaption(getMenuTitle());
-            }
-            if (getMenuIcon().isPresent()) menuButton.setIcon(getMenuIcon().get());
-        });
+        if (this.getMenuBadge().isPresent()) {
+            menuButton.setCaption(getMenuTitle() + "<span class=\"valo-menu-badge\">" + getMenuBadge().get() + "</span>");
+        }
+        else {
+            menuButton.setCaption(getMenuTitle());
+        }
+        if (this.getMenuIcon().isPresent()) menuButton.setIcon(this.getMenuIcon().get());
     }
 }

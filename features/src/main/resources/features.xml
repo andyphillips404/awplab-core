@@ -56,7 +56,7 @@
         <feature>jackson-jaxrs</feature>
         <feature>jackson-jdk8</feature>
     </feature>
-
+    
     <feature name="core-rest-swagger" version="${parent.version}">
         <feature>guava</feature>
         <feature>commons-lang3</feature>
@@ -167,7 +167,6 @@
     <feature name="mongodb" version="${version.mongodb}">
         <bundle>mvn:org.mongodb/mongo-java-driver/${version.mongodb}</bundle>
     </feature>
-
 
     <!-- Jackson -->
     <feature name="jackson" version="${version.jackson}">
@@ -402,6 +401,10 @@
 
     <feature name="commons-io" version="${version.commons-io}">
         <bundle>mvn:commons-io/commons-io/${version.commons-io}</bundle>
+    </feature>
+
+    <feature name="commons-net" version="${version.commons-net}">
+        <bundle>mvn:commons-net/commons-net/${version.commons-net}</bundle>
     </feature>
 
 </features>

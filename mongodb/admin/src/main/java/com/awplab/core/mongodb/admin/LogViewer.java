@@ -19,7 +19,7 @@ public class LogViewer extends VerticalLayout {
 
     private final MongoClient mongoClient;
 
-    private MongoCollectionContainer<Log> logMongoCollectionContainer;
+    private MongoCollectionContainer<Log, LogViewerLogWrapper> logMongoCollectionContainer;
 
     private Grid grid;
 
@@ -32,11 +32,13 @@ public class LogViewer extends VerticalLayout {
 
         setConnection(database, collection, filter);
 
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        //HorizontalLayout horizontalLayout = new HorizontalLayout();
 
         grid.setSizeFull();
-        horizontalLayout.addComponent(grid);
+        //horizontalLayout.addComponent(grid);
 
+        //horizontalLayout.setSizeFull();
+        this.addComponent(grid);
 
 
     }
@@ -46,7 +48,7 @@ public class LogViewer extends VerticalLayout {
             logMongoCollectionContainer.close();
         }
         MongoDatabase mongoDatabase = mongoClient.getDatabase(database);
-        logMongoCollectionContainer = new MongoCollectionContainer<>(mongoDatabase.getCollection(collection, Log.class), filter);
+        logMongoCollectionContainer = new MongoCollectionContainer<>(mongoDatabase.getCollection(collection, Log.class), LogViewerLogWrapper.class, filter);
         grid.setContainerDataSource(logMongoCollectionContainer);
     }
 
