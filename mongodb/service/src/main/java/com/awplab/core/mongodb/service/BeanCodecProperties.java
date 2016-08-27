@@ -11,13 +11,10 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
-public @interface PojoCodecProperties {
+public @interface BeanCodecProperties {
     boolean ignoreUnknown() default true;
-    boolean autoDetectFields() default true;
-    boolean autoDetectMethods() default true;
-    PojoCodecInclude defaultInclude() default PojoCodecInclude.NOT_EMPTY;
+    boolean autoDetect() default true;
+    BeanCodecInclude defaultInclude() default BeanCodecInclude.NOT_EMPTY;
     boolean ignoreInherited() default false;
-    boolean ignoreStaticFields() default true;
-    boolean ignoreFinalFields() default false;
-
+    boolean ignoreReadOnly() default true;
 }

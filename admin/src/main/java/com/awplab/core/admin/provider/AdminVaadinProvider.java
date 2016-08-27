@@ -35,7 +35,7 @@ public class AdminVaadinProvider implements VaadinProvider, BasicAuthRequired {
     @Property(name = AdminServletConfiguration.PROPERTY_REQUIRE_SECURE, value = "true")
     private boolean requireSecure;
 
-    @Property(name = AdminServletConfiguration.PROPERTY_LOGIN_LIMIT_TO_ROLES, value = "{admin}")
+    @Property(name = AdminServletConfiguration.PROPERTY_LOGIN_LIMIT_TO_ROLES)
     private String[] loginLimitToRoles;
 
     @Property(name = AdminServletConfiguration.PROPERTY_LOGIN_KARAF_REALM, value = "karaf")

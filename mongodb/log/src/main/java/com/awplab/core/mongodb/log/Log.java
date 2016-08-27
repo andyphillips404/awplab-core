@@ -1,6 +1,6 @@
 package com.awplab.core.mongodb.log;
 
-import com.awplab.core.mongodb.service.PojoCodecKey;
+import com.awplab.core.mongodb.service.BeanCodecKey;
 import org.bson.types.ObjectId;
 import org.ops4j.pax.logging.spi.PaxLocationInfo;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
@@ -16,7 +16,7 @@ public class Log {
     public static String MDC_KEY_COLLECTION = "mongodb-collection";
     public static String MDC_KEY_GRIDFS_COLLECTION = "mongodb-gridfs-collection";
 
-    @PojoCodecKey(value = "_id")
+    @BeanCodecKey(value = "_id")
     private ObjectId id;
 
     private String loggerName;
@@ -30,6 +30,7 @@ public class Log {
     private Map properties;
     private Set<LogFiles> logFiles = new HashSet<>();
 
+    private String level;
 
     public ObjectId getId() {
         return id;
@@ -57,6 +58,8 @@ public class Log {
                 properties.put(((String) key).replaceAll("\\.", "\\-"), loggingEvent.getProperties().get(key));
             }
         }
+
+        level = loggingEvent.getLevel().toString();
 
     }
 
@@ -142,6 +145,14 @@ public class Log {
     }
 
 
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
     public static class LocationInfo implements PaxLocationInfo {
 
         private String fileName;
@@ -179,22 +190,22 @@ public class Log {
 
         @Override
         public String getFileName() {
-            return null;
+            return fileName;
         }
 
         @Override
         public String getClassName() {
-            return null;
+            return className;
         }
 
         @Override
         public String getLineNumber() {
-            return null;
+            return lineNumber;
         }
 
         @Override
         public String getMethodName() {
-            return null;
+            return methodName;
         }
     }
 }

@@ -10,9 +10,9 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})
-public @interface PojoCodecKey {
+public @interface BeanCodecKey {
     String value() default DEFAULT_VALUE;
-    PojoCodecInclude include() default PojoCodecInclude.DEFAULT;
+    BeanCodecInclude include() default BeanCodecInclude.DEFAULT;
     boolean ignore() default false;
     static final String DEFAULT_VALUE = "#FIELD_OR_METHOD_NAME#";
     

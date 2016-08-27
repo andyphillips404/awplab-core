@@ -19,7 +19,7 @@ public class LogViewer extends VerticalLayout {
 
     private final MongoClient mongoClient;
 
-    private MongoCollectionContainer<Log, LogViewerLogWrapper> logMongoCollectionContainer;
+    private MongoCollectionContainer<Log, Log> logMongoCollectionContainer;
 
     private Grid grid;
 
@@ -48,7 +48,7 @@ public class LogViewer extends VerticalLayout {
             logMongoCollectionContainer.close();
         }
         MongoDatabase mongoDatabase = mongoClient.getDatabase(database);
-        logMongoCollectionContainer = new MongoCollectionContainer<>(mongoDatabase.getCollection(collection, Log.class), LogViewerLogWrapper.class, filter);
+        logMongoCollectionContainer = MongoCollectionContainer.simpleContainer(mongoDatabase.getCollection(collection, Log.class), filter);
         grid.setContainerDataSource(logMongoCollectionContainer);
     }
 

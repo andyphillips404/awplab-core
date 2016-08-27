@@ -1,6 +1,6 @@
 package com.awplab.core.mongodb.service;
 
-import com.awplab.core.mongodb.service.codec.PojoCodecProvider;
+import com.awplab.core.mongodb.service.codec.BeanCodecProvider;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoClientURI;
@@ -63,7 +63,7 @@ public class MongoProvider implements MongoService, CodecProvider {
                 CodecRegistry codecRegistry = CodecRegistries.fromRegistries(
                         CodecRegistries.fromProviders(this),
                         MongoClient.getDefaultCodecRegistry(),
-                        CodecRegistries.fromProviders(new PojoCodecProvider()));
+                        CodecRegistries.fromProviders(new BeanCodecProvider()));
 
                 MongoClientOptions.Builder clientOptions = MongoClientOptions.builder()
                         .codecRegistry(codecRegistry);

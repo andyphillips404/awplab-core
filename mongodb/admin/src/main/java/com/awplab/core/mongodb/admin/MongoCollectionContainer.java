@@ -1,6 +1,6 @@
 package com.awplab.core.mongodb.admin;
 
-import com.awplab.core.mongodb.service.codec.PojoCodec;
+import com.awplab.core.mongodb.service.codec.BeanCodec;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -11,17 +11,14 @@ import com.vaadin.data.Property;
 import com.vaadin.data.util.AbstractContainer;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanUtil;
-import org.bson.codecs.DocumentCodec;
 import org.bson.conversions.Bson;
 import org.ehcache.UserManagedCache;
 import org.ehcache.config.builders.UserManagedCacheBuilder;
 import org.ehcache.expiry.Expirations;
-import org.slf4j.LoggerFactory;
 
 import java.beans.FeatureDescriptor;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -31,9 +28,17 @@ import java.util.stream.Collectors;
 /**
  * Created by andyphillips404 on 8/16/16.
  */
-public class MongoCollectionContainer<T, GT extends WrappedObject<T>> extends AbstractContainer implements Container.Sortable, Container.Indexed, AutoCloseable {
+public class MongoCollectionContainer<DATABASE_BEAN_TYPE, GRID_BEAN_BEAN_TYPE extends DATABASE_BEAN_TYPE> extends AbstractContainer implements Container.ItemSetChangeNotifier, Container.Sortable, Container.Indexed, AutoCloseable {
 
-    final private MongoCollection<T> mongoCollection;
+    // need to add teh wrapper class back i guess....
+    // so we can instantiate with a constructor of the original pojo
+
+    public static abstract class ObjectTransferFunction<DATABASE_TYPE, GRID_POJO_TYPE extends DATABASE_TYPE> {
+        protected abstract GRID_POJO_TYPE transfer(DATABASE_TYPE databaseObject);
+    }
+
+
+    final private MongoCollection<DATABASE_BEAN_TYPE> mongoCollection;
 
     private Bson filter;
 
@@ -42,24 +47,49 @@ public class MongoCollectionContainer<T, GT extends WrappedObject<T>> extends Ab
     private final List<PropertyDescriptor> propertyDescriptors;
     private final List<String> names;
 
-    private final PojoCodec<T> pojoCodec;
+    private final BeanCodec<DATABASE_BEAN_TYPE> beanCodec;
 
-    private final Class<T> databaseType;
+    private final Class<DATABASE_BEAN_TYPE> databaseBeanType;
 
-    private final Class<GT> gridPojoType;
+    private final Class<GRID_BEAN_BEAN_TYPE> gridBeanType;
 
-    private UserManagedCache<Integer, GT> itemCache;
+    private UserManagedCache<Integer, GRID_BEAN_BEAN_TYPE> itemCache;
 
+    private ObjectTransferFunction<DATABASE_BEAN_TYPE, GRID_BEAN_BEAN_TYPE> transferFunction;
 
-    public MongoCollectionContainer(MongoCollection<T> mongoCollection, Class<GT> gridPojoType, Bson filter) throws IntrospectionException {
+    public static <A> MongoCollectionContainer<A, A> simpleContainer(MongoCollection<A> mongoCollection, Bson filter) throws IntrospectionException {
+        return new MongoCollectionContainer<A, A>(mongoCollection, mongoCollection.getDocumentClass(), new ObjectTransferFunction<A, A>() {
+            @Override
+            protected A transfer(A databaseObject) {
+                return databaseObject;
+            }
+        }, filter);
+    }
+
+    public static <A> MongoCollectionContainer<A, A> simpleContainer(MongoCollection<A> mongoCollection) throws IntrospectionException {
+        return new MongoCollectionContainer<A, A>(mongoCollection, mongoCollection.getDocumentClass(), new ObjectTransferFunction<A, A>() {
+            @Override
+            protected A transfer(A databaseObject) {
+                return databaseObject;
+            }
+        }, null);
+    }
+
+    public MongoCollectionContainer(MongoCollection<DATABASE_BEAN_TYPE> mongoCollection, Class<GRID_BEAN_BEAN_TYPE> gridBeanType, ObjectTransferFunction<DATABASE_BEAN_TYPE, GRID_BEAN_BEAN_TYPE> transferFunction, Bson filter) throws IntrospectionException {
         this.mongoCollection = mongoCollection;
-        this.databaseType = mongoCollection.getDocumentClass();
+        this.databaseBeanType = mongoCollection.getDocumentClass();
         this.filter = filter;
-        this.gridPojoType = gridPojoType;
-        this.propertyDescriptors = BeanUtil.getBeanPropertyDescriptor(gridPojoType);
+        this.gridBeanType = gridBeanType;
+
+        this.propertyDescriptors = BeanUtil.getBeanPropertyDescriptor(gridBeanType).stream().filter(propertyDescriptor -> (propertyDescriptor.getReadMethod() != null && propertyDescriptor.getReadMethod().getDeclaringClass() != Object.class)).collect(Collectors.toList());
+
+        //this.propertyDescriptors.addAll(BeanUtil.getBeanPropertyDescriptor(databaseBeanType));
+
+        this.transferFunction = transferFunction;
+
         this.names = this.propertyDescriptors.stream().map(FeatureDescriptor::getName).collect(Collectors.toList());
 
-        this.pojoCodec = new PojoCodec<>(databaseType, new DocumentCodec());
+        this.beanCodec = new BeanCodec<>(databaseBeanType);
 
         rebuildCache();
 
@@ -68,14 +98,36 @@ public class MongoCollectionContainer<T, GT extends WrappedObject<T>> extends Ab
 
     }
 
+    @Override
+    public void addItemSetChangeListener(ItemSetChangeListener listener) {
+        super.addItemSetChangeListener(listener);
+    }
+
+    @Override
+    public void addListener(ItemSetChangeListener listener) {
+        super.addListener(listener);
+
+    }
+
+    @Override
+    public void removeItemSetChangeListener(ItemSetChangeListener listener) {
+        super.removeItemSetChangeListener(listener);
+
+    }
+
+    @Override
+    public void removeListener(ItemSetChangeListener listener) {
+        super.removeListener(listener);
+    }
+
     private void rebuildCache() {
         if (itemCache != null) {
             itemCache.clear();
             itemCache.close();
         }
 
-        itemCache = UserManagedCacheBuilder.newUserManagedCacheBuilder(Integer.class, gridPojoType)
-                .withExpiry(Expirations.<Integer, GT>timeToIdleExpiration(new org.ehcache.expiry.Duration(cacheTimeToIdle.toMillis(), TimeUnit.MILLISECONDS)))
+        itemCache = UserManagedCacheBuilder.newUserManagedCacheBuilder(Integer.class, gridBeanType)
+                .withExpiry(Expirations.<Integer, GRID_BEAN_BEAN_TYPE>timeToIdleExpiration(new org.ehcache.expiry.Duration(cacheTimeToIdle.toMillis(), TimeUnit.MILLISECONDS)))
                 .build(true);
     }
 
@@ -142,35 +194,30 @@ public class MongoCollectionContainer<T, GT extends WrappedObject<T>> extends Ab
         fireItemSetChange();
     }
 
-    private GT getObject(Object itemId) {
-        GT ret = itemCache.get((Integer) itemId);
+    private GRID_BEAN_BEAN_TYPE getObject(Object itemId) {
+        GRID_BEAN_BEAN_TYPE ret = itemCache.get((Integer) itemId);
         if (ret != null) return ret;
 
-
         final int[] startingIndex = {(Integer) itemId};
-        getIterable().skip(startingIndex[0]).limit(cachePageSizeLookAhead).forEach((Consumer<? super T>) t -> {
-            try {
-                GT wrapper = gridPojoType.getConstructor(databaseType).newInstance(t);
-                itemCache.put(startingIndex[0]++, wrapper);
-            } catch (Exception ex) {
-                LoggerFactory.getLogger(MongoCollectionContainer.class).error("Exception instantiating wrapper class!", ex);
-            }
+        getIterable().skip(startingIndex[0]).limit(cachePageSizeLookAhead).forEach((Consumer<? super DATABASE_BEAN_TYPE>) d -> {
+            GRID_BEAN_BEAN_TYPE wrapper = transferFunction.transfer(d);
+            itemCache.put(startingIndex[0]++, wrapper);
 
         });
 
         return itemCache.get((Integer) itemId);
     }
 
-    private FindIterable<T> getIterable(Object itemId) {
+    private FindIterable<DATABASE_BEAN_TYPE> getIterable(Object itemId) {
         return getIterable().skip((Integer)itemId).limit(1);
     }
-    private FindIterable<T> getIterable() {
+    private FindIterable<DATABASE_BEAN_TYPE> getIterable() {
         return getIterable(null);
     }
 
 
-    private FindIterable<T> getIterable(Bson addedFilter) {
-        return getIterable(addedFilter, databaseType);
+    private FindIterable<DATABASE_BEAN_TYPE> getIterable(Bson addedFilter) {
+        return getIterable(addedFilter, databaseBeanType);
     }
 
     private <A> FindIterable<A> getIterable(Bson addedFilter, Class<A> aClass) {
@@ -194,7 +241,7 @@ public class MongoCollectionContainer<T, GT extends WrappedObject<T>> extends Ab
     }
     private Optional<String> getDatabaseNameFromProperty(Object property) {
         if (property instanceof String) {
-            return Optional.ofNullable(pojoCodec.getTranslateBeanToDatabase().get(property));
+            return Optional.ofNullable(beanCodec.getTranslateBeanToDatabase().get(property));
         }
 
         return Optional.empty();
@@ -203,7 +250,7 @@ public class MongoCollectionContainer<T, GT extends WrappedObject<T>> extends Ab
     @Override
     public Item getItem(Object itemId) {
         updateCount(false);
-        return new BeanItem<GT>(getObject(itemId));
+        return new BeanItem<GRID_BEAN_BEAN_TYPE>(getObject(itemId));
     }
 
     @Override
@@ -297,7 +344,9 @@ public class MongoCollectionContainer<T, GT extends WrappedObject<T>> extends Ab
     @Override
     public Collection<?> getSortableContainerPropertyIds() {
         updateCount(false);
-        return pojoCodec.getTranslateBeanToDatabase().keySet();
+
+        Set<String> sortableNames = new HashSet<>(names);
+        return sortableNames.stream().filter(s -> beanCodec.getTranslateBeanToDatabase().containsKey(s)).collect(Collectors.toList());
     }
 
     @Override

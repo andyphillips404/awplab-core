@@ -28,7 +28,7 @@
                             ${project.artifactId}
                         </Bundle-SymbolicName>
                         <Export-Package>com.awplab.core.mongodb.log</Export-Package>
-                        <Private-Package></Private-Package>
+                        <Private-Package>com.awplab.core.mongodb.log.command</Private-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                         <Karaf-Commands>com.awplab.core.mongodb.log.command</Karaf-Commands>
 

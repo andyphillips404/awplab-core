@@ -36,7 +36,7 @@ public class VaadinManagerProvider implements VaadinManager {
         catch (ServletException ex) {
             logger.error("Exception registering boostrapVaadinServlet!", ex);
         }
-        logger.info("Exception registering boostrapVaadinServlet!");
+        logger.info("Registered boostrapVaadinServlet!");
     }
 
     @Invalidate
@@ -106,11 +106,11 @@ public class VaadinManagerProvider implements VaadinManager {
 
         BaseVaadinServlet baseVaadinServlet = new BaseVaadinServlet(vaadinProvider);
         Dictionary<String, Object> initParams = new Hashtable<String, Object>();
-        initParams.put("productionMode", vaadinProvider.productionMode());
-        vaadinProvider.heartbeatInterval().ifPresent(integer -> {initParams.put("heartbeatInterval", integer); });
-        vaadinProvider.closeIdleSessions().ifPresent(close -> {initParams.put("closeIdleSessions", close); });
+        initParams.put("productionMode", vaadinProvider.productionMode() ? "true" : "false");
+        vaadinProvider.heartbeatInterval().ifPresent(integer -> {initParams.put("heartbeatInterval", Integer.toString(integer)); });
+        vaadinProvider.closeIdleSessions().ifPresent(close -> {initParams.put("closeIdleSessions", close ? "true" : "false"); });
         vaadinProvider.pushMode().ifPresent(pushMode -> {initParams.put("pushmode", pushMode.toString().toLowerCase());});
-        webContainer.registerServlet(baseVaadinServlet, new String[] { vaadinProvider.getPath() + "/*"}, initParams, 0, true, (baseVaadinServlet instanceof BasicAuthRequired ? new BasicAuthHttpContext(webContainer.getDefaultSharedHttpContext(), (BasicAuthRequired)baseVaadinServlet) : webContainer.getDefaultSharedHttpContext()));
+        webContainer.registerServlet(baseVaadinServlet, new String[] { vaadinProvider.getPath() + "/*"}, initParams, 0, true, (baseVaadinServlet.getVaadinProvider() instanceof BasicAuthRequired ? new BasicAuthHttpContext(webContainer.getDefaultSharedHttpContext(), (BasicAuthRequired)baseVaadinServlet.getVaadinProvider()) : webContainer.getDefaultSharedHttpContext()));
         servlets.add(baseVaadinServlet);
     }
 
