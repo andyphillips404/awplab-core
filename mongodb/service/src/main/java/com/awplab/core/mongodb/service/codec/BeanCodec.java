@@ -14,6 +14,9 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.LinkedTransferQueue;
 
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 
@@ -112,15 +115,16 @@ public class BeanCodec<T> implements CollectibleCodec<T> {
 
 
 
-    private Object readValue(final BsonReader reader, final DecoderContext decoderContext, Class setType) {
+    private Object readValue(final BsonReader reader, final DecoderContext decoderContext, Class setType, Type genericTypeIfKnown) {
         BsonType bsonType = reader.getCurrentBsonType();
         if (bsonType == BsonType.NULL) {
             reader.readNull();
             return null;
         } else if (bsonType == BsonType.ARRAY) {
-            List list = readList(reader, decoderContext, setType);
+
 
             if (setType.isArray()) {
+                List list = readList(reader, decoderContext, setType.getComponentType());
                 Object primArray = Array.newInstance(setType.getComponentType(), list.size());
                 for (int x = 0; x < list.size(); x++) {
                     Array.set(primArray, x, list.get(x));
@@ -128,7 +132,8 @@ public class BeanCodec<T> implements CollectibleCodec<T> {
                 return primArray;
             }
             else {
-                return list;
+                return readList(reader, decoderContext, (Class)((ParameterizedType)genericTypeIfKnown).getActualTypeArguments()[0]);
+
             }
 
         } else if (bsonType == BsonType.BINARY) {
@@ -139,8 +144,8 @@ public class BeanCodec<T> implements CollectibleCodec<T> {
         }
 
         if (bsonType == BsonType.DOCUMENT) {
-            if (Map.class.isAssignableFrom(setType)) {
-                return readMap(reader, decoderContext, setType);
+            if (Map.class.isAssignableFrom(setType) || setType.equals(Object.class)) {
+                return readMap(reader, decoderContext, setType.equals(Object.class) || !(genericTypeIfKnown instanceof ParameterizedType) ? Object.class : (Class)((ParameterizedType)genericTypeIfKnown).getActualTypeArguments()[1]);
             }
 
             // this is a document type, lets see if it is a sub document....
@@ -159,7 +164,7 @@ public class BeanCodec<T> implements CollectibleCodec<T> {
         reader.readStartArray();
         List<Object> list = new ArrayList<Object>();
         while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
-            list.add(readValue(reader, decoderContext, setType));
+            list.add(readValue(reader, decoderContext, setType, null));
         }
         reader.readEndArray();
         return list;
@@ -169,7 +174,8 @@ public class BeanCodec<T> implements CollectibleCodec<T> {
         reader.readStartDocument();
         Map<String, Object> map = new HashMap<String, Object>();
         while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
-            map.put(reader.readName(), readValue(reader, decoderContext, setType));
+            String fieldName = reader.readName();
+            map.put(fieldName, readValue(reader, decoderContext, setType, null));
         }
         reader.readEndDocument();
         return map;
@@ -193,11 +199,24 @@ public class BeanCodec<T> implements CollectibleCodec<T> {
                     }
                 }
 
-                Object value = readValue(reader, decoderContext, propertyDescriptor.getPropertyType());
+                Object value = readValue(reader, decoderContext, propertyDescriptor.getPropertyType(), propertyDescriptor.getReadMethod().getGenericReturnType());
                 if (value == null) continue;
 
                 if (Collection.class.isAssignableFrom(propertyDescriptor.getPropertyType()) && Collection.class.isAssignableFrom(value.getClass())) {
-                    Collection<?> collection = (Collection) propertyDescriptor.getPropertyType().newInstance();
+
+                    Collection<?> collection = null;
+                    if (!propertyDescriptor.getPropertyType().isInterface()) {
+                        collection = (Collection) propertyDescriptor.getPropertyType().newInstance();
+                    }
+                    else {
+                        for (Class<?> collectionClass : Arrays.asList(HashSet.class, ArrayList.class, LinkedList.class)) {
+                            if (propertyDescriptor.getPropertyType().isAssignableFrom(collectionClass)) {
+                                collection = (Collection)collectionClass.newInstance();
+                                break;
+                            }
+                        }
+
+                    }
                     collection.addAll((Collection) value);
                     propertyDescriptor.getWriteMethod().invoke(instance, collection);
                 } else {

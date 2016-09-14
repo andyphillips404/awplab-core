@@ -19,6 +19,8 @@ public final class SchedulerEventTopics {
 
     public static final String BASE = "com/awplab/core/scheduler/events";
 
+    public static final String ANY = BASE + "/*";
+
     public static final String MANAGER_STARTED = BASE + "/MANAGER_STARTED";
     public static final String MANAGER_STOPPED = BASE + "/MANAGER_STOPPED";
 

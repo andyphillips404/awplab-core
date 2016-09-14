@@ -28,7 +28,7 @@ public class Log {
     private Date timeStamp;
     private String FQNOfLoggerClass;
     private Map properties;
-    private Set<LogFiles> logFiles = new HashSet<>();
+    private Set<LogFile> logFiles = new HashSet<>();
 
     private String level;
 
@@ -136,11 +136,11 @@ public class Log {
     }
 
 
-    public Set<LogFiles> getLogFiles() {
+    public Set<LogFile> getLogFiles() {
         return logFiles;
     }
 
-    public void setLogFiles(Set<LogFiles> logFiles) {
+    public void setLogFiles(Set<LogFile> logFiles) {
         this.logFiles = logFiles;
     }
 

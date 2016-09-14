@@ -41,6 +41,15 @@
 
     </feature>
 
+    <feature name="core-scheduler-admin" version="${parent.version}">
+        <feature>core-scheduler</feature>
+        <feature>core-vaadin</feature>
+        <feature>core-admin</feature>
+
+        <bundle>mvn:com.awplab.core/scheduler.admin/${version.core.scheduler.admin}</bundle>
+    </feature>
+
+
     <feature name="core-rest" version="${parent.version}">
         <feature>ipojo</feature>
         <feature>http</feature>
@@ -143,6 +152,7 @@
         <feature>core-vaadin</feature>
         <bundle>mvn:com.awplab.core/admin/${version.core.admin}</bundle>
     </feature>
+
 
     <feature name="ipojo" version="${version.ipojo}">
         <feature>shell-compat</feature>
@@ -305,6 +315,7 @@
         <feature>http</feature>
 
         <bundle>mvn:com.vaadin/vaadin-server/${version.vaadin}</bundle>
+        <bundle>mvn:com.vaadin.external.google/guava/16.0.1.vaadin1</bundle>
         <bundle>mvn:com.vaadin/vaadin-sass-compiler/0.9.13</bundle>
         <bundle>wrap:mvn:org.w3c.css/sac/1.3</bundle>
         <bundle>mvn:com.vaadin.external.flute/flute/1.3.0.gg2</bundle>
@@ -312,7 +323,6 @@
         <bundle>wrap:mvn:rhino/js/1.7R2</bundle>
         <bundle>mvn:com.vaadin/vaadin-shared/${version.vaadin}</bundle>
         <bundle>mvn:com.vaadin.external.streamhtmlparser/streamhtmlparser-jsilver/0.0.10.vaadin1</bundle>
-        <bundle>mvn:com.vaadin.external.google/guava/16.0.1.vaadin1</bundle>
         <bundle>mvn:org.jsoup/jsoup/1.8.3</bundle>
         <bundle>mvn:com.vaadin/vaadin-client-compiled/${version.vaadin}</bundle>
         <bundle>mvn:com.vaadin/vaadin-themes/${version.vaadin}</bundle>

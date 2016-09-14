@@ -19,6 +19,7 @@
     <modules>
         <module>service</module>
         <module>command</module>
+        <module>admin</module>
     </modules>
 
 </project>

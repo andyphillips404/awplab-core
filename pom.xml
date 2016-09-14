@@ -64,6 +64,7 @@
 
         <version.core.scheduler.service>1.0.0-SNAPSHOT</version.core.scheduler.service>
         <version.core.scheduler.command>1.0.0-SNAPSHOT</version.core.scheduler.command>
+        <version.core.scheduler.admin>1.0.0-SNAPSHOT</version.core.scheduler.admin>
 
         <version.core.rest.service>1.0.0-SNAPSHOT</version.core.rest.service>
         <version.core.rest.jackson>1.0.0-SNAPSHOT</version.core.rest.jackson>
@@ -727,7 +728,7 @@
             <activation>
                 <property>
                     <name>performRelease</name>
-                    <value>true</value>
+                    <oldValue>true</oldValue>
                 </property>
             </activation>
             <build>

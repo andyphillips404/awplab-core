@@ -60,6 +60,7 @@
         <module name="rest.jackson" />
         <module name="rest.service" />
         <module name="rest.swagger" />
+        <module name="scheduler.admin" />
         <module name="scheduler.command" />
         <module name="scheduler.service" />
         <module name="selenium.command" />
@@ -94,6 +95,7 @@
       <module name="rest.service" target="1.8" />
       <module name="rest.swagger" target="1.8" />
       <module name="scheduler" target="1.8" />
+      <module name="scheduler.admin" target="1.8" />
       <module name="scheduler.command" target="1.8" />
       <module name="scheduler.service" target="1.8" />
       <module name="selenium" target="1.8" />

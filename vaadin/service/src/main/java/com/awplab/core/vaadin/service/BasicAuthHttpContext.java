@@ -1,6 +1,5 @@
-package com.awplab.core.vaadin.service.provider;
+package com.awplab.core.vaadin.service;
 
-import com.awplab.core.vaadin.service.BasicAuthRequired;
 import org.osgi.service.http.HttpContext;
 
 import javax.security.auth.Subject;
@@ -31,11 +30,6 @@ public class BasicAuthHttpContext implements HttpContext {
     @Override
     public boolean handleSecurity(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
 
-        if (httpServletRequest.getHeader("Authorization") == null) {
-            httpServletResponse.addHeader("WWW-Authenticate", HttpServletRequest.BASIC_AUTH + " realm=\"" + authRequired.httpRealm() + "\"");
-            httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-            return false;
-        }
 
         boolean isSecure = httpServletRequest.isSecure();
         if (httpServletRequest.getHeader("X-Forwarded-Proto") != null &&
@@ -47,6 +41,14 @@ public class BasicAuthHttpContext implements HttpContext {
             httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Secure connection required!");
             return false;
         }
+
+        if (httpServletRequest.getHeader("Authorization") == null) {
+            httpServletResponse.addHeader("WWW-Authenticate", HttpServletRequest.BASIC_AUTH + " realm=\"" + authRequired.httpRealm() + "\"");
+            httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return false;
+        }
+
+
         if (authenticated(httpServletRequest)) {
             return true;
         } else {

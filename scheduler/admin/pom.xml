@@ -3,17 +3,17 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>mongodb</artifactId>
+        <artifactId>scheduler</artifactId>
         <groupId>com.awplab.core</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>mongodb.log</artifactId>
+    <artifactId>scheduler.admin</artifactId>
 
-    <name>AWPLab Core - MongoDB - Log</name>
+    <name>AWPLab Core - Scheduler - Admin</name>
 
-    <version>${version.core.mongodb.log}</version>
+    <version>${version.core.scheduler.admin}</version>
 
     <packaging>bundle</packaging>
 
@@ -27,11 +27,9 @@
                         <Bundle-SymbolicName>
                             ${project.artifactId}
                         </Bundle-SymbolicName>
-                        <Export-Package>com.awplab.core.mongodb.log, com.awplab.core.mongodb.log.events</Export-Package>
-                        <Private-Package>com.awplab.core.mongodb.log.command</Private-Package>
+                        <Export-Package>com.awplab.core.scheduler.admin</Export-Package>
+                        <Private-Package></Private-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
-                        <Karaf-Commands>com.awplab.core.mongodb.log.command</Karaf-Commands>
-
                     </instructions>
                 </configuration>
             </plugin>
@@ -56,22 +54,32 @@
             <artifactId>org.apache.felix.ipojo</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.karaf.shell</groupId>
-            <artifactId>org.apache.karaf.shell.core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-api</artifactId>
-        </dependency>
-
 
         <dependency>
             <groupId>com.awplab.core</groupId>
-            <artifactId>mongodb.service</artifactId>
+            <artifactId>scheduler.service</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.awplab.core</groupId>
+            <artifactId>admin</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
         </dependency>
 
     </dependencies>
-
 </project>

@@ -1,18 +1,25 @@
 package com.awplab.core.mongodb.log.command;
 
 
-import com.awplab.core.mongodb.log.MDCLoggerAutoClosable;
+import com.awplab.core.common.TemporaryFile;
+import com.awplab.core.mongodb.log.*;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
+import java.net.URL;
 
 /**
  * Created by andyphillips404 on 2/25/15.
  */
-@Command(scope = "mongo", name="add-log-entry")
+@Command(scope = "mongo-log", name="add-log-entry")
 @Service
 public class AddLogEntryCommand implements Action {
 
@@ -24,21 +31,44 @@ public class AddLogEntryCommand implements Action {
     @Argument(index = 1, name = "entry", description = "log entry", required = true)
     private String logEntry;
 
-    @Argument(index = 2, name = "database", description = "name of database", required = true)
+    @Option(name = "-d", description = "name of database")
     private String database;
 
-    @Argument(index = 3, name = "collection", description = "name of collection", required = true)
+    @Option(name = "-c", description = "name of collection")
     private String collection;
+
+    @Option(name = "-g", description = "name of GridFS collection")
+    private String gridFSCollection;
+
+    @Option(name = "--throwable", description = "throws a runtime exception with this message")
+    private String throwableMessage;
+
+    @Option(name = "--attach-file-url", description = "attaches a file downloaded form this url")
+    private String attachFileUrl;
 
     @Override
     public Object execute() throws Exception {
 
 
-        try (AutoCloseable ignored = new MDCLoggerAutoClosable(database, collection)) {
-            if (level.equalsIgnoreCase("warn")) logger.warn(logEntry);
-            if (level.equalsIgnoreCase("info")) logger.info(logEntry);
-            if (level.equalsIgnoreCase("error")) logger.error(logEntry);
-            if (level.equalsIgnoreCase("debug")) logger.debug(logEntry);
+        final MDCAutoClosable logClosable = new MDCAutoClosable();
+        if (database != null) logClosable.with(Log.MDC_KEY_DATABASE, database);
+        if (collection != null) logClosable.with(Log.MDC_KEY_COLLECTION, collection);
+        if (gridFSCollection != null) logClosable.with(Log.MDC_KEY_GRIDFS_COLLECTION, gridFSCollection);
+
+        try {
+            if (attachFileUrl != null) {
+                TemporaryFile temporaryFile = TemporaryFile.randomFile("-" + FilenameUtils.getName(attachFileUrl));
+                FileUtils.copyURLToFile(new URL(attachFileUrl), temporaryFile);
+                logClosable.with("downloaded-file", new LogFile(temporaryFile));
+            }
+
+            if (level.equalsIgnoreCase("warn")) logger.warn(logEntry, throwableMessage != null ? new RuntimeException(throwableMessage) : null);
+            if (level.equalsIgnoreCase("info")) logger.info(logEntry, throwableMessage != null ? new RuntimeException(throwableMessage) : null);
+            if (level.equalsIgnoreCase("error")) logger.error(logEntry, throwableMessage != null ? new RuntimeException(throwableMessage) : null);
+            if (level.equalsIgnoreCase("debug")) logger.debug(logEntry, throwableMessage != null ? new RuntimeException(throwableMessage) : null);
+        }
+        finally {
+            logClosable.close();
         }
 
         return null;

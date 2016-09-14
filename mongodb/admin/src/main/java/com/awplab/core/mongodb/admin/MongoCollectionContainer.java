@@ -28,15 +28,18 @@ import java.util.stream.Collectors;
 /**
  * Created by andyphillips404 on 8/16/16.
  */
-public class MongoCollectionContainer<DATABASE_BEAN_TYPE, GRID_BEAN_BEAN_TYPE extends DATABASE_BEAN_TYPE> extends AbstractContainer implements Container.ItemSetChangeNotifier, Container.Sortable, Container.Indexed, AutoCloseable {
+public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> extends AbstractContainer implements Container.ItemSetChangeNotifier, Container.Sortable, Container.Indexed, AutoCloseable {
 
-    // need to add teh wrapper class back i guess....
-    // so we can instantiate with a constructor of the original pojo
 
-    public static abstract class ObjectTransferFunction<DATABASE_TYPE, GRID_POJO_TYPE extends DATABASE_TYPE> {
-        protected abstract GRID_POJO_TYPE transfer(DATABASE_TYPE databaseObject);
+    public static abstract class ObjectTransferFunction<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> {
+        protected abstract CONTAINER_BEAN_TYPE transfer(DATABASE_BEAN_TYPE databaseObject);
     }
 
+
+    @Override
+    public void removeListener(ItemSetChangeListener listener) {
+        super.removeListener(listener);
+    }
 
     final private MongoCollection<DATABASE_BEAN_TYPE> mongoCollection;
 
@@ -51,13 +54,13 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, GRID_BEAN_BEAN_TYPE ex
 
     private final Class<DATABASE_BEAN_TYPE> databaseBeanType;
 
-    private final Class<GRID_BEAN_BEAN_TYPE> gridBeanType;
+    private final Class<CONTAINER_BEAN_TYPE> gridBeanType;
 
-    private UserManagedCache<Integer, GRID_BEAN_BEAN_TYPE> itemCache;
+    private UserManagedCache<Integer, CONTAINER_BEAN_TYPE> itemCache;
 
-    private ObjectTransferFunction<DATABASE_BEAN_TYPE, GRID_BEAN_BEAN_TYPE> transferFunction;
+    private ObjectTransferFunction<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> transferFunction;
 
-    public static <A> MongoCollectionContainer<A, A> simpleContainer(MongoCollection<A> mongoCollection, Bson filter) throws IntrospectionException {
+    public static <A> MongoCollectionContainer<A, A> simpleContainer(MongoCollection<A> mongoCollection, Bson filter) {
         return new MongoCollectionContainer<A, A>(mongoCollection, mongoCollection.getDocumentClass(), new ObjectTransferFunction<A, A>() {
             @Override
             protected A transfer(A databaseObject) {
@@ -66,7 +69,7 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, GRID_BEAN_BEAN_TYPE ex
         }, filter);
     }
 
-    public static <A> MongoCollectionContainer<A, A> simpleContainer(MongoCollection<A> mongoCollection) throws IntrospectionException {
+    public static <A> MongoCollectionContainer<A, A> simpleContainer(MongoCollection<A> mongoCollection) {
         return new MongoCollectionContainer<A, A>(mongoCollection, mongoCollection.getDocumentClass(), new ObjectTransferFunction<A, A>() {
             @Override
             protected A transfer(A databaseObject) {
@@ -75,13 +78,18 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, GRID_BEAN_BEAN_TYPE ex
         }, null);
     }
 
-    public MongoCollectionContainer(MongoCollection<DATABASE_BEAN_TYPE> mongoCollection, Class<GRID_BEAN_BEAN_TYPE> gridBeanType, ObjectTransferFunction<DATABASE_BEAN_TYPE, GRID_BEAN_BEAN_TYPE> transferFunction, Bson filter) throws IntrospectionException {
+    public MongoCollectionContainer(MongoCollection<DATABASE_BEAN_TYPE> mongoCollection, Class<CONTAINER_BEAN_TYPE> gridBeanType, ObjectTransferFunction<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> transferFunction, Bson filter)  {
         this.mongoCollection = mongoCollection;
         this.databaseBeanType = mongoCollection.getDocumentClass();
         this.filter = filter;
         this.gridBeanType = gridBeanType;
 
-        this.propertyDescriptors = BeanUtil.getBeanPropertyDescriptor(gridBeanType).stream().filter(propertyDescriptor -> (propertyDescriptor.getReadMethod() != null && propertyDescriptor.getReadMethod().getDeclaringClass() != Object.class)).collect(Collectors.toList());
+        try {
+            this.propertyDescriptors = BeanUtil.getBeanPropertyDescriptor(gridBeanType).stream().filter(propertyDescriptor -> (propertyDescriptor.getReadMethod() != null && propertyDescriptor.getReadMethod().getDeclaringClass() != Object.class)).collect(Collectors.toList());
+        }
+        catch (IntrospectionException ex) {
+            throw new RuntimeException(ex);
+        }
 
         //this.propertyDescriptors.addAll(BeanUtil.getBeanPropertyDescriptor(databaseBeanType));
 
@@ -94,7 +102,6 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, GRID_BEAN_BEAN_TYPE ex
         rebuildCache();
 
         updateCount(true);
-
 
     }
 
@@ -115,11 +122,6 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, GRID_BEAN_BEAN_TYPE ex
 
     }
 
-    @Override
-    public void removeListener(ItemSetChangeListener listener) {
-        super.removeListener(listener);
-    }
-
     private void rebuildCache() {
         if (itemCache != null) {
             itemCache.clear();
@@ -127,7 +129,7 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, GRID_BEAN_BEAN_TYPE ex
         }
 
         itemCache = UserManagedCacheBuilder.newUserManagedCacheBuilder(Integer.class, gridBeanType)
-                .withExpiry(Expirations.<Integer, GRID_BEAN_BEAN_TYPE>timeToIdleExpiration(new org.ehcache.expiry.Duration(cacheTimeToIdle.toMillis(), TimeUnit.MILLISECONDS)))
+                .withExpiry(Expirations.<Integer, CONTAINER_BEAN_TYPE>timeToIdleExpiration(new org.ehcache.expiry.Duration(cacheTimeToIdle.toMillis(), TimeUnit.MILLISECONDS)))
                 .build(true);
     }
 
@@ -179,10 +181,11 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, GRID_BEAN_BEAN_TYPE ex
 
     @Override
     protected void fireItemSetChange(ItemSetChangeEvent event) {
-        super.fireItemSetChange(event);
-
         updateCount(true);
         itemCache.clear();
+
+        super.fireItemSetChange(event);
+
     }
 
     public Bson getFilter() {
@@ -194,13 +197,21 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, GRID_BEAN_BEAN_TYPE ex
         fireItemSetChange();
     }
 
-    private GRID_BEAN_BEAN_TYPE getObject(Object itemId) {
-        GRID_BEAN_BEAN_TYPE ret = itemCache.get((Integer) itemId);
+    public DATABASE_BEAN_TYPE getDatabaseObject(Object itemId) {
+        if (itemId instanceof Integer) {
+            return getIterable().skip((Integer) itemId).limit(1).first();
+        }
+        throw new NumberFormatException("itemId must be an Integer!");
+    }
+
+    public CONTAINER_BEAN_TYPE getContainerObject(Object itemId) {
+
+        CONTAINER_BEAN_TYPE ret = itemCache.get((Integer) itemId);
         if (ret != null) return ret;
 
         final int[] startingIndex = {(Integer) itemId};
         getIterable().skip(startingIndex[0]).limit(cachePageSizeLookAhead).forEach((Consumer<? super DATABASE_BEAN_TYPE>) d -> {
-            GRID_BEAN_BEAN_TYPE wrapper = transferFunction.transfer(d);
+            CONTAINER_BEAN_TYPE wrapper = transferFunction.transfer(d);
             itemCache.put(startingIndex[0]++, wrapper);
 
         });
@@ -250,7 +261,7 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, GRID_BEAN_BEAN_TYPE ex
     @Override
     public Item getItem(Object itemId) {
         updateCount(false);
-        return new BeanItem<GRID_BEAN_BEAN_TYPE>(getObject(itemId));
+        return new BeanItem<CONTAINER_BEAN_TYPE>(getContainerObject(itemId));
     }
 
     @Override
@@ -426,4 +437,7 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, GRID_BEAN_BEAN_TYPE ex
     }
 
 
+    public void refreshData() {
+        fireItemSetChange();
+    }
 }

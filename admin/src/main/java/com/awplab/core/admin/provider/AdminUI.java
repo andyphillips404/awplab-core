@@ -1,7 +1,7 @@
 package com.awplab.core.admin.provider;
 
+import com.awplab.core.admin.AdminProvider;
 import com.awplab.core.admin.AdminUIConfiguration;
-import com.awplab.core.admin.AdminView;
 import com.awplab.core.admin.AdminViewProvider;
 import com.awplab.core.vaadin.service.BasicAuthRequired;
 import com.awplab.core.vaadin.service.VaadinProvider;
@@ -20,6 +20,7 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import org.apache.felix.ipojo.annotations.*;
 import org.apache.felix.ipojo.annotations.Component;
+import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
 import java.util.*;
@@ -62,122 +63,117 @@ public class AdminUI extends UI {
 
     @Updated
     private void update() {
-        updateMenuAndNavigator();
     }
 
 
     private Subject subject;
 
 
-    private Map<AdminViewProvider, AdminView> providers = Collections.synchronizedMap(new HashMap<>());
+    private Map<AdminProvider, AdminViewProvider> providers = Collections.synchronizedMap(new HashMap<>());
 
     @Bind(optional = true, aggregate = true)
-    private void bindAdminViewProvider(AdminViewProvider adminViewProvider) {
-        providers.put(adminViewProvider, null);
-        updateMenuAndNavigator();
+    private void bindAdminViewProvider(AdminProvider adminProvider) {
+        AdminViewProvider viewProvider = adminProvider.createViewProvider(this);
+        if (providers.values().stream().filter(adminViewProvider -> {return adminViewProvider.getName().equals(viewProvider.getName());}).findAny().isPresent()) {
+            LoggerFactory.getLogger(AdminUI.class).error("Unable to add provider, duplicate name: " + viewProvider.getName());
+            return;
+        }
+
+        providers.put(adminProvider, adminProvider.createViewProvider(this));
+        if (navigator != null) {
+            navigator.addProvider(providers.get(adminProvider));
+            doAccess(this::updateMenuAndNavigator);
+        }
     }
 
     @Unbind(optional = true, aggregate = true)
-    private void unbindAdminViewProvider(AdminViewProvider adminViewProvider) {
-        AdminView adminView = providers.remove(adminViewProvider);
-        if (navigator != null) navigator.removeView(adminView.getNavigatorViewName());
-        updateMenuAndNavigator();
+    private void unbindAdminViewProvider(AdminProvider adminProvider) {
+        AdminViewProvider adminViewProvider = providers.remove(adminProvider);
+        if (adminViewProvider == null) return;
+
+        if (navigator != null) {
+            navigator.removeProvider(adminViewProvider);
+            doAccess(this::updateMenuAndNavigator);
+        }
     }
 
 
-
+    public Subject getSubject() {
+        return subject;
+    }
 
     private void updateMenuAndNavigator() {
+
         if (navigator == null) return;
 
 
-        doAccess(() -> {
+        String selectedViewName = navigator.getState(); //(navigator.getCurrentView() != null && !(navigator.getCurrentView() instanceof NoAdminErrorView)) ? ((AdminViewProvider) navigator.getCurrentView()).getName() : null;
+        boolean foundSelection = false;
 
-            String selectedViewName = (navigator.getCurrentView() != null && !(navigator.getCurrentView() instanceof NoAdminErrorView)) ? ((AdminView)navigator.getCurrentView()).getNavigatorViewName() : null;
-            boolean foundSelection = false;
+        ArrayList<AdminViewProvider> viewProviders = new ArrayList<AdminViewProvider>(providers.values());
+        viewProviders.sort((o1, o2) -> {
 
-            HashMap<AdminViewProvider, AdminView> updates = new HashMap<>();
-            for (AdminViewProvider viewProvider : providers.keySet()) {
-                AdminView view = providers.get(viewProvider);
-                if (view == null) {
-                    view = viewProvider.createView(subject);
-                    updates.put(viewProvider, view);
-                    navigator.addView(view.getNavigatorViewName(), view);
+            int o1CatPos = o1.getCategory().isPresent() ? Integer.MAX_VALUE : Integer.MIN_VALUE;
+            int o2CatPos = o2.getCategory().isPresent() ? Integer.MAX_VALUE : Integer.MIN_VALUE;
+            if (categories != null && categories.length > 0) {
+                if (o1.getCategory().isPresent() && Arrays.asList(categories).contains(o1.getCategory().get())) {
+                    o1CatPos = Arrays.asList(categories).indexOf(o1.getCategory().get());
+                }
+                if (o2.getCategory().isPresent() && Arrays.asList(categories).contains(o2.getCategory().get())) {
+                    o2CatPos = Arrays.asList(categories).indexOf(o2.getCategory().get());
                 }
             }
-            providers.putAll(updates);
 
-            ArrayList<AdminView> views = new ArrayList<AdminView>(providers.values());
-            views.sort((o1, o2) -> {
+            int compare = Integer.compare(o1CatPos, o2CatPos);
+            if (compare != 0) return compare;
 
-                int o1CatPos = o1.getCategory().isPresent() ? Integer.MAX_VALUE : Integer.MIN_VALUE;
-                int o2CatPos = o2.getCategory().isPresent() ? Integer.MAX_VALUE : Integer.MIN_VALUE;
-                if (categories != null && categories.length > 0) {
-                    if (o1.getCategory().isPresent() && Arrays.asList(categories).contains(o1.getCategory().get())) {
-                        o1CatPos = Arrays.asList(categories).indexOf(o1.getCategory().get());
-                    }
-                    if (o2.getCategory().isPresent() && Arrays.asList(categories).contains(o2.getCategory().get())) {
-                        o2CatPos = Arrays.asList(categories).indexOf(o2.getCategory().get());
-                    }
-                }
+            compare = o1.getCategory().orElse(" ").compareTo(o2.getCategory().orElse(" "));
+            if (compare != 0) return compare;
 
-                int compare = Integer.compare(o1CatPos, o2CatPos);
-                if (compare != 0) return compare;
-
-                compare = o1.getCategory().orElse(" ").compareTo(o2.getCategory().orElse(" "));
-                if (compare != 0) return compare;
-
-                return Integer.compare(o1.getPositionInCategory().orElse(Integer.MAX_VALUE), o2.getPositionInCategory().orElse(Integer.MAX_VALUE));
-
-            });
-
-            menuItemsLayout.removeAllComponents();
-
-            Label label = null;
-            String lastCategory = null;
-            for (AdminView adminView : views) {
-                if (adminView.getCategory().isPresent() &&
-                        (lastCategory == null || !adminView.getCategory().get().equals(lastCategory))) {
-
-                    label = new Label(adminView.getCategory().get(), ContentMode.HTML);
-                    label.setPrimaryStyleName(ValoTheme.MENU_SUBTITLE);
-                    label.addStyleName(ValoTheme.LABEL_H4);
-                    label.setSizeUndefined();
-                    menuItemsLayout.addComponent(label);
-                    lastCategory = adminView.getCategory().get();
-                }
-
-                Button b = new Button();
-                b.addClickListener((Button.ClickListener) event -> navigator.navigateTo(adminView.getNavigatorViewName()));
-
-                adminView.setMenuButton(b);
-                adminView.updateMenuButton();
-                b.setHtmlContentAllowed(true);
-                b.setPrimaryStyleName(ValoTheme.MENU_ITEM);
-                if (selectedViewName != null && selectedViewName.equals(adminView.getNavigatorViewName())) {
-                    foundSelection = true;
-                    b.addStyleName("selected");
-                }
-                menuItemsLayout.addComponent(b);
-
-            }
-
-            if (views.size() > 0) {
-
-                String f = Page.getCurrent().getUriFragment();
-                if ((selectedViewName != null && !foundSelection) || (f == null || f.equals(""))) {
-                    navigator.navigateTo(views.get(0).getNavigatorViewName());
-                }
-                navigator.setErrorView(views.get(0));
-            }
-            else {
-                navigator.setErrorView(new NoAdminErrorView());
-            }
-
-
-
+            return Integer.compare(o1.getPositionInCategory().orElse(Integer.MAX_VALUE), o2.getPositionInCategory().orElse(Integer.MAX_VALUE));
 
         });
+
+        menuItemsLayout.removeAllComponents();
+
+        Label label = null;
+        String lastCategory = null;
+        for (AdminViewProvider adminViewProvider : viewProviders) {
+            if (adminViewProvider.getCategory().isPresent() &&
+                    (lastCategory == null || !adminViewProvider.getCategory().get().equals(lastCategory))) {
+
+                label = new Label(adminViewProvider.getCategory().get(), ContentMode.HTML);
+                label.setPrimaryStyleName(ValoTheme.MENU_SUBTITLE);
+                label.addStyleName(ValoTheme.LABEL_H4);
+                label.setSizeUndefined();
+                menuItemsLayout.addComponent(label);
+                lastCategory = adminViewProvider.getCategory().get();
+            }
+
+            Button b = new Button();
+            b.addClickListener((Button.ClickListener) event -> navigator.navigateTo(adminViewProvider.getName()));
+
+            adminViewProvider.setMenuButton(b);
+            adminViewProvider.updateMenuButton();
+            b.setHtmlContentAllowed(true);
+            b.setPrimaryStyleName(ValoTheme.MENU_ITEM);
+            if (selectedViewName != null && selectedViewName.equals(adminViewProvider.getName())) {
+                foundSelection = true;
+                b.addStyleName("selected");
+            }
+            menuItemsLayout.addComponent(b);
+
+        }
+
+        /*
+        if (viewProviders.size() > 0) {
+            String f = Page.getCurrent().getUriFragment();
+            if ((selectedViewName != null && !foundSelection) || (f == null || f.equals(""))) {
+                navigator.navigateTo(viewProviders.get(0).getName());
+            }
+        }
+        */
+
     }
 
 
@@ -189,7 +185,7 @@ public class AdminUI extends UI {
         }
 
         public NoAdminErrorView() {
-            Label error = new Label("No admin view providers found!");
+            Label error = new Label("(Please select an area from the left)");
 
             error.setSizeFull();
 
@@ -207,7 +203,6 @@ public class AdminUI extends UI {
         setContent(root);
         root.setWidth("100%");
 
-        root.addMenu(buildMenu());
         addStyleName(ValoTheme.UI_WITH_MENU);
 
         navigator = new Navigator(this, viewDisplay);
@@ -222,10 +217,10 @@ public class AdminUI extends UI {
             @Override
             public void afterViewChange(ViewChangeEvent event) {
 
-                for (AdminView adminView : providers.values()) {
+                for (AdminViewProvider adminView : providers.values()) {
                     if (adminView == null) continue;
 
-                    if (adminView.getNavigatorViewName().equals(event.getViewName())) {
+                    if (adminView.getName().equals(event.getViewName())) {
                         adminView.getMenuButton().addStyleName("selected");
                     }
                     else {
@@ -238,25 +233,28 @@ public class AdminUI extends UI {
 
         navigator.setErrorView(new NoAdminErrorView());
 
-        updateMenuAndNavigator();
+        for (AdminViewProvider adminViewProvider : providers.values()) {
+            navigator.addProvider(adminViewProvider);
+        }
+
+        root.addMenu(buildMenu());
+
+        //updateMenuAndNavigator();
     }
 
     private CssLayout buildMenu() {
 
         HorizontalLayout top = new HorizontalLayout();
         top.setWidth("100%");
-        top.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
+        top.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
         top.addStyleName(ValoTheme.MENU_TITLE);
         menu.addComponent(top);
 
-        Button showMenu = new Button("Menu", new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                if (menu.getStyleName().contains("valo-menu-visible")) {
-                    menu.removeStyleName("valo-menu-visible");
-                } else {
-                    menu.addStyleName("valo-menu-visible");
-                }
+        Button showMenu = new Button("Menu", (Button.ClickListener) event -> {
+            if (menu.getStyleName().contains("valo-menu-visible")) {
+                menu.removeStyleName("valo-menu-visible");
+            } else {
+                menu.addStyleName("valo-menu-visible");
             }
         });
         showMenu.addStyleName(ValoTheme.BUTTON_PRIMARY);
@@ -278,6 +276,5 @@ public class AdminUI extends UI {
 
         return menu;
     }
-
 
 }

@@ -2,13 +2,13 @@ package com.awplab.core.mongodb.log;
 
 
 import com.awplab.core.common.TemporaryFile;
+import com.awplab.core.mongodb.log.events.LogEventTopics;
 import com.awplab.core.mongodb.service.MongoService;
 import com.mongodb.WriteConcern;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSBuckets;
-import com.mongodb.client.model.InsertOneOptions;
 import org.apache.commons.io.IOUtils;
 import org.apache.felix.ipojo.annotations.*;
 import org.apache.log4j.MDC;
@@ -81,31 +81,32 @@ public class MongoLogAppender implements PaxAppender {
             logCollection = logCollection.withWriteConcern(WriteConcern.UNACKNOWLEDGED);
             Log log = new Log(paxLoggingEvent);
 
-            Set<String> fileKeys = new HashSet<>();
+
+            Set<Object> logFiles = new HashSet<>();
+
             for (Object key : log.getProperties().keySet()) {
                 Object value = log.getProperties().get(key);
-                if (value instanceof TemporaryFile) {
-                    GridFSBucket gridFSBucket = GridFSBuckets.create(mongoDatabase, gridFSCollection);
-                    FileInputStream fileInputStream = null;
+
+                if (value instanceof LogFile) {
                     try {
-                        fileInputStream = new FileInputStream((TemporaryFile) value);
-                        ObjectId objectId = gridFSBucket.uploadFromStream(((TemporaryFile) value).getName(), fileInputStream);
-                        log.getLogFiles().add(new LogFiles(key.toString(), objectId, gridFSCollection));
-                        fileKeys.add(key.toString());
+                        if (!((LogFile) value).isSaved()) ((LogFile) value).save(mongoDatabase, gridFSCollection);
+                        ((LogFile) value).setKey((String)key);
+                        log.getLogFiles().add(((LogFile) value));
+                        logFiles.add(key);
                     }
                     catch (IOException ex) {
                         LoggerFactory.getLogger(MongoLogAppender.class).error("Exception attempting to write to grid fs log from file: " + ((TemporaryFile) value).getAbsolutePath() + "!", ex);
                     }
-                    finally {
-                        IOUtils.closeQuietly(fileInputStream);
-                    }
+
 
                 }
             }
 
-            fileKeys.forEach(log.getProperties()::remove);
+            logFiles.forEach(o -> {log.getProperties().remove(o);});
 
             logCollection.insertOne(log);
+
+            LogEventTopics.postEntryAdded(log, database, collection);
 
         }
         catch (Exception ex) {

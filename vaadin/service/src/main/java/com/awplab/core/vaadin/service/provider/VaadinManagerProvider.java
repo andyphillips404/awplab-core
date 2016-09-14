@@ -1,5 +1,6 @@
 package com.awplab.core.vaadin.service.provider;
 
+import com.awplab.core.vaadin.service.BasicAuthHttpContext;
 import com.awplab.core.vaadin.service.BasicAuthRequired;
 import com.awplab.core.vaadin.service.VaadinManager;
 import com.awplab.core.vaadin.service.VaadinProvider;

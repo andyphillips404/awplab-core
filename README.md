@@ -330,13 +330,13 @@ The core library will automatically, unless disabled, create OpenAPI / Swagger 2
         info = @Info(title = "Swagger API Example Title", version = "1.0.0", description = "Description of API", termsOfService = "Terms",
                 contact = @Contact(name = "Andy"),
                 license = @License(name = "Apache")))
-@Api(value = "Hello Test")
+@Api(oldValue = "Hello Test")
 public class HelloRestProvider implements RestService
 {
    @GET
     @Path("hello")
     @Produces("text/html")
-    @ApiOperation(value = "Hello test operation", notes = "Notes for the operation")
+    @ApiOperation(oldValue = "Hello test operation", notes = "Notes for the operation")
     public String hello(@QueryParam("name") String name) {
         return "Hello " + name + "!";
     }
