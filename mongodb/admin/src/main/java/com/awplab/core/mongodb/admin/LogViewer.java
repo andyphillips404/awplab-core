@@ -2,12 +2,11 @@ package com.awplab.core.mongodb.admin;
 
 import com.awplab.core.mongodb.log.Log;
 import com.awplab.core.mongodb.log.LogFile;
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.vaadin.external.org.slf4j.Logger;
 import com.vaadin.external.org.slf4j.LoggerFactory;
-import com.vaadin.server.FileDownloader;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.StreamResource;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -15,17 +14,16 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import org.bson.conversions.Bson;
 
-import java.beans.IntrospectionException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.Calendar;
 
 /**
  * Created by andyphillips404 on 8/15/16.
  */
 public class LogViewer extends VerticalLayout {
 
-    private final MongoClient mongoClient;
+    //private final MongoClient mongoClient;
+
+    private MongoDatabase mongoDatabase;
 
     private MongoCollectionContainer<Log, Log> logMongoCollectionContainer;
 
@@ -33,14 +31,18 @@ public class LogViewer extends VerticalLayout {
 
     Logger logger = LoggerFactory.getLogger(LogViewer.class);
 
-    public LogViewer(MongoClient mongoClient, String database, String collection, Bson filter) {
-        this.mongoClient = mongoClient;
+    public LogViewer(MongoDatabase mongoDatabase, MongoCollection<Log> collection, Bson filter) {
+        //this.mongoClient = mongoClient;
 
+        setConnection(mongoDatabase, collection, filter);
+        start();
+
+    }
+
+    private void start() {
         table = new Table();
-
-        setConnection(database, collection, filter);
-
         table.setSizeFull();
+        table.setContainerDataSource(logMongoCollectionContainer);
 
         table.setColumnHeaderMode(Table.ColumnHeaderMode.HIDDEN);
         table.addGeneratedColumn("log", new Table.ColumnGenerator() {
@@ -88,9 +90,9 @@ public class LogViewer extends VerticalLayout {
                                 if (log.getThrowableStrRep().length - 1 != x) throwableStringBuilder.append("<br>");
                             }
                             //throwableStringBuilder.append("</font>");
-                            VerticalLayout l = new VerticalLayout();
+                            CssLayout l = new CssLayout();
                             l.addComponent(new Label(throwableStringBuilder.toString(),ContentMode.HTML));
-                            l.setMargin(true);
+                            //l.setMargin(true);
                             showWindow(l, "Throwable Details");
 
                         }
@@ -100,16 +102,17 @@ public class LogViewer extends VerticalLayout {
 
                 if (log.getLogFiles() != null && log.getLogFiles().size() > 0) {
                     for (LogFile logFile : log.getLogFiles()) {
-                        GridFSFile gridFSFile = logFile.getGridFSFile(mongoClient.getDatabase(database));
-                        StreamResource streamResource = new StreamResource(new BucketStreamResource(mongoClient.getDatabase(database), logFile.getBucket(), logFile.getFileObjectId()), gridFSFile.getFilename());
+                        GridFSFile gridFSFile = logFile.getGridFSFile(mongoDatabase);
+                        StreamResource streamResource = new BucketStreamResource(mongoDatabase, logFile.getBucket(), logFile.getFileObjectId());
 
                         HorizontalLayout h = new HorizontalLayout();
                         h.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
                         h.addComponent(new Label("File Key: " + logFile.getKey() + " Name: " + gridFSFile.getFilename()));
                         h.setSpacing(true);
-                        h.setMargin(true);
+                        h.setMargin(false);
                         Link view = new Link(null, streamResource);
                         view.setIcon(FontAwesome.EXTERNAL_LINK);
+                        view.setTargetName("_blank");
                         h.addComponent(view);
                         v.addComponent(h);
                     }
@@ -123,9 +126,7 @@ public class LogViewer extends VerticalLayout {
         table.sort(new String[]{"timeStamp"}, new boolean[]{false});
 
         this.addComponent(table);
-
     }
-
     private void showWindow(Component content, String caption) {
         Panel p = new Panel();
         p.setSizeFull();
@@ -144,13 +145,28 @@ public class LogViewer extends VerticalLayout {
     }
 
 
-    public void setConnection(String database, String collection, Bson filter)  {
+    public void setConnection(MongoDatabase mongoDatabase, MongoCollection<Log> collection, Bson filter)  {
+        this.mongoDatabase = mongoDatabase;
+
         if (logMongoCollectionContainer != null) {
             logMongoCollectionContainer.close();
         }
-        MongoDatabase mongoDatabase = mongoClient.getDatabase(database);
-        logMongoCollectionContainer = MongoCollectionContainer.simpleContainer(mongoDatabase.getCollection(collection, Log.class), filter);
-        table.setContainerDataSource(logMongoCollectionContainer);
+        logMongoCollectionContainer = MongoCollectionContainer.simpleContainer(collection, filter);
+        if (table != null) table.setContainerDataSource(logMongoCollectionContainer);
+
+    }
+
+
+    public MongoDatabase getMongoDatabase() {
+        return mongoDatabase;
+    }
+
+    public MongoCollectionContainer<Log, Log> getLogMongoCollectionContainer() {
+        return logMongoCollectionContainer;
+    }
+
+    public Table getTable() {
+        return table;
     }
 
     public void refreshData() {

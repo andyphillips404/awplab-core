@@ -112,6 +112,8 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
 
         public SchedulerAdminView() {
 
+            objectMapper.setDateFormat(SimpleDateFormat.getDateTimeInstance());
+
             Table.ColumnGenerator jobDetailColumnGenerator = (source, itemId, columnId) -> {
                 AbstractSchedulerBean schedulerJobDetailTriggers = ((AbstractSchedulerBean)itemId);
                 String tags = "";
@@ -127,7 +129,7 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
                 try {
                     JobDataMap jobDataMap = new JobDataMap(context.getJobDataMap());
                     jobDataMap.remove(IPOJOJobFactory.INSTANCE_MANAGER_KEY);
-                    return new Label(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jobDataMap).replaceAll("\n", "<br>").replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;").replaceAll(" ", "&nbsp;"), ContentMode.HTML);
+                    return new Label(AdminViewProvider.jacksonHtml(objectMapper, jobDataMap, true, 0), ContentMode.HTML); //objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jobDataMap).replaceAll("\n", "<br>").replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;").replaceAll(" ", "&nbsp;"), ContentMode.HTML);
                 } catch (JsonProcessingException ex) {
                     throw new RuntimeException("Exception processing object job data map!", ex);
                     //return new Label("<font color=\"red\">Exception process job data map!</font>", ContentMode.HTML);
@@ -144,7 +146,7 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
                 try {
                     String cancelRequested = "";
                     if (job instanceof AbstractStatusInterruptableJob && ((AbstractStatusInterruptableJob) job).isInterruptRequested()) cancelRequested = "<br><font color=\"red\">Interrupt Requested!</font>";
-                    return new Label(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(((StatusJob) job).getJobStatus()).replaceAll("\n", "<br>").replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;").replaceAll(" ", "&nbsp;") + cancelRequested, ContentMode.HTML);
+                    return new Label(AdminViewProvider.jacksonHtml(objectMapper, ((StatusJob) job).getJobStatus(), true, 0) + cancelRequested, ContentMode.HTML);
                 }
                 catch (JsonProcessingException ex) {
                     throw new RuntimeException("Exception processing object status!", ex);
@@ -193,13 +195,15 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
 
             });
             interruptAll = interruptBar.addItem("Interrupt All", FontAwesome.REMOVE, (MenuBar.Command) selectedItem -> {
-                try {
-                    schedulerManager.interruptJobs();
-                    VaadinProvider.doAccess(SchedulerAdminView.this.getUI(), this::refresh);
-                } catch (SchedulerException ex) {
-                    //throw new RuntimeException("Exception attempting to interrupt job!", ex);
-                    VaadinProvider.doAccess(SchedulerAdminView.this.getUI(), () -> interruptBar.setComponentError(new SystemError("Exception interrupting jobs!", ex)));
-                }
+                new Thread(() -> {
+                    try {
+                        schedulerManager.interruptJobs();
+                        VaadinProvider.doAccess(SchedulerAdminView.this.getUI(), this::refresh);
+                    } catch (SchedulerException ex) {
+                        //throw new RuntimeException("Exception attempting to interrupt job!", ex);
+                        VaadinProvider.doAccess(SchedulerAdminView.this.getUI(), () -> interruptBar.setComponentError(new SystemError("Exception interrupting jobs!", ex)));
+                    }
+                }).start();
                 this.refresh();
 
             });

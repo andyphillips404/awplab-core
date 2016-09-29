@@ -110,6 +110,7 @@
         <bundle>mvn:com.awplab.core/mongodb.command/${version.core.mongodb.command}</bundle>
         <bundle>mvn:com.awplab.core/mongodb.log/${version.core.mongodb.log}</bundle>
 
+
     </feature>
 
 
@@ -149,6 +150,7 @@
     </feature>
 
     <feature name="core-admin" version="${parent.version}">
+        <feature>jackson-jdk8</feature>
         <feature>core-vaadin</feature>
         <bundle>mvn:com.awplab.core/admin/${version.core.admin}</bundle>
     </feature>

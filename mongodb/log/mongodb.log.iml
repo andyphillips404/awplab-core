@@ -40,6 +40,7 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.ops4j.pax.logging:pax-logging-api:1.8.5" level="project" />
     <orderEntry type="module" module-name="mongodb.service" />
     <orderEntry type="library" name="Maven: org.mongodb:mongo-java-driver:3.3.0" level="project" />
+    <orderEntry type="library" name="Maven: net.jodah:typetools:0.4.7" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.slf4j:slf4j-api:1.7.21" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.osgi:org.osgi.core:5.0.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.osgi:org.osgi.compendium:5.0.0" level="project" />

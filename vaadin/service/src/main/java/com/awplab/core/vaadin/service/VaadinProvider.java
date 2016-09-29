@@ -37,7 +37,8 @@ public interface VaadinProvider  {
 
 
     static void doAccess(UI ui, Runnable runnable) {
-        if (ui.isAttached()) {
+
+        if (ui != null && ui.isAttached()) {
             ui.access(runnable);
         } else {
             runnable.run();

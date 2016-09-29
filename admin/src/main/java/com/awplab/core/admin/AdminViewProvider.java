@@ -2,6 +2,8 @@ package com.awplab.core.admin;
 
 import com.awplab.core.admin.provider.AdminUI;
 import com.awplab.core.vaadin.service.VaadinProvider;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewProvider;
 import com.vaadin.server.Resource;
@@ -117,5 +119,17 @@ public abstract class AdminViewProvider implements ViewProvider {
             }
             if (this.getMenuIcon().isPresent()) getMenuButton().setIcon(this.getMenuIcon().get());
         }
+    }
+
+    public static String jacksonHtml(ObjectMapper objectMapper, Object object, boolean stripOpeningBrackets, int indent) throws JsonProcessingException {
+        String ret = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+        if (stripOpeningBrackets) ret = ret.replaceAll("(?s)^(\\{|\\[)(\n )(.*?)(\n)(\\}|\\])$", "$3").trim();
+        String indentStr = "";
+        if (indent > 0) {
+            indentStr = new String(new char[indent]).replace("\0", "&nbsp;");
+        }
+        return  indentStr + ret.trim().replaceAll("[,]?\n" + (stripOpeningBrackets ? "  " : ""), "<br>"+indentStr).replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;").replaceAll(" ", "&nbsp;");
+
+
     }
 }

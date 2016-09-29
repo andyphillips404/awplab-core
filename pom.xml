@@ -143,7 +143,10 @@
         <version.commons-io>2.5</version.commons-io>
         <version.commons-net>3.5</version.commons-net>
 
+        <version.typetools>0.4.7</version.typetools>
+
         <version.vaadin>7.6.8</version.vaadin>
+
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -562,6 +565,13 @@
                 <groupId>commons-net</groupId>
                 <artifactId>commons-net</artifactId>
                 <version>${version.commons-net}</version>
+            </dependency>
+
+            <!-- J Halterman TypeTools used for reflection help in MongoDb BeanCodec -->
+            <dependency>
+                <groupId>net.jodah</groupId>
+                <artifactId>typetools</artifactId>
+                <version>${version.typetools}</version>
             </dependency>
 
 

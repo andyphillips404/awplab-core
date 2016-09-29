@@ -8,6 +8,7 @@ import com.awplab.core.mongodb.service.MongoService;
 import com.awplab.core.vaadin.service.VaadinProvider;
 import com.mongodb.Block;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSBuckets;
 import com.mongodb.client.model.Filters;
@@ -100,7 +101,8 @@ public class LogAdminViewProvider extends AdminViewProvider implements EventHand
 
         private LogAdminView() {
 
-            logViewer = new LogViewer(mongoService.getMongoClient(), database, collection, null);
+            MongoDatabase mongoDatabase = mongoService.getMongoClient().getDatabase(database);
+            logViewer = new LogViewer(mongoDatabase, mongoDatabase.getCollection(collection, Log.class), null);
 
             MenuBar refreshBar = new MenuBar();
             refreshBar.setImmediate(true);

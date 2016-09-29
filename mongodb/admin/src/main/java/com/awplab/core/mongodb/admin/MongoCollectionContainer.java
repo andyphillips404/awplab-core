@@ -11,6 +11,7 @@ import com.vaadin.data.Property;
 import com.vaadin.data.util.AbstractContainer;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanUtil;
+import org.bson.BSON;
 import org.bson.conversions.Bson;
 import org.ehcache.UserManagedCache;
 import org.ehcache.config.builders.UserManagedCacheBuilder;
@@ -23,12 +24,13 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * Created by andyphillips404 on 8/16/16.
  */
-public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> extends AbstractContainer implements Container.ItemSetChangeNotifier, Container.Sortable, Container.Indexed, AutoCloseable {
+public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> extends AbstractContainer implements Container.ItemSetChangeNotifier, Container.Sortable, Container.Indexed, AutoCloseable, Container.PropertySetChangeNotifier {
 
 
     public static abstract class ObjectTransferFunction<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> {
@@ -47,8 +49,9 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> e
 
     private Bson sort = Sorts.ascending("_id");
 
-    private final List<PropertyDescriptor> propertyDescriptors;
-    private final List<String> names;
+    protected final Map<String, PropertyDescriptor> propertyDescriptors;
+
+    //protected final List<String> names;
 
     private final BeanCodec<DATABASE_BEAN_TYPE> beanCodec;
 
@@ -61,21 +64,19 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> e
     private ObjectTransferFunction<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> transferFunction;
 
     public static <A> MongoCollectionContainer<A, A> simpleContainer(MongoCollection<A> mongoCollection, Bson filter) {
-        return new MongoCollectionContainer<A, A>(mongoCollection, mongoCollection.getDocumentClass(), new ObjectTransferFunction<A, A>() {
-            @Override
-            protected A transfer(A databaseObject) {
-                return databaseObject;
-            }
-        }, filter);
+        return new MongoCollectionContainer<A, A>(mongoCollection, mongoCollection.getDocumentClass(),null, filter);
     }
 
     public static <A> MongoCollectionContainer<A, A> simpleContainer(MongoCollection<A> mongoCollection) {
-        return new MongoCollectionContainer<A, A>(mongoCollection, mongoCollection.getDocumentClass(), new ObjectTransferFunction<A, A>() {
-            @Override
-            protected A transfer(A databaseObject) {
-                return databaseObject;
-            }
-        }, null);
+        return new MongoCollectionContainer<A, A>(mongoCollection, mongoCollection.getDocumentClass(), null, null);
+    }
+
+    public static Map<String, PropertyDescriptor> getPropertyDescriptors(Class gridBeanType) throws IntrospectionException {
+        return BeanUtil.getBeanPropertyDescriptor(gridBeanType).stream().filter(propertyDescriptor -> (propertyDescriptor.getReadMethod() != null && propertyDescriptor.getReadMethod().getDeclaringClass() != Object.class)).collect(Collectors.toMap(PropertyDescriptor::getName, Function.identity()));
+    }
+
+    private Map<String, PropertyDescriptor> getPropertyDescriptors() throws IntrospectionException {
+        return getPropertyDescriptors(this.gridBeanType);
     }
 
     public MongoCollectionContainer(MongoCollection<DATABASE_BEAN_TYPE> mongoCollection, Class<CONTAINER_BEAN_TYPE> gridBeanType, ObjectTransferFunction<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> transferFunction, Bson filter)  {
@@ -85,7 +86,7 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> e
         this.gridBeanType = gridBeanType;
 
         try {
-            this.propertyDescriptors = BeanUtil.getBeanPropertyDescriptor(gridBeanType).stream().filter(propertyDescriptor -> (propertyDescriptor.getReadMethod() != null && propertyDescriptor.getReadMethod().getDeclaringClass() != Object.class)).collect(Collectors.toList());
+            this.propertyDescriptors = getPropertyDescriptors();
         }
         catch (IntrospectionException ex) {
             throw new RuntimeException(ex);
@@ -94,8 +95,17 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> e
         //this.propertyDescriptors.addAll(BeanUtil.getBeanPropertyDescriptor(databaseBeanType));
 
         this.transferFunction = transferFunction;
+        if (transferFunction == null) {
+            this.transferFunction = new ObjectTransferFunction<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE>() {
+                @Override
+                protected CONTAINER_BEAN_TYPE transfer(DATABASE_BEAN_TYPE databaseObject) {
+                    //noinspection unchecked
+                    return (CONTAINER_BEAN_TYPE)databaseObject;
+                }
+            };
+        }
 
-        this.names = this.propertyDescriptors.stream().map(FeatureDescriptor::getName).collect(Collectors.toList());
+        //this.names = this.propertyDescriptors.stream().map(FeatureDescriptor::getName).collect(Collectors.toList());
 
         this.beanCodec = new BeanCodec<>(databaseBeanType);
 
@@ -120,6 +130,26 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> e
     public void removeItemSetChangeListener(ItemSetChangeListener listener) {
         super.removeItemSetChangeListener(listener);
 
+    }
+
+    @Override
+    public void addPropertySetChangeListener(PropertySetChangeListener listener) {
+        super.addPropertySetChangeListener(listener);
+    }
+
+    @Override
+    public void addListener(PropertySetChangeListener listener) {
+        super.addListener(listener);
+    }
+
+    @Override
+    public void removePropertySetChangeListener(PropertySetChangeListener listener) {
+        super.removePropertySetChangeListener(listener);
+    }
+
+    @Override
+    public void removeListener(PropertySetChangeListener listener) {
+        super.removeListener(listener);
     }
 
     private void rebuildCache() {
@@ -194,7 +224,11 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> e
 
     public void setFilter(Bson filter) {
         this.filter = filter;
-        fireItemSetChange();
+
+        //rebuildCache();
+        //updateCount(true);
+
+        refreshData();
     }
 
     public DATABASE_BEAN_TYPE getDatabaseObject(Object itemId) {
@@ -219,19 +253,19 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> e
         return itemCache.get((Integer) itemId);
     }
 
-    private FindIterable<DATABASE_BEAN_TYPE> getIterable(Object itemId) {
+    protected FindIterable<DATABASE_BEAN_TYPE> getIterable(Object itemId) {
         return getIterable().skip((Integer)itemId).limit(1);
     }
-    private FindIterable<DATABASE_BEAN_TYPE> getIterable() {
+    protected FindIterable<DATABASE_BEAN_TYPE> getIterable() {
         return getIterable(null);
     }
 
 
-    private FindIterable<DATABASE_BEAN_TYPE> getIterable(Bson addedFilter) {
+    protected FindIterable<DATABASE_BEAN_TYPE> getIterable(Bson addedFilter) {
         return getIterable(addedFilter, databaseBeanType);
     }
 
-    private <A> FindIterable<A> getIterable(Bson addedFilter, Class<A> aClass) {
+    protected  <A> FindIterable<A> getIterable(Bson addedFilter, Class<A> aClass) {
         FindIterable<A> iterable = mongoCollection.find(aClass);
         if (filter != null || addedFilter != null) {
             if (filter == null) {
@@ -250,7 +284,7 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> e
 
         return iterable;
     }
-    private Optional<String> getDatabaseNameFromProperty(Object property) {
+    protected Optional<String> getDatabaseNameFromProperty(Object property) {
         if (property instanceof String) {
             return Optional.ofNullable(beanCodec.getTranslateBeanToDatabase().get(property));
         }
@@ -267,7 +301,7 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> e
     @Override
     public Collection<?> getContainerPropertyIds() {
         updateCount(false);
-        return names;
+        return propertyDescriptors.keySet();
     }
 
     @Override
@@ -289,7 +323,7 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> e
     @Override
     public Class<?> getType(Object propertyId) {
         updateCount(false);
-        return propertyDescriptors.get(names.indexOf((String)propertyId)).getReadMethod().getReturnType();
+        return propertyDescriptors.get(propertyId).getReadMethod().getReturnType();
     }
 
     @Override
@@ -321,12 +355,39 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> e
 
     @Override
     public boolean addContainerProperty(Object propertyId, Class<?> type, Object defaultValue) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
+        try {
+            Map<String, PropertyDescriptor> baseDescriptors = getPropertyDescriptors();
+            if (baseDescriptors.containsKey((String)propertyId)) {
+                propertyDescriptors.put((String)propertyId, baseDescriptors.get((String)propertyId));
+
+                refreshData();
+
+                fireContainerPropertySetChange();
+
+                return true;
+            }
+
+            return false;
+        }
+        catch (IntrospectionException ignored) {
+            return false;
+        }
     }
 
     @Override
     public boolean removeContainerProperty(Object propertyId) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
+
+        if (!propertyDescriptors.containsKey((String)propertyId)) {
+            return false;
+        }
+
+        propertyDescriptors.remove((String)propertyId);
+
+        refreshData();
+
+        fireContainerPropertySetChange();
+
+        return true;
     }
 
     @Override
@@ -356,7 +417,7 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> e
     public Collection<?> getSortableContainerPropertyIds() {
         updateCount(false);
 
-        Set<String> sortableNames = new HashSet<>(names);
+        Set<String> sortableNames = new HashSet<>(propertyDescriptors.keySet());
         return sortableNames.stream().filter(s -> beanCodec.getTranslateBeanToDatabase().containsKey(s)).collect(Collectors.toList());
     }
 

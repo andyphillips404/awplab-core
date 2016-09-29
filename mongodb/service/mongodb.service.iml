@@ -7,7 +7,13 @@
           <property key="Bundle-Description" value="A library used with OSGI/Karaf supporting a improved quartz scheduler OSGI implementation and Jersey rest service impelementation with Jackson and OpenAPI/Swagger support." />
           <property key="Export-Package" value="com.awplab.core.mongodb.service, com.awplab.core.mongodb.service.codec" />
           <property key="DynamicImport-Package" value="*" />
+          <property key="Embed-Dependency" value="typetools" />
+          <property key="Embed-Transitive" value="true" />
+          <property key="Import-Package" value="!sun.reflect, *" />
           <property key="Bundle-Name" value="AWPLab Core - MongoDB - Service" />
+          <property key="Bundle-ClassPath" value=".,typetools-0.4.7.jar" />
+          <property key="Include-Resource" value="typetools-0.4.7.jar=$MAVEN_REPOSITORY$/net/jodah/typetools/0.4.7/typetools-0.4.7.jar" />
+          <property key="Embedded-Artifacts" value="typetools-0.4.7.jar;g=&quot;net.jodah&quot;;a=&quot;typetools&quot;;v=&quot;0.4.7&quot;" />
         </additionalProperties>
         <additionalJARContents />
       </configuration>
@@ -32,6 +38,7 @@
     <orderEntry type="library" name="Maven: org.apache.felix:org.apache.felix.ipojo.metadata:1.6.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.felix:org.apache.felix.ipojo.annotations:1.12.1" level="project" />
     <orderEntry type="library" name="Maven: org.ow2.asm:asm-all:5.0.2" level="project" />
+    <orderEntry type="library" name="Maven: net.jodah:typetools:0.4.7" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.slf4j:slf4j-api:1.7.21" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.osgi:org.osgi.core:5.0.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.osgi:org.osgi.compendium:5.0.0" level="project" />

@@ -4,6 +4,7 @@ import com.awplab.core.mongodb.service.BeanCodecInclude;
 import com.awplab.core.mongodb.service.BeanCodecKey;
 import com.awplab.core.mongodb.service.BeanCodecProperties;
 import com.mongodb.MongoClient;
+import net.jodah.typetools.TypeResolver;
 import org.bson.*;
 import org.bson.codecs.*;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -14,9 +15,6 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.LinkedTransferQueue;
 
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 
@@ -115,6 +113,7 @@ public class BeanCodec<T> implements CollectibleCodec<T> {
 
 
 
+
     private Object readValue(final BsonReader reader, final DecoderContext decoderContext, Class setType, Type genericTypeIfKnown) {
         BsonType bsonType = reader.getCurrentBsonType();
         if (bsonType == BsonType.NULL) {
@@ -132,7 +131,17 @@ public class BeanCodec<T> implements CollectibleCodec<T> {
                 return primArray;
             }
             else {
-                return readList(reader, decoderContext, (Class)((ParameterizedType)genericTypeIfKnown).getActualTypeArguments()[0]);
+                // assumed to be a collection of some type, find the parent type if able to...
+                if (genericTypeIfKnown instanceof ParameterizedType) {
+                    return readList(reader, decoderContext, (Class)((ParameterizedType) genericTypeIfKnown).getActualTypeArguments()[0]);
+                }
+
+                Class<?>[] args = TypeResolver.resolveRawArguments(Collection.class, setType);
+                if (args == null || args.length == 0) {
+                    throw new BeanCodecDecodeException("Unable to decode array into collection type, unable to determine generate type");
+                }
+                return readList(reader, decoderContext, args[0]);
+
 
             }
 
@@ -143,21 +152,41 @@ public class BeanCodec<T> implements CollectibleCodec<T> {
             }
         }
 
-        if (bsonType == BsonType.DOCUMENT) {
-            if (Map.class.isAssignableFrom(setType) || setType.equals(Object.class)) {
-                return readMap(reader, decoderContext, setType.equals(Object.class) || !(genericTypeIfKnown instanceof ParameterizedType) ? Object.class : (Class)((ParameterizedType)genericTypeIfKnown).getActualTypeArguments()[1]);
+        if (bsonType == BsonType.DOCUMENT && (Map.class.isAssignableFrom(setType) || setType.equals(Object.class))) {
+
+            if (setType.equals(Object.class) || genericTypeIfKnown instanceof ParameterizedType) {
+                return readMap(reader, decoderContext, setType.equals(Object.class) ? Object.class : (Class) ((ParameterizedType) genericTypeIfKnown).getActualTypeArguments()[1]);
             }
+
+            // asummed to be a map, get the value parameter type.
+            Class<?>[] args = TypeResolver.resolveRawArguments(Map.class, setType);
+            if (args == null || args.length != 2) {
+                throw new BeanCodecDecodeException("Unable to resolve parameter types of map");
+            }
+            //if (!String.class.isAssignableFrom(args[0])) {
+                //throw new BeanCodecDecodeException("First parameter type of map must be assignable to string");
+            //}
+
+            return readMap(reader, decoderContext, args[1].equals(TypeResolver.Unknown.class) ? Object.class : args[1]);
+            //return readMap(reader, decoderContext, args[1]);
+
+        }
 
             // this is a document type, lets see if it is a sub document....
             Decoder decoder = codecRegistry.get(setType);
             if (decoder == null) {
                 throw new BeanCodecDecodeException("No decoder found to handle document object for class type: " + setType);
             }
+            if (bsonType != BsonType.DOCUMENT && decoder instanceof BeanCodec) {
+                // we are not a document and trying to use the bean codec.
+                // don't allow this.  try the standard codec by bson type then
+                decoder = bsonTypeCodecMap.get(bsonType);
+            }
             return decoder.decode(reader, decoderContext);
-        }
+        //}
 
 
-        return bsonTypeCodecMap.get(bsonType).decode(reader, decoderContext);
+        //return bsonTypeCodecMap.get(bsonType).decode(reader, decoderContext);
     }
 
     private List<Object> readList(final BsonReader reader, final DecoderContext decoderContext, Class setType) {
@@ -180,6 +209,7 @@ public class BeanCodec<T> implements CollectibleCodec<T> {
         reader.readEndDocument();
         return map;
     }
+
 
     @Override
     public T decode(BsonReader reader, DecoderContext decoderContext) {
@@ -298,6 +328,7 @@ public class BeanCodec<T> implements CollectibleCodec<T> {
 
 
     }
+
 
     @Override
     public Class<T> getEncoderClass() {
