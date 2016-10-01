@@ -175,7 +175,8 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> e
     private void updateCount(boolean force) {
         if (force || !Duration.between(countLastUpdated.toInstant(), new Date().toInstant()).minus(timeBetweenSizeUpdateChecks).isNegative()) {
 
-            int newCount = filter != null ? (int)mongoCollection.count(filter) : (int)mongoCollection.count();
+            int newCount = getCount(null);
+
             if (newCount != count) {
                 count = newCount;
                 if (!force) fireItemSetChange();
@@ -186,6 +187,22 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> e
     }
 
 
+    public int getCount(Bson addedFilter) {
+        if (filter == null && addedFilter == null) {
+            return (int) mongoCollection.count();
+        }
+
+        if (filter != null && addedFilter != null) {
+            return (int) mongoCollection.count(Filters.and(filter, addedFilter));
+        }
+
+        if (filter != null) {
+            return (int) mongoCollection.count(filter);
+        }
+
+        return (int)mongoCollection.count(addedFilter);
+
+    }
     public int getCachePageSizeLookAhead() {
         return cachePageSizeLookAhead;
     }
@@ -253,19 +270,19 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> e
         return itemCache.get((Integer) itemId);
     }
 
-    protected FindIterable<DATABASE_BEAN_TYPE> getIterable(Object itemId) {
+    public FindIterable<DATABASE_BEAN_TYPE> getIterable(Object itemId) {
         return getIterable().skip((Integer)itemId).limit(1);
     }
-    protected FindIterable<DATABASE_BEAN_TYPE> getIterable() {
+    public FindIterable<DATABASE_BEAN_TYPE> getIterable() {
         return getIterable(null);
     }
 
 
-    protected FindIterable<DATABASE_BEAN_TYPE> getIterable(Bson addedFilter) {
+    public FindIterable<DATABASE_BEAN_TYPE> getIterable(Bson addedFilter) {
         return getIterable(addedFilter, databaseBeanType);
     }
 
-    protected  <A> FindIterable<A> getIterable(Bson addedFilter, Class<A> aClass) {
+    public   <A> FindIterable<A> getIterable(Bson addedFilter, Class<A> aClass) {
         FindIterable<A> iterable = mongoCollection.find(aClass);
         if (filter != null || addedFilter != null) {
             if (filter == null) {
@@ -284,7 +301,8 @@ public class MongoCollectionContainer<DATABASE_BEAN_TYPE, CONTAINER_BEAN_TYPE> e
 
         return iterable;
     }
-    protected Optional<String> getDatabaseNameFromProperty(Object property) {
+
+    public Optional<String> getDatabaseNameFromProperty(Object property) {
         if (property instanceof String) {
             return Optional.ofNullable(beanCodec.getTranslateBeanToDatabase().get(property));
         }
