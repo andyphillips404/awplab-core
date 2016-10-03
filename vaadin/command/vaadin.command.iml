@@ -25,9 +25,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.karaf.shell:org.apache.karaf.shell.core:4.0.5" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: jline:jline:2.14.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.karaf.jaas:org.apache.karaf.jaas.boot:4.0.5" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.karaf.shell:org.apache.karaf.shell.core:4.0.7" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: jline:jline:2.14.2" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.karaf.jaas:org.apache.karaf.jaas.boot:4.0.7" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.sshd:sshd-core:0.14.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.felix:org.apache.felix.ipojo:1.12.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.felix:org.apache.felix.ipojo.metadata:1.6.0" level="project" />
@@ -46,9 +46,9 @@
     <orderEntry type="library" name="Maven: com.vaadin.external.atmosphere:atmosphere-runtime:2.2.9.vaadin2" level="project" />
     <orderEntry type="library" name="Maven: com.vaadin.external.slf4j:vaadin-slf4j-jdk14:1.6.1" level="project" />
     <orderEntry type="library" name="Maven: javax.servlet:javax.servlet-api:3.1.0" level="project" />
-    <orderEntry type="library" name="Maven: org.ops4j.pax.web:pax-web-api:4.2.6" level="project" />
-    <orderEntry type="library" name="Maven: org.ops4j.pax.web:pax-web-runtime:4.2.6" level="project" />
-    <orderEntry type="library" name="Maven: org.ops4j.pax.web:pax-web-jetty:4.2.6" level="project" />
+    <orderEntry type="library" name="Maven: org.ops4j.pax.web:pax-web-api:4.3.0" level="project" />
+    <orderEntry type="library" name="Maven: org.ops4j.pax.web:pax-web-runtime:4.3.0" level="project" />
+    <orderEntry type="library" name="Maven: org.ops4j.pax.web:pax-web-jetty:4.3.0" level="project" />
     <orderEntry type="library" name="Maven: org.ops4j.base:ops4j-base-util-xml:1.5.0" level="project" />
     <orderEntry type="library" name="Maven: org.ops4j.base:ops4j-base-lang:1.5.0" level="project" />
     <orderEntry type="library" name="Maven: org.ops4j.base:ops4j-base-util-collections:1.5.0" level="project" />
