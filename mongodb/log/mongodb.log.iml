@@ -37,7 +37,7 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: jline:jline:2.14.2" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.karaf.jaas:org.apache.karaf.jaas.boot:4.0.7" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.sshd:sshd-core:0.14.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.ops4j.pax.logging:pax-logging-api:1.9.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.ops4j.pax.logging:pax-logging-api:1.8.5" level="project" />
     <orderEntry type="module" module-name="mongodb.service" />
     <orderEntry type="library" name="Maven: org.mongodb:mongo-java-driver:3.3.0" level="project" />
     <orderEntry type="library" name="Maven: net.jodah:typetools:0.4.8" level="project" />
