@@ -145,7 +145,7 @@
 
         <version.typetools>0.4.7</version.typetools>
 
-        <version.vaadin>7.6.8</version.vaadin>
+        <version.vaadin>7.7.3</version.vaadin>
 
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
