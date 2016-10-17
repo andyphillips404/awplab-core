@@ -1,9 +1,6 @@
 package com.awplab.core.admin;
 
-import com.awplab.core.admin.provider.AdminUI;
-import com.awplab.core.vaadin.service.IPOJOVaadinUIProvider;
 import com.vaadin.server.ClientConnector;
-import com.vaadin.ui.UI;
 import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.InstanceManager;
@@ -12,10 +9,6 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by andyphillips404 on 8/31/16.

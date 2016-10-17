@@ -1,8 +1,6 @@
-package com.awplab.core.admin.provider;
+package com.awplab.core.admin;
 
-import com.awplab.core.admin.AdminProvider;
-import com.awplab.core.admin.AdminUIConfiguration;
-import com.awplab.core.admin.AdminViewProvider;
+import com.awplab.core.admin.provider.ValoMenuLayout;
 import com.awplab.core.vaadin.service.BasicAuthRequired;
 import com.awplab.core.vaadin.service.VaadinProvider;
 import com.vaadin.annotations.PreserveOnRefresh;
@@ -12,7 +10,6 @@ import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.server.Page;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.shared.ui.label.ContentMode;

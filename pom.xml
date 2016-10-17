@@ -295,6 +295,7 @@
             </dependency>
 
 
+
             <!-- OSGI -->
             <dependency>
                 <groupId>org.osgi</groupId>

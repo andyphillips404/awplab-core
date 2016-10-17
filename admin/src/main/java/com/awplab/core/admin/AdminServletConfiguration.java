@@ -10,8 +10,6 @@ public final class AdminServletConfiguration {
 
     public static final String PROPERTY_REQUIRE_SECURE = "com.awplab.core.requireSecure";
 
-    public static final String PROPERTY_LOGIN_ENABLED = "com.awplab.core.admin.login.enabled";
-
     public static final String PROPERTY_LOGIN_LIMIT_TO_GROUPS = "com.awplab.core.admin.login.limitToGroups";
 
     public static final String PROPERTY_LOGIN_LIMIT_TO_ROLES = "com.awplab.core.admin.login.limitToRoles";

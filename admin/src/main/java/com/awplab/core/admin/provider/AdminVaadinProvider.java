@@ -1,6 +1,7 @@
 package com.awplab.core.admin.provider;
 
 import com.awplab.core.admin.AdminServletConfiguration;
+import com.awplab.core.admin.AdminUI;
 import com.awplab.core.vaadin.service.BasicAuthRequired;
 import com.awplab.core.vaadin.service.IPOJOVaadinUIProvider;
 import com.awplab.core.vaadin.service.VaadinProvider;
@@ -28,9 +29,6 @@ public class AdminVaadinProvider implements VaadinProvider, BasicAuthRequired {
     }
 
     private String path = "/admin";
-
-    @Property(name = AdminServletConfiguration.PROPERTY_LOGIN_ENABLED, value = "true")
-    private boolean loginEnabled;
 
     @Property(name = AdminServletConfiguration.PROPERTY_REQUIRE_SECURE, value = "true")
     private boolean requireSecure;
@@ -62,14 +60,13 @@ public class AdminVaadinProvider implements VaadinProvider, BasicAuthRequired {
     @Override
     public boolean allowSubject(Subject subject) {
 
-        if (loginEnabled) {
-            if (loginLimitToRoles != null && loginLimitToRoles.length > 0) {
-                if (!BasicAuthRequired.isUserInRole(subject, loginLimitToRoles)) return false;
-            }
-            if (loginLimitToGroups != null && loginLimitToGroups.length > 0) {
-                if (!BasicAuthRequired.isUserInGroup(subject, loginLimitToGroups)) return false;
-            }
+        if (loginLimitToRoles != null && loginLimitToRoles.length > 0) {
+            if (!BasicAuthRequired.isUserInRole(subject, loginLimitToRoles)) return false;
         }
+        if (loginLimitToGroups != null && loginLimitToGroups.length > 0) {
+            if (!BasicAuthRequired.isUserInGroup(subject, loginLimitToGroups)) return false;
+        }
+
         return true;
     }
 

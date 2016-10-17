@@ -1,6 +1,5 @@
 package com.awplab.core.admin;
 
-import com.awplab.core.admin.provider.AdminUI;
 import com.awplab.core.vaadin.service.VaadinProvider;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
