@@ -125,7 +125,7 @@
         <version.felix.http.servlet-api>1.0.0</version.felix.http.servlet-api>
         <version.felix.http.sslfilter>0.1.0</version.felix.http.sslfilter>
 
-        <version.selenium>2.53.1</version.selenium>
+        <version.selenium>3.0.1</version.selenium>
 
         <version.pdfbox>2.0.3</version.pdfbox>
 
@@ -446,9 +446,40 @@
 
 
             <!-- Selenium -->
+            <!--
             <dependency>
                 <groupId>org.seleniumhq.selenium</groupId>
                 <artifactId>selenium-java</artifactId>
+                <version>${version.selenium}</version>
+            </dependency>
+            -->
+            <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-api</artifactId>
+                <version>${version.selenium}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-remote-driver</artifactId>
+                <version>${version.selenium}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-firefox-driver</artifactId>
+                <version>${version.selenium}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-chrome-driver</artifactId>
+                <version>${version.selenium}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-support</artifactId>
                 <version>${version.selenium}</version>
             </dependency>
 

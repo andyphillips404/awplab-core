@@ -27,13 +27,16 @@
                         <Bundle-SymbolicName>
                             ${project.artifactId}
                         </Bundle-SymbolicName>
+
                         <Export-Package>
-                            org.openqa.selenium.remote,
-                            org.openqa.selenium.remote.*,
+                            <!-- org.openqa.selenium.remote,
+                            org.openqa.selenium.remote.*, -->
                             com.awplab.core.selenium.service
                         </Export-Package>
                         <Private-Package>com.awplab.core.selenium.service.provider</Private-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
+                        <Embed-Dependency>selenium-*;inline=true</Embed-Dependency>
+                        <_exportcontents>org.openqa.selenium, org.openqa.selenium.*</_exportcontents>
                     </instructions>
                 </configuration>
             </plugin>
@@ -58,13 +61,37 @@
             <artifactId>org.apache.felix.ipojo</artifactId>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
         </dependency>
+        -->
 
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-api</artifactId>
+        </dependency>
 
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-remote-driver</artifactId>
+        </dependency>
 
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-firefox-driver</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-chrome-driver</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-support</artifactId>
+        </dependency>
 
 
 
