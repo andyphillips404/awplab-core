@@ -63,6 +63,11 @@
             <artifactId>org.apache.felix.ipojo.api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+        </dependency>
+
 
     </dependencies>
 </project>

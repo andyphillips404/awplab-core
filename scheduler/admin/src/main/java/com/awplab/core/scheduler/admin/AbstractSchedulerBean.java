@@ -6,8 +6,6 @@ import org.osgi.framework.Version;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 
-import java.util.Date;
-
 /**
  * Created by andyphillips404 on 8/31/16.
  */

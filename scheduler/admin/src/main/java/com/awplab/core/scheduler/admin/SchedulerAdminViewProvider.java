@@ -9,15 +9,16 @@ import com.awplab.core.scheduler.service.scheduler.IPOJOJobFactory;
 import com.awplab.core.vaadin.service.VaadinProvider;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.event.ItemClickEvent;
+import com.vaadin.data.ValueProvider;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
 import com.vaadin.server.SystemError;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
+import com.vaadin.ui.components.grid.HeaderRow;
+import com.vaadin.ui.renderers.DateRenderer;
+import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.themes.ValoTheme;
 import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Provides;
@@ -31,6 +32,9 @@ import org.quartz.impl.matchers.GroupMatcher;
 
 import javax.security.auth.Subject;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -104,9 +108,13 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
 
         private MenuBar interruptBar;
 
-        BeanItemContainer<SchedulerJobExecutionContext> running = new BeanItemContainer<SchedulerJobExecutionContext>(SchedulerJobExecutionContext.class);
+        private Grid<SchedulerJobExecutionContext> runningGrid;
 
-        BeanItemContainer<SchedulerJobDetailTriggers> jobs = new BeanItemContainer<SchedulerJobDetailTriggers>(SchedulerJobDetailTriggers.class);
+        private Grid<SchedulerJobDetailTriggers> jobsGrid;
+
+        //BeanItemContainer<SchedulerJobExecutionContext> running = new BeanItemContainer<SchedulerJobExecutionContext>(SchedulerJobExecutionContext.class);
+
+        //BeanItemContainer<SchedulerJobDetailTriggers> jobs = new BeanItemContainer<SchedulerJobDetailTriggers>(SchedulerJobDetailTriggers.class);
 
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -114,72 +122,70 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
 
             objectMapper.setDateFormat(SimpleDateFormat.getDateTimeInstance());
 
-            Table.ColumnGenerator jobDetailColumnGenerator = (source, itemId, columnId) -> {
-                AbstractSchedulerBean schedulerJobDetailTriggers = ((AbstractSchedulerBean)itemId);
+            ValueProvider<AbstractSchedulerBean, String> jobDetailValueProvider = (ValueProvider<AbstractSchedulerBean, String>) schedulerJobDetailTriggers -> {
                 String tags = "";
                 Class jobClass = schedulerJobDetailTriggers.getJobDetail().getJobClass();
                 if (StatusJob.class.isAssignableFrom(jobClass)) tags = "Provides Status";
                 if (InterruptableJob.class.isAssignableFrom(jobClass)) tags += (tags.length() > 0 ? ",&nbsp;" : "") + "Interruptable";
-                return new Label("<b>" + jobClass.getName() + "</b><br>Scheduler:&nbsp;" + schedulerJobDetailTriggers.getScheduler() + "<br>Key:&nbsp;" + schedulerJobDetailTriggers.getJobKeyName() + "<br>Group:&nbsp;" + schedulerJobDetailTriggers.getJobKeyGroup() + "<br>Bundle:&nbsp;" + schedulerJobDetailTriggers.getBundleName() + "<br>Bundle Version:&nbsp;" + schedulerJobDetailTriggers.getBundleVersion() + (tags.length() > 0 ? "<br><font color=\"green\">" + tags + "</font>" : "") , ContentMode.HTML);
+                return "<b>" + jobClass.getName() + "</b><br>Scheduler:&nbsp;" + schedulerJobDetailTriggers.getScheduler() + "<br>Key:&nbsp;" + schedulerJobDetailTriggers.getJobKeyName() + "<br>Group:&nbsp;" + schedulerJobDetailTriggers.getJobKeyGroup() + "<br>Bundle:&nbsp;" + schedulerJobDetailTriggers.getBundleName() + "<br>Bundle Version:&nbsp;" + schedulerJobDetailTriggers.getBundleVersion() + (tags.length() > 0 ? "<br><font color=\"green\">" + tags + "</font>" : "");
             };
 
-            Table.ColumnGenerator jobDataColumnGenerator = (source, itemId, columnId) -> {
-                AbstractSchedulerBean context = ((AbstractSchedulerBean) itemId);
-                if (context.getJobDataMap() == null) return new Label();
+
+            ValueProvider<AbstractSchedulerBean, String> jobDataValueProvider = (ValueProvider<AbstractSchedulerBean, String>) context -> {
+                if (context.getJobDataMap() == null) return "";
                 try {
                     JobDataMap jobDataMap = new JobDataMap(context.getJobDataMap());
                     jobDataMap.remove(IPOJOJobFactory.INSTANCE_MANAGER_KEY);
-                    return new Label(AdminViewProvider.jacksonHtml(objectMapper, jobDataMap, true, 0), ContentMode.HTML); //objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jobDataMap).replaceAll("\n", "<br>").replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;").replaceAll(" ", "&nbsp;"), ContentMode.HTML);
+                    AdminViewProvider.jacksonHtml(objectMapper, jobDataMap, true, 0); //objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jobDataMap).replaceAll("\n", "<br>").replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;").replaceAll(" ", "&nbsp;"), ContentMode.HTML);
                 } catch (JsonProcessingException ex) {
                     throw new RuntimeException("Exception processing object job data map!", ex);
                     //return new Label("<font color=\"red\">Exception process job data map!</font>", ContentMode.HTML);
                 }
+                return "";
             };
 
-            final Table runningTable = new Table(null, running);
-            runningTable.setSelectable(true);
-            runningTable.setImmediate(true);
-
-            runningTable.addGeneratedColumn("status", (source, itemId, columnId) -> {
-                Job job = ((SchedulerJobExecutionContext)itemId).getJobExecutionContext().getJobInstance();
-                if (!(job instanceof StatusJob)) return new Label();
+            final Grid<SchedulerJobExecutionContext> runningGrid = new Grid<>();
+            runningGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            Grid.Column<SchedulerJobExecutionContext, String> statusColumn = runningGrid.addColumn(schedulerJobExecutionContext -> {
+                Job job = schedulerJobExecutionContext.getJobExecutionContext().getJobInstance();
+                if (!(job instanceof StatusJob)) return "";
                 try {
                     String cancelRequested = "";
                     if (job instanceof AbstractStatusInterruptableJob && ((AbstractStatusInterruptableJob) job).isInterruptRequested()) cancelRequested = "<br><font color=\"red\">Interrupt Requested!</font>";
-                    return new Label(AdminViewProvider.jacksonHtml(objectMapper, ((StatusJob) job).getJobStatus(), true, 0) + cancelRequested, ContentMode.HTML);
+                    return AdminViewProvider.jacksonHtml(objectMapper, ((StatusJob) job).getJobStatus(), true, 0) + cancelRequested;
                 }
                 catch (JsonProcessingException ex) {
                     throw new RuntimeException("Exception processing object status!", ex);
                 }
-            });
-            runningTable.addGeneratedColumn("jobDetail", jobDetailColumnGenerator);
+            }, new HtmlRenderer());
 
-            runningTable.addGeneratedColumn("trigger", (source, itemId, columnId) -> {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
-                SchedulerJobExecutionContext context = ((SchedulerJobExecutionContext)itemId);
-                return new Label("<b>" + simpleDateFormat.format(context.getFireTime()).replaceAll(" ", "&nbsp;") + "</b><br>" + context.getFireInstanceId(), ContentMode.HTML);
-            });
-            runningTable.addGeneratedColumn("jobData", jobDataColumnGenerator);
+            Grid.Column<SchedulerJobExecutionContext, String> jobDetailColumn = runningGrid.addColumn(context ->
+                    "<b>" + new SimpleDateFormat().format(context.getFireTime()).replaceAll(" ", "&nbsp;") + "</b><br>" + context.getFireInstanceId()
+            , new HtmlRenderer());
 
-            runningTable.setVisibleColumns("trigger", "jobDetail", "jobData", "status");
-            runningTable.setColumnHeaders("Trigger", "Job Detail", "Job Data", "Status");
+            Grid.Column<SchedulerJobExecutionContext, String> triggerColumn = runningGrid.addColumn(context ->
+                            "<b>" + new SimpleDateFormat().format(context.getFireTime()).replaceAll(" ", "&nbsp;") + "</b><br>" + context.getFireInstanceId()
+                    , new HtmlRenderer());
+
+            Grid.Column<SchedulerJobExecutionContext, String> jobDataColumn = runningGrid.addColumn(jobDataValueProvider::apply, new HtmlRenderer());
+            runningGrid.setColumnOrder(triggerColumn, jobDetailColumn, jobDataColumn, statusColumn);
 
 
 
 
             MenuBar refreshRunningBar = new MenuBar();
-            refreshRunningBar.setImmediate(true);
+            //refreshRunningBar.setImmediate(true);
             refreshRunningBar.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
             refreshRunningBar.addStyleName(ValoTheme.MENUBAR_SMALL);
             refreshRunningBar.addItem("Refresh", FontAwesome.REFRESH, (MenuBar.Command) selectedItem -> refresh());
             refreshRunningBar.setSizeUndefined();
 
             interruptBar = new MenuBar();
-            interruptBar.setImmediate(true);
+            //interruptBar.setImmediate(true);
             interruptBar.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
             interruptBar.addStyleName(ValoTheme.MENUBAR_SMALL);
             interrupt = interruptBar.addItem("Interrupt", FontAwesome.REMOVE, (MenuBar.Command) selectedItem -> {
-                SchedulerJobExecutionContext context = (SchedulerJobExecutionContext)runningTable.getValue();
+                SchedulerJobExecutionContext context = runningGrid.getSelectedItems().iterator().next();
                 if (context == null) return;
                 new Thread(() -> {
                     try {
@@ -209,7 +215,11 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
             });
             interruptBar.setSizeUndefined();
 
-            runningTable.addValueChangeListener(event -> interrupt.setEnabled((runningTable.getValue() != null && ((SchedulerJobExecutionContext)runningTable.getValue()).getJobExecutionContext().getJobInstance() instanceof InterruptableJob)));
+            runningGrid.addSelectionListener(selectionEvent -> {
+                interrupt.setEnabled(false);
+                selectionEvent.getFirstSelectedItem().ifPresent(schedulerJobExecutionContext -> {interrupt.setEnabled(schedulerJobExecutionContext.getJobExecutionContext().getJobInstance() instanceof InterruptableJob);});
+            });
+
 
             CssLayout spacer1 = new CssLayout();
             spacer1.setWidth(100, Unit.PERCENTAGE);
@@ -220,22 +230,28 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
             runningToolbar.setWidth(100, Unit.PERCENTAGE);
             runningToolbar.setHeightUndefined();
 
-            runningTable.setSizeFull();
+            runningGrid.setSizeFull();
 
-            VerticalLayout runningHolder = new VerticalLayout(runningToolbar, runningTable);
+            VerticalLayout runningHolder = new VerticalLayout(runningToolbar, runningGrid);
             runningHolder.setSizeFull();
-            runningHolder.setExpandRatio(runningTable, 1);
+            runningHolder.setExpandRatio(runningGrid, 1);
 
-            Table jobsTable = new Table(null, jobs);
-            jobsTable.setSelectable(true);
-            jobsTable.setImmediate(true);
-            jobsTable.addGeneratedColumn("jobDetail", jobDetailColumnGenerator);
-            jobsTable.addGeneratedColumn("jobData", jobDataColumnGenerator);
-            jobsTable.setVisibleColumns("nextFireTime", "jobDetail", "jobData");
-            jobsTable.setColumnHeaders("Next Fire", "Job Detail", "Job Data");
+
+            jobsGrid = new Grid<>();
+            jobsGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            Grid.Column<SchedulerJobDetailTriggers, String> jobsJobDetailColumn = jobsGrid.addColumn(jobDetailValueProvider::apply, new HtmlRenderer());
+            jobsJobDetailColumn.setCaption("Job Detail");
+            Grid.Column<SchedulerJobDetailTriggers, String> jobsJobDataColumn = jobsGrid.addColumn(jobDataValueProvider::apply, new HtmlRenderer());
+            jobsJobDataColumn.setCaption("Job Data");
+            Grid.Column<SchedulerJobDetailTriggers, Date> jobsNextFireTimeColumn = jobsGrid.addColumn(SchedulerJobDetailTriggers::getNextFireTime, new DateRenderer());
+            jobsNextFireTimeColumn.setCaption("Next Fire");
+            jobsGrid.setColumnOrder(jobsNextFireTimeColumn, jobsJobDetailColumn, jobsJobDataColumn);
+
+            HeaderRow headerRow = jobsGrid.prependHeaderRow();
+
 
             MenuBar refreshJobsBar = new MenuBar();
-            refreshJobsBar.setImmediate(true);
+            //refreshJobsBar.setImmediate(true);
             refreshJobsBar.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
             refreshJobsBar.addStyleName(ValoTheme.MENUBAR_SMALL);
             refreshJobsBar.addItem("Refresh", FontAwesome.REFRESH, (MenuBar.Command) selectedItem -> refresh());
@@ -243,15 +259,15 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
 
 
             deleteBar = new MenuBar();
-            deleteBar.setImmediate(true);
+            //deleteBar.setImmediate(true);
             deleteBar.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
             deleteBar.addStyleName(ValoTheme.MENUBAR_SMALL);
             delete = deleteBar.addItem("Delete", FontAwesome.TRASH, (MenuBar.Command) selectedItem -> {
-                final SchedulerJobExecutionContext context = (SchedulerJobExecutionContext) runningTable.getValue();
+                final SchedulerJobDetailTriggers context = jobsGrid.getSelectedItems().iterator().next();
                 if (context == null) return;
                 new Thread(() -> {
                     try {
-                        schedulerManager.deleteJob(context.getScheduler(), context.getJobExecutionContext().getJobDetail().getKey());
+                        schedulerManager.deleteJob(context.getScheduler(), context.getJobDetail().getKey());
                         VaadinProvider.doAccess(SchedulerAdminView.this.getUI(), this::refresh);
                     } catch (SchedulerException ex) {
                         //throw new RuntimeException("Exception attempting to interrupt job!", ex);
@@ -279,7 +295,9 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
             });
             deleteBar.setSizeUndefined();
 
-            runningTable.addValueChangeListener(event -> delete.setEnabled((runningTable.getValue() != null)));
+            jobsGrid.addSelectionListener(selectionEvent -> {
+                delete.setEnabled(selectionEvent.getAllSelectedItems().size() > 0);
+            });
 
             HorizontalLayout jobsToolbar = new HorizontalLayout();
             jobsToolbar.setWidth(100, Unit.PERCENTAGE);
@@ -288,10 +306,10 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
             spacer1.setWidth(100, Unit.PERCENTAGE);
             jobsToolbar.addComponents(refreshJobsBar, spacer2, deleteBar);
             jobsToolbar.setExpandRatio(spacer2, 1);
-            jobsTable.setSizeFull();
+            jobsGrid.setSizeFull();
 
-            VerticalLayout jobsHolder = new VerticalLayout(jobsToolbar, jobsTable);
-            jobsHolder.setExpandRatio(jobsTable, 1);
+            VerticalLayout jobsHolder = new VerticalLayout(jobsToolbar, jobsGrid);
+            jobsHolder.setExpandRatio(jobsGrid, 1);
 
             jobsHolder.setSizeFull();
 
@@ -309,8 +327,8 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
         }
 
         private void refresh() {
-            running.removeAllItems();
-            jobs.removeAllItems();
+            //runningGrid.setItems();
+            //jobsGrid.setItems();
 
             deleteBar.setComponentError(null);
             interruptBar.setComponentError(null);
@@ -320,20 +338,27 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
             deleteAll.setEnabled(false);
             interruptAll.setEnabled(false);
 
+            List<SchedulerJobExecutionContext> running = new ArrayList<>();
+            List<SchedulerJobDetailTriggers> jobs = new ArrayList<>();
+
             try {
                 for (String s : schedulerManager.getSchedulerNames()) {
                     Scheduler scheduler = schedulerManager.getScheduler(s);
                     for (JobExecutionContext context : scheduler.getCurrentlyExecutingJobs()) {
                         if (context.getJobInstance() instanceof InterruptableJob) interruptAll.setEnabled(true);
-                        running.addItem(new SchedulerJobExecutionContext(s, context));
+
+                        running.add(new SchedulerJobExecutionContext(s, context));
                     }
 
                     for (JobKey key : scheduler.getJobKeys(GroupMatcher.anyGroup())) {
                         deleteAll.setEnabled(true);
-                        jobs.addItem(new SchedulerJobDetailTriggers(s, scheduler.getJobDetail(key), scheduler.getTriggersOfJob(key)));
+                        jobs.add(new SchedulerJobDetailTriggers(s, scheduler.getJobDetail(key), scheduler.getTriggersOfJob(key)));
 
                     }
                 }
+
+                runningGrid.setItems(running);
+                jobsGrid.setItems(jobs);
             }
             catch (SchedulerException ex) {
                 throw new RuntimeException("Scheduler exception creating list!", ex);

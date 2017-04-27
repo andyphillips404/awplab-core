@@ -25,16 +25,17 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.karaf.shell:org.apache.karaf.shell.core:4.0.7" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: jline:jline:2.14.2" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.karaf.jaas:org.apache.karaf.jaas.boot:4.0.7" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.sshd:sshd-core:0.14.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.karaf.shell:org.apache.karaf.shell.core:4.1.1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.jline:jline:3.2.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.karaf.jaas:org.apache.karaf.jaas.boot:4.1.1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.sshd:sshd-core:1.4.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.felix:org.apache.felix.ipojo:1.12.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.felix:org.apache.felix.ipojo.metadata:1.6.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.felix:org.apache.felix.ipojo.annotations:1.12.1" level="project" />
     <orderEntry type="library" name="Maven: org.ow2.asm:asm-all:5.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.felix:org.apache.felix.ipojo.api:1.12.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.felix:org.apache.felix.ipojo.manipulator:1.12.1" level="project" />
+    <orderEntry type="library" name="Maven: org.fusesource.jansi:jansi:1.15" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.slf4j:slf4j-api:1.7.21" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.osgi:org.osgi.core:5.0.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.osgi:org.osgi.compendium:5.0.0" level="project" />

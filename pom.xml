@@ -91,13 +91,15 @@
         <version.core.admin>1.0.0-SNAPSHOT</version.core.admin>
 
 
-        <version.karaf>4.0.7</version.karaf>
+        <version.karaf>4.1.1</version.karaf>
 
-        <version.pax.logging>1.8.5</version.pax.logging>
+        <version.pax.logging>1.9.1</version.pax.logging>
 
-        <version.pax.web>4.3.0</version.pax.web>
+        <version.pax.web>6.0.3</version.pax.web>
 
         <version.javax.servlet>3.1.0</version.javax.servlet>
+
+        <version.jansi>1.15</version.jansi>
 
         <version.osgi.core>5.0.0</version.osgi.core>
         <version.osgi.compendium>5.0.0</version.osgi.compendium>
@@ -107,45 +109,47 @@
         <version.ipojo>1.12.1</version.ipojo>
         <version.ipojo.eventadmin>1.8.0</version.ipojo.eventadmin>
 
-        <version.ehcache>3.1.3</version.ehcache>
+        <version.ehcache>3.3.1</version.ehcache>
 
-        <version.quartz>2.2.3</version.quartz>
+        <version.quartz>2.3.0</version.quartz>
 
-        <version.jackson>2.8.5</version.jackson>
+        <version.jackson>2.8.6</version.jackson>
 
-        <version.jersey>2.24.1</version.jersey>
+        <version.jersey>2.25.1</version.jersey>
 
-        <version.swagger>1.5.10</version.swagger>
+        <version.swagger>1.5.13</version.swagger>
 
         <version.mongodb>3.4.0</version.mongodb>
 
+        <!--
         <version.felix.http.base>2.3.0</version.felix.http.base>
         <version.felix.http.api>2.3.0</version.felix.http.api>
         <version.felix.http.jetty>2.3.0</version.felix.http.jetty>
         <version.felix.http.servlet-api>1.0.0</version.felix.http.servlet-api>
         <version.felix.http.sslfilter>0.1.0</version.felix.http.sslfilter>
+        -->
 
-        <version.selenium>3.0.1</version.selenium>
+        <version.selenium>3.4.0</version.selenium>
 
-        <version.pdfbox>2.0.3</version.pdfbox>
+        <version.pdfbox>2.0.5</version.pdfbox>
 
         <version.javassist>3.20.0-GA</version.javassist>
 
-        <version.guava>19.0</version.guava>
+        <version.guava>21.0</version.guava>
 
         <version.guava-retrying>2.0.0</version.guava-retrying>
 
         <version.commons-collections4>4.1</version.commons-collections4>
         <version.commons-codec>1.10</version.commons-codec>
-        <version.commons-lang3>3.4</version.commons-lang3>
+        <version.commons-lang3>3.5</version.commons-lang3>
         <version.commons-logging>1.2</version.commons-logging>
         <version.commons-exec>1.3</version.commons-exec>
         <version.commons-io>2.5</version.commons-io>
-        <version.commons-net>3.5</version.commons-net>
+        <version.commons-net>3.6</version.commons-net>
 
-        <version.typetools>0.4.8</version.typetools>
+        <version.typetools>0.4.9</version.typetools>
 
-        <version.vaadin>7.7.5</version.vaadin>
+        <version.vaadin>8.0.5</version.vaadin>
 
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -606,6 +610,11 @@
                 <version>${version.typetools}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.fusesource.jansi</groupId>
+                <artifactId>jansi</artifactId>
+                <version>${version.jansi}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>

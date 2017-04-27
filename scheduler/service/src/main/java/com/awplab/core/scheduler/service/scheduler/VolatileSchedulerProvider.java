@@ -6,6 +6,8 @@ import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Property;
 import org.apache.felix.ipojo.annotations.Provides;
 import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.TriggerKey;
 import org.quartz.core.QuartzSchedulerResources;
 import org.quartz.impl.DefaultThreadExecutor;
 import org.quartz.simpl.RAMJobStore;
@@ -113,6 +115,11 @@ public class VolatileSchedulerProvider extends AbstractSchedulerProvider {
             ipojoJobFactory = new IPOJOJobFactory();
         }
         return ipojoJobFactory;
+    }
+
+    @Override
+    public void resetTriggerFromErrorState(TriggerKey triggerKey) throws SchedulerException {
+        //TODO:   Not sure what we are to do here now.
     }
 }
 

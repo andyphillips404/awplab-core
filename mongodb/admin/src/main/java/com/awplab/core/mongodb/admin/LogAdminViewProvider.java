@@ -5,7 +5,6 @@ import com.awplab.core.mongodb.log.Log;
 import com.awplab.core.mongodb.log.events.LogEventData;
 import com.awplab.core.mongodb.log.events.LogEventTopics;
 import com.awplab.core.mongodb.service.MongoService;
-import com.awplab.core.vaadin.service.VaadinProvider;
 import com.mongodb.Block;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -15,25 +14,24 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.navigator.ViewProvider;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
-import com.vaadin.shared.ui.datefield.Resolution;
+import com.vaadin.shared.ui.datefield.DateResolution;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import org.apache.felix.ipojo.annotations.*;
 import org.apache.felix.ipojo.annotations.Component;
+import org.apache.felix.ipojo.annotations.Provides;
+import org.apache.felix.ipojo.annotations.Requires;
+import org.apache.felix.ipojo.annotations.ServiceProperty;
 import org.bson.conversions.Bson;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
-import java.beans.IntrospectionException;
-import java.util.*;
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.util.Date;
+import java.util.Optional;
 
 /**
  * Created by andyphillips404 on 8/19/16.
@@ -56,7 +54,7 @@ public class LogAdminViewProvider extends AdminViewProvider implements EventHand
     public void handleEvent(Event event) {
         if (database != null && collection != null && database.equals(event.getProperty(LogEventData.DATABASE)) && collection.equals(event.getProperty(LogEventData.COLLECTION))) {
             doAccessCurrentView(component -> {
-                component.logViewer.refreshData();
+                component.logViewer.getLogMongoDataProvider().refreshAll();
             }, LogAdminView.class);
         }
     }
@@ -90,7 +88,7 @@ public class LogAdminViewProvider extends AdminViewProvider implements EventHand
 
         @Override
         public void enter(ViewChangeListener.ViewChangeEvent event) {
-            logViewer.refreshData();
+            logViewer.getLogMongoDataProvider().refreshAll();
         }
 
 
@@ -105,50 +103,62 @@ public class LogAdminViewProvider extends AdminViewProvider implements EventHand
             logViewer = new LogViewer(mongoDatabase, mongoDatabase.getCollection(collection, Log.class), null);
 
             MenuBar refreshBar = new MenuBar();
-            refreshBar.setImmediate(true);
+            //refreshBar.setImmediate(true);
             refreshBar.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
             refreshBar.addStyleName(ValoTheme.MENUBAR_SMALL);
-            refreshBar.addItem("Refresh", FontAwesome.REFRESH, (MenuBar.Command) selectedItem -> logViewer.refreshData());
+            refreshBar.addItem("Refresh", FontAwesome.REFRESH, (MenuBar.Command) selectedItem -> logViewer.getLogMongoDataProvider().refreshAll());
+            refreshBar.setSizeUndefined();
+
+            MenuBar fault = new MenuBar();
+            refreshBar.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+            refreshBar.addStyleName(ValoTheme.MENUBAR_SMALL);
+            MenuBar.MenuItem faultItem = refreshBar.addItem("Fault Detail", FontAwesome.AMBULANCE, (MenuBar.Command) selectedItem -> logViewer.showFaultWindow());
+            refreshBar.setSizeUndefined();
+
+            MenuBar file = new MenuBar();
+            refreshBar.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+            refreshBar.addStyleName(ValoTheme.MENUBAR_SMALL);
+            MenuBar.MenuItem fileItem = refreshBar.addItem("Files", FontAwesome.FILE, (MenuBar.Command) selectedItem -> logViewer.showFilesWindow());
             refreshBar.setSizeUndefined();
 
 
             final DateField date = new DateField();
-            java.util.Calendar calendar = Calendar.getInstance();
-            calendar.setTime(new Date());
-            calendar.add(Calendar.DAY_OF_YEAR, -180);
-            date.setValue(calendar.getTime());
+            date.setValue(LocalDate.now().minusDays(180));
             date.addStyleName(ValoTheme.DATEFIELD_BORDERLESS);
             date.addStyleName(ValoTheme.DATEFIELD_SMALL);
-            date.setResolution(Resolution.SECOND);
-            //date.setWidth(5, Unit.EM);
+            date.setResolution(DateResolution.DAY);
 
             MenuBar clearBefore = new MenuBar();
-            clearBefore.setImmediate(true);
             clearBefore.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
             clearBefore.addStyleName(ValoTheme.MENUBAR_SMALL);
             clearBefore.addItem("Clear Before", FontAwesome.TRASH, (MenuBar.Command) selectedItem -> {
-                deleteLog(date.getValue());
-                logViewer.refreshData();
+                deleteLog(new Date(date.getValue().toEpochDay()));
+                //logViewer.refreshData();
+                logViewer.getLogMongoDataProvider().refreshAll();
             });
             clearBefore.setSizeUndefined();
 
             MenuBar clearAll = new MenuBar();
-            clearAll.setImmediate(true);
+            //clearAll.setImmediate(true);
             clearAll.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
             clearAll.addStyleName(ValoTheme.MENUBAR_SMALL);
             clearAll.addItem("Clear All", FontAwesome.TRASH, (MenuBar.Command) selectedItem -> {
                 deleteLog(new Date());
-                logViewer.refreshData();
+                logViewer.getLogMongoDataProvider().refreshAll();
             });
             clearAll.setSizeUndefined();
 
-
+            logViewer.getGrid().addSelectionListener(event -> {
+                Log log = event.getAllSelectedItems().iterator().next();
+                faultItem.setEnabled(log != null && log.getThrowableStrRep() != null && log.getThrowableStrRep().length > 0);
+                fileItem.setEnabled(log != null && log.getLogFiles() != null && log.getLogFiles().size() > 0);
+            });
 
             CssLayout spacer1 = new CssLayout();
             spacer1.setWidth(100, Unit.PERCENTAGE);
 
             HorizontalLayout toolbar = new HorizontalLayout();
-            toolbar.addComponents(refreshBar, spacer1, clearBefore, date, clearAll); //date, clearBefore);
+            toolbar.addComponents(refreshBar, file, fault, spacer1, clearBefore, date, clearAll); //date, clearBefore);
             toolbar.setExpandRatio(spacer1, 1);
             toolbar.setWidth(100, Unit.PERCENTAGE);
             toolbar.setHeightUndefined();

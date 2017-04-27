@@ -1,8 +1,5 @@
 package com.awplab.core.scheduler.admin;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.Version;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;

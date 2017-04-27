@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * Created by andyphillips404 on 4/23/16.
@@ -136,8 +137,16 @@ public class AutoClosableWebDriver implements WebDriver, AutoCloseable {
 
     public <T> T waitUntil(Long duration, TimeUnit timeUnit, ExpectedCondition<T> condition) {
         WebDriverWait webDriverWait = new WebDriverWait(webDriver, timeUnit.toSeconds(duration));
-        return webDriverWait.until(condition);
+        return webDriverWait.until(condition::apply);
+    }
 
+    public <T> T waitUntil(Function<WebDriver, T> condition) {
+        return waitUntil(defaultWaitUntilTimeout, defaultWaitUntilTimeoutUnit, condition);
+    }
+
+    public <T> T waitUntil(Long duration, TimeUnit timeUnit, Function<WebDriver, T>  condition) {
+        WebDriverWait webDriverWait = new WebDriverWait(webDriver, timeUnit.toSeconds(duration));
+        return webDriverWait.until(condition);
     }
 
     public <T> T get(String url, ExpectedCondition<T> expectedCondition) {

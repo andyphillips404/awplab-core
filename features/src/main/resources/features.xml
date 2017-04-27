@@ -96,6 +96,8 @@
 
     <feature name="core-ipojo" version="${parent.version}">
         <feature>ipojo</feature>
+        <feature>jansi</feature>
+
         <bundle>mvn:com.awplab.core/ipojo/${version.core.ipojo}</bundle>
     </feature>
 
@@ -440,4 +442,7 @@
         <bundle>mvn:commons-net/commons-net/${version.commons-net}</bundle>
     </feature>
 
+    <feature name="jansi" version="${version.jansi}">
+        <bundle>mvn:org.fusesource.jansi/jansi/${version.jansi}</bundle>
+    </feature>
 </features>
