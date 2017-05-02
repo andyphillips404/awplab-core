@@ -12,8 +12,9 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.server.StreamResource;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
+import com.vaadin.ui.renderers.ButtonRenderer;
+import com.vaadin.ui.renderers.DateRenderer;
 import com.vaadin.ui.renderers.HtmlRenderer;
-import com.vaadin.ui.themes.ValoTheme;
 import org.bson.conversions.Bson;
 
 import java.text.SimpleDateFormat;
@@ -40,12 +41,11 @@ public class LogViewer extends VerticalLayout {
     private void start() {
         grid.setSizeFull();
 
-        Grid.Column<Log, String> logColumn = grid.addColumn(log -> {
-            if (log == null) return "";
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
+        grid.setSelectionMode(Grid.SelectionMode.NONE);
 
+        grid.addColumn(Log::getTimeStamp, new DateRenderer(new SimpleDateFormat())).setCaption("Date");
+        grid.addColumn(log -> {
             StringBuilder stringBuilder = new StringBuilder();
-            if (log.getTimeStamp() != null) stringBuilder.append(simpleDateFormat.format(log.getTimeStamp()));
             final String[] color = {"black"};
             if (log.getLevel() != null) {
                 if (log.getLevel().equalsIgnoreCase("error")) color[0] = "red";
@@ -54,98 +54,99 @@ public class LogViewer extends VerticalLayout {
                 if (stringBuilder.length() > 0) stringBuilder.append(" - ");
                 stringBuilder.append(level);
             }
-            if (log.getMessage() != null && log.getMessage().trim().length() > 0) {
-                if (stringBuilder.length() > 0) stringBuilder.append(" - ");
-                stringBuilder.append(log.getMessage().replaceAll("\n", "<br>").replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
+            return stringBuilder.toString();
+
+        }, new HtmlRenderer()).setCaption("Level");
+        ButtonRenderer<Log> buttonRenderer = new ButtonRenderer<Log>(event -> {
+            Log log = event.getItem();
+            if (((log.getThrowableStrRep() != null && log.getThrowableStrRep().length > 0) || (log.getLogFiles() != null && log.getLogFiles().size() > 0))) {
+                grid.setDetailsVisible(log, !grid.isDetailsVisible(log));
+            }
+        });
+        buttonRenderer.setHtmlContentAllowed(true);
+        grid.addColumn(log -> {
+            if ((log.getThrowableStrRep() != null && log.getThrowableStrRep().length > 0) || (log.getLogFiles() != null && log.getLogFiles().size() > 0)) {
+                return "Details";
+            }
+            return "<font color=\"LIGHTGRAY\">Details</font>";
+        }, buttonRenderer);
+
+        grid.addColumn(log -> log.getMessage().replaceAll("\n", "<br>").replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"), new HtmlRenderer()).setCaption("Message");
+
+
+        //grid.setSelectionMode(Grid.SelectionMode.NONE);
+
+        grid.setDetailsGenerator(log -> {
+            //if (!((log.getThrowableStrRep() != null && log.getThrowableStrRep().length > 0) || (log.getLogFiles() != null && log.getLogFiles().size() > 0))) {
+            //    return null;
+            //}
+
+            VerticalLayout verticalLayout = new VerticalLayout();
+            verticalLayout.setMargin(false);
+            verticalLayout.setSizeFull();
+            ComponentContainer mainComponent = verticalLayout;
+            if ((log.getThrowableStrRep() != null && log.getThrowableStrRep().length > 0) && (log.getLogFiles() != null && log.getLogFiles().size() > 0)) {
+                TabSheet tabSheet = new TabSheet();
+                tabSheet.setSizeFull();
+                verticalLayout.addComponent(tabSheet);
+                mainComponent = tabSheet;
+            }
+            if (log.getThrowableStrRep() != null && log.getThrowableStrRep().length > 0) {
+                StringBuilder throwableStringBuilder = new StringBuilder();
+                throwableStringBuilder.append("<small>");
+                for (int x = 0; x < log.getThrowableStrRep().length; x++) {
+                    throwableStringBuilder.append(log.getThrowableStrRep()[x].replaceAll("\n", "<br>").replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
+                    if (log.getThrowableStrRep().length - 1 != x) throwableStringBuilder.append("<br>");
+                }
+                throwableStringBuilder.append("</small>");
+                Label l = new Label(throwableStringBuilder.toString(),ContentMode.HTML);
+                l.setSizeFull();
+                l.setHeightUndefined();
+                Panel scroll = new Panel(l);
+                scroll.setSizeFull();
+                //scroll.setCaption("Throwable");
+
+                mainComponent.addComponent(scroll);
             }
             if (log.getLogFiles() != null && log.getLogFiles().size() > 0) {
-                stringBuilder.append("<br>");
-                stringBuilder.append(log.getLogFiles().size());
-                stringBuilder.append(" Attached Files");
+                VerticalLayout filesHolder = new VerticalLayout();
+                for (LogFile logFile : log.getLogFiles()) {
+                    GridFSFile gridFSFile = logFile.getGridFSFile(mongoDatabase);
+                    StreamResource streamResource = new BucketStreamResource(mongoDatabase, logFile.getBucket(), logFile.getFileObjectId());
+
+                    HorizontalLayout h = new HorizontalLayout();
+                    h.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
+                    h.addComponent(new Label("File Key: " + logFile.getKey() + " Name: " + gridFSFile.getFilename()));
+                    h.setSpacing(true);
+                    h.setMargin(false);
+                    Link view = new Link(null, streamResource);
+                    view.setIcon(FontAwesome.EXTERNAL_LINK);
+                    view.setTargetName("_blank");
+                    h.addComponent(view);
+                    filesHolder.addComponent(h);
+                }
+                filesHolder.setSizeFull();
+                filesHolder.setHeightUndefined();
+                Panel scroll = new Panel(filesHolder);
+                scroll.setSizeFull();
+                scroll.setCaption("Files");
+                mainComponent.addComponent(scroll);
             }
-            return stringBuilder.toString();
-        }, new HtmlRenderer());
-        logColumn.setCaption("Log Entry");
+            mainComponent.setSizeFull();
+            verticalLayout.setHeight(25, Unit.EM);
+            return mainComponent;
+        });
 
         logMongoDataProvider.setDefaultSort(Sorts.descending("timeStamp"));
 
         this.addComponent(grid);
-    }
 
-    public void showFaultWindow() {
-        Log log = grid.getSelectedItems().iterator().next();
-        if (log != null) {
-            if (log.getThrowableStrRep() != null && log.getThrowableStrRep().length > 0) {
-                showFaultWindow(log);
-            }
-        }
-    }
-
-    public void showFaultWindow(Log log) {
-        StringBuilder throwableStringBuilder = new StringBuilder();
-        //throwableStringBuilder.append("<font color = \"");
-        //throwableStringBuilder.append(color[0]);
-        //throwableStringBuilder.append("\">");
-        for (int x = 0; x < log.getThrowableStrRep().length; x++) {
-            throwableStringBuilder.append(log.getThrowableStrRep()[x].replaceAll("\n", "<br>").replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
-            if (log.getThrowableStrRep().length - 1 != x) throwableStringBuilder.append("<br>");
-        }
-        //throwableStringBuilder.append("</font>");
-        CssLayout l = new CssLayout();
-        l.addComponent(new Label(throwableStringBuilder.toString(),ContentMode.HTML));
-        //l.setMargin(true);
-        showWindow(l, "Throwable Details");
-    }
-
-    public void showFilesWindow() {
-        Log log = grid.getSelectedItems().iterator().next();
-        if (log != null) {
-            if (log.getLogFiles() != null && log.getLogFiles().size() > 0) {
-                showFilesWindow(log);
-            }
-        }
-
-    }
-
-    public void showFilesWindow(Log log) {
-        VerticalLayout v = new VerticalLayout();
-
-        for (LogFile logFile : log.getLogFiles()) {
-            GridFSFile gridFSFile = logFile.getGridFSFile(mongoDatabase);
-            StreamResource streamResource = new BucketStreamResource(mongoDatabase, logFile.getBucket(), logFile.getFileObjectId());
-
-            HorizontalLayout h = new HorizontalLayout();
-            h.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
-            h.addComponent(new Label("File Key: " + logFile.getKey() + " Name: " + gridFSFile.getFilename()));
-            h.setSpacing(true);
-            h.setMargin(false);
-            Link view = new Link(null, streamResource);
-            view.setIcon(FontAwesome.EXTERNAL_LINK);
-            view.setTargetName("_blank");
-            h.addComponent(view);
-            v.addComponent(h);
-        }
-
-        showWindow(v, "Files");
+        this.setMargin(false);
     }
 
 
-    private void showWindow(Component content, String caption) {
-        Panel p = new Panel();
-        p.setSizeFull();
-        p.addStyleName(ValoTheme.PANEL_BORDERLESS);
-        p.setContent(content);
-        Window window = new Window(caption);
-        window.setContent(p);
-        window.setWidth("80%");
-        window.setHeight("80%");
-        window.setClosable(true);
-        window.setResizable(true);
-        getUI().addWindow(window);
-        window.center();
-        window.focus();
 
-    }
+
 
 
     public MongoDataProvider<Log> getLogMongoDataProvider() {

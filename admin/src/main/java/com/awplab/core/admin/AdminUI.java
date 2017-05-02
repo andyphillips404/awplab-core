@@ -12,7 +12,6 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinRequest;
-//import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
@@ -22,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
 import java.util.*;
+
+//import com.vaadin.shared.ui.label.ContentMode;
 
 /**
  * Created by andyphillips404 on 8/12/16.

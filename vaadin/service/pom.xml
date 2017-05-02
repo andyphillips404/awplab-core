@@ -32,6 +32,13 @@
                         </Export-Package>
                         <Private-Package>com.awplab.core.vaadin.service.*</Private-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
+                        <Import-Package>*;resolution:=optional</Import-Package>
+                        <!--<_exportcontents>*</_exportcontents> -->
+                        <!-- <_exportcontents>com.vaadin.*, elemental.json, org.w3c.css.sac, org.atmosphere.*, org.jsoup.*</_exportcontents> -->
+                        <_exportcontents>*;scope=!provided;optional=false</_exportcontents>
+
+                        <Embed-Dependency>*;scope=!provided;optional=false;type=!pom;inline=false</Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>
             </plugin>
@@ -49,11 +56,13 @@
         <dependency>
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.core</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.ipojo</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -80,31 +89,37 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.ops4j.pax.web</groupId>
             <artifactId>pax-web-api</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.ops4j.pax.web</groupId>
             <artifactId>pax-web-runtime</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.ops4j.pax.web</groupId>
             <artifactId>pax-web-jetty</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.karaf.jaas</groupId>
             <artifactId>org.apache.karaf.jaas.modules</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.karaf.jaas</groupId>
             <artifactId>org.apache.karaf.jaas.boot</artifactId>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

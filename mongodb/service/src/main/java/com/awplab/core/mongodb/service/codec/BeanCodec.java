@@ -13,10 +13,10 @@ import org.bson.types.ObjectId;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
-
-import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 
 /**
  * Created by andyphillips404 on 5/29/16.

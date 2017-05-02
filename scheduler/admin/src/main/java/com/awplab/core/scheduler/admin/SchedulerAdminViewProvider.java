@@ -144,9 +144,17 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
                 return "";
             };
 
-            final Grid<SchedulerJobExecutionContext> runningGrid = new Grid<>();
+            runningGrid = new Grid<>();
             runningGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
-            Grid.Column<SchedulerJobExecutionContext, String> statusColumn = runningGrid.addColumn(schedulerJobExecutionContext -> {
+            runningGrid.addColumn(context ->
+                            "<b>" + new SimpleDateFormat().format(context.getFireTime()).replaceAll(" ", "&nbsp;") + "</b><br>" + context.getFireInstanceId()
+                    , new HtmlRenderer()).setCaption("Trigger");
+            runningGrid.addColumn(context ->
+                            "<b>" + new SimpleDateFormat().format(context.getFireTime()).replaceAll(" ", "&nbsp;") + "</b><br>" + context.getFireInstanceId()
+                    , new HtmlRenderer()).setCaption("Job Detail");
+            runningGrid.addColumn(jobDataValueProvider::apply, new HtmlRenderer()).setCaption("Job Data");
+
+            runningGrid.addColumn(schedulerJobExecutionContext -> {
                 Job job = schedulerJobExecutionContext.getJobExecutionContext().getJobInstance();
                 if (!(job instanceof StatusJob)) return "";
                 try {
@@ -157,19 +165,7 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
                 catch (JsonProcessingException ex) {
                     throw new RuntimeException("Exception processing object status!", ex);
                 }
-            }, new HtmlRenderer());
-
-            Grid.Column<SchedulerJobExecutionContext, String> jobDetailColumn = runningGrid.addColumn(context ->
-                    "<b>" + new SimpleDateFormat().format(context.getFireTime()).replaceAll(" ", "&nbsp;") + "</b><br>" + context.getFireInstanceId()
-            , new HtmlRenderer());
-
-            Grid.Column<SchedulerJobExecutionContext, String> triggerColumn = runningGrid.addColumn(context ->
-                            "<b>" + new SimpleDateFormat().format(context.getFireTime()).replaceAll(" ", "&nbsp;") + "</b><br>" + context.getFireInstanceId()
-                    , new HtmlRenderer());
-
-            Grid.Column<SchedulerJobExecutionContext, String> jobDataColumn = runningGrid.addColumn(jobDataValueProvider::apply, new HtmlRenderer());
-            runningGrid.setColumnOrder(triggerColumn, jobDetailColumn, jobDataColumn, statusColumn);
-
+            }, new HtmlRenderer()).setCaption("Job Status");
 
 
 
@@ -185,8 +181,8 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
             interruptBar.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
             interruptBar.addStyleName(ValoTheme.MENUBAR_SMALL);
             interrupt = interruptBar.addItem("Interrupt", FontAwesome.REMOVE, (MenuBar.Command) selectedItem -> {
+                if (runningGrid.getSelectedItems().size() == 0) return;
                 SchedulerJobExecutionContext context = runningGrid.getSelectedItems().iterator().next();
-                if (context == null) return;
                 new Thread(() -> {
                     try {
                         schedulerManager.interruptJob(context.getScheduler(), context.getJobExecutionContext().getJobDetail().getKey());
@@ -235,20 +231,13 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
             VerticalLayout runningHolder = new VerticalLayout(runningToolbar, runningGrid);
             runningHolder.setSizeFull();
             runningHolder.setExpandRatio(runningGrid, 1);
-
+            runningHolder.setMargin(false);
 
             jobsGrid = new Grid<>();
             jobsGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
-            Grid.Column<SchedulerJobDetailTriggers, String> jobsJobDetailColumn = jobsGrid.addColumn(jobDetailValueProvider::apply, new HtmlRenderer());
-            jobsJobDetailColumn.setCaption("Job Detail");
-            Grid.Column<SchedulerJobDetailTriggers, String> jobsJobDataColumn = jobsGrid.addColumn(jobDataValueProvider::apply, new HtmlRenderer());
-            jobsJobDataColumn.setCaption("Job Data");
-            Grid.Column<SchedulerJobDetailTriggers, Date> jobsNextFireTimeColumn = jobsGrid.addColumn(SchedulerJobDetailTriggers::getNextFireTime, new DateRenderer());
-            jobsNextFireTimeColumn.setCaption("Next Fire");
-            jobsGrid.setColumnOrder(jobsNextFireTimeColumn, jobsJobDetailColumn, jobsJobDataColumn);
-
-            HeaderRow headerRow = jobsGrid.prependHeaderRow();
-
+            jobsGrid.addColumn(SchedulerJobDetailTriggers::getNextFireTime, new DateRenderer()).setCaption("Next Fire");
+            jobsGrid.addColumn(jobDetailValueProvider::apply, new HtmlRenderer()).setCaption("Job Detail");
+            jobsGrid.addColumn(jobDataValueProvider::apply, new HtmlRenderer()).setCaption("Job Data");
 
             MenuBar refreshJobsBar = new MenuBar();
             //refreshJobsBar.setImmediate(true);
@@ -263,8 +252,8 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
             deleteBar.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
             deleteBar.addStyleName(ValoTheme.MENUBAR_SMALL);
             delete = deleteBar.addItem("Delete", FontAwesome.TRASH, (MenuBar.Command) selectedItem -> {
+                if (runningGrid.getSelectedItems().size() == 0) return;
                 final SchedulerJobDetailTriggers context = jobsGrid.getSelectedItems().iterator().next();
-                if (context == null) return;
                 new Thread(() -> {
                     try {
                         schedulerManager.deleteJob(context.getScheduler(), context.getJobDetail().getKey());
@@ -310,8 +299,8 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
 
             VerticalLayout jobsHolder = new VerticalLayout(jobsToolbar, jobsGrid);
             jobsHolder.setExpandRatio(jobsGrid, 1);
-
             jobsHolder.setSizeFull();
+            jobsHolder.setMargin(false);
 
             TabSheet tabSheet = new TabSheet();
             tabSheet.addTab(runningHolder, "Running", FontAwesome.GEARS);
@@ -324,6 +313,7 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
             refresh();
 
             setSizeFull();
+            setMargin(false);
         }
 
         private void refresh() {

@@ -2,7 +2,9 @@ package com.awplab.core.mongodb.log.command;
 
 
 import com.awplab.core.common.TemporaryFile;
-import com.awplab.core.mongodb.log.*;
+import com.awplab.core.mongodb.log.Log;
+import com.awplab.core.mongodb.log.LogFile;
+import com.awplab.core.mongodb.log.MDCAutoClosable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.karaf.shell.api.action.Action;
@@ -12,7 +14,6 @@ import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import java.net.URL;
 

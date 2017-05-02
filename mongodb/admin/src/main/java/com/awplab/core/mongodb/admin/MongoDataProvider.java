@@ -27,6 +27,11 @@ public class MongoDataProvider<T> extends AbstractBackEndDataProvider<T, Bson> {
         return baseFilter;
     }
 
+    public void setBaseFilter(Bson baseFilter) {
+        this.baseFilter = baseFilter;
+        this.refreshAll();
+    }
+
     public MongoDataProvider(MongoCollection<T> mongoCollection) {
         this.mongoCollection = mongoCollection;
     }
@@ -40,6 +45,7 @@ public class MongoDataProvider<T> extends AbstractBackEndDataProvider<T, Bson> {
     public void setDefaultSort(Bson defaultSort) {
         if (defaultSort == null) this.defaultSort = Sorts.ascending("_id");
         this.defaultSort = defaultSort;
+        this.refreshAll();
     }
 
     public MongoDataProvider(MongoCollection<T> mongoCollection, Bson baseFilter) {
@@ -68,9 +74,7 @@ public class MongoDataProvider<T> extends AbstractBackEndDataProvider<T, Bson> {
         return null;
     }
 
-    @Override
-    protected Stream<T> fetchFromBackEnd(Query<T, Bson> query) {
-
+    protected List<T> fetchDataFromBackEnd(Query<T, Bson> query) {
         Bson filter = getFilter(query);
         FindIterable<T> findIterable = mongoCollection.find();
         if (filter != null) findIterable = findIterable.filter(filter);
@@ -80,7 +84,13 @@ public class MongoDataProvider<T> extends AbstractBackEndDataProvider<T, Bson> {
 
         final List<T> data = new ArrayList<T>();
         findIterable.iterator().forEachRemaining(data::add);
-        return data.stream();
+        return data;
+    }
+
+    @Override
+    protected Stream<T> fetchFromBackEnd(Query<T, Bson> query) {
+        /* do not change below, only update fetchDataFromBackEnd */
+        return fetchDataFromBackEnd(query).stream();
     }
 
     @Override
@@ -91,5 +101,7 @@ public class MongoDataProvider<T> extends AbstractBackEndDataProvider<T, Bson> {
 
     }
 
-
+    public MongoCollection<T> getMongoCollection() {
+        return mongoCollection;
+    }
 }

@@ -17,8 +17,8 @@
     limitations under the License.
 -->
 
-<features xmlns="http://karaf.apache.org/xmlns/features/v1.3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0"
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.4.0"
           name="AWPLab Core">
 
     <feature name="core-common" version="${parent.version}">
@@ -53,7 +53,9 @@
     <feature name="core-rest" version="${parent.version}">
         <feature>ipojo</feature>
         <feature>http</feature>
-        <feature>jersey-server</feature>
+
+        <feature>javax-ws-rs</feature>
+        <feature>javassist</feature>
 
         <bundle>mvn:com.awplab.core/rest.service/${version.core.rest.service}</bundle>
         <bundle>mvn:com.awplab.core/rest.command/${version.core.rest.command}</bundle>
@@ -86,7 +88,12 @@
 
     <feature name="core-selenium" version="${parent.version}">
         <feature>ipojo</feature>
-        <feature>selenium-base</feature>
+
+        <feature>guava</feature>
+        <feature>commons-codec</feature>
+        <feature>commons-logging</feature>
+        <feature>commons-exec</feature>
+        <feature>commons-io</feature>
 
         <feature>core-common</feature>
 
@@ -96,7 +103,6 @@
 
     <feature name="core-ipojo" version="${parent.version}">
         <feature>ipojo</feature>
-        <feature>jansi</feature>
 
         <bundle>mvn:com.awplab.core/ipojo/${version.core.ipojo}</bundle>
     </feature>
@@ -145,8 +151,6 @@
     <feature name="core-vaadin" version="${parent.version}">
         <feature>http</feature>
 
-        <feature>vaadin</feature>
-
         <bundle>mvn:com.awplab.core/vaadin.service/${version.core.vaadin.service}</bundle>
         <bundle>mvn:com.awplab.core/vaadin.command/${version.core.vaadin.command}</bundle>
     </feature>
@@ -159,8 +163,8 @@
 
 
     <feature name="ipojo" version="${version.ipojo}">
-        <feature>shell-compat</feature>
-        <feature>eventadmin</feature>
+        <!-- <feature>eventadmin</feature> -->
+        <!-- <feature>shell-compat</feature> -->
         <bundle>mvn:org.apache.felix/org.apache.felix.ipojo/${version.ipojo}</bundle>
         <bundle>mvn:org.apache.felix/org.apache.felix.ipojo.api/${version.ipojo}</bundle>
         <!--<bundle>mvn:org.apache.felix/org.apache.felix.ipojo.gogo/${version.ipojo}</bundle> -->
@@ -214,9 +218,9 @@
         <feature>jackson</feature>
         <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jdk8/${version.jackson}</bundle>
         <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jsr310/${version.jackson}</bundle>
-
+        <bundle>mvn:com.fasterxml.jackson.module/jackson-module-parameter-names/${version.jackson}</bundle>
         <config name="com.awplab.core.rest.jackson.module-jdk8">
-            com.awplab.core.rest.jackson.module.classes = {com.fasterxml.jackson.datatype.jdk8.Jdk8Module, com.fasterxml.jackson.datatype.jsr310.JSR310Module}
+            com.awplab.core.rest.jackson.module.classes = {com.fasterxml.jackson.datatype.jdk8.Jdk8Module, com.fasterxml.jackson.datatype.jsr310.JSR310Module, com.fasterxml.jackson.module.paramnames.ParameterNamesModule}
         </config>
     </feature>
 
@@ -232,14 +236,17 @@
     <feature name="jackson-xml" version="${version.jackson}">
         <feature>jackson</feature>
         <bundle>mvn:org.codehaus.woodstox/stax2-api/3.1.4</bundle>
+        <bundle>mvn:org.codehaus.woodstox/stax-api/1.0-2</bundle>
         <bundle>mvn:org.codehaus.woodstox/woodstox-core-asl/4.4.1</bundle>
+        <bundle>mvn:org.codehaus.woodstox/woodstox-core/5.0.3</bundle>
+
         <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-xml/${version.jackson}</bundle>
     </feature>
 
     <feature name="jackson-yaml" version="${version.jackson}">
         <feature>jackson</feature>
         <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/${version.jackson}</bundle>
-        <bundle>mvn:org.yaml/snakeyaml/1.15</bundle>
+        <bundle>mvn:org.yaml/snakeyaml/1.17</bundle>
     </feature>
 
     <!-- Jackson JAX-RS providers -->
@@ -273,121 +280,22 @@
         </config>
     </feature>
 
+    <feature name="jackson-jaxrs-yaml" version="${version.jackson}">
+        <feature>jackson-jaxrs</feature>
+        <feature>jackson-yaml</feature>
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-yaml-provider/${version.jackson}</bundle>
 
-    <!-- Jersey Features -->
+        <config name="com.awplab.core.rest.jackson.jaxrs-yaml">
+            com.awplab.core.rest.jackson.jaxrs.provider = com.fasterxml.jackson.jaxrs.yaml.JacksonYAMLProvider
+            com.awplab.core.rest.jackson.jaxrs.mapper = com.fasterxml.jackson.dataformat.yaml.YAMLMapper
+        </config>
+    </feature>
+
 
     <feature name="javax-ws-rs" version="2.0.1">
         <bundle>mvn:javax.ws.rs/javax.ws.rs-api/2.0.1</bundle>
     </feature>
 
-    <feature name="jersey-server" version="${version.jersey}">
-        <feature>jersey-common</feature>
-        <feature>jersey-client</feature>
-        <bundle>mvn:org.glassfish.jersey.core/jersey-server/${version.jersey}</bundle>
-        <bundle>mvn:org.glassfish.jersey.containers/jersey-container-servlet/${version.jersey}</bundle>
-        <bundle>mvn:org.glassfish.jersey.containers/jersey-container-servlet-core/${version.jersey}</bundle>
-        <bundle>mvn:org.glassfish.jersey.ext/jersey-entity-filtering/${version.jersey}</bundle>
-    </feature>
-
-    <feature name="jersey-client" version="${version.jersey}">
-        <feature>jersey-common</feature>
-        <bundle>mvn:org.glassfish.jersey.core/jersey-client/${version.jersey}</bundle>
-    </feature>
-
-    <feature name="jersey-common" version="${version.jersey}">
-        <feature>javax-ws-rs</feature>
-        <feature>javassist</feature>
-        <bundle>mvn:org.glassfish.jersey.core/jersey-common/${version.jersey}</bundle>
-        <bundle>mvn:org.glassfish.jersey.bundles.repackaged/jersey-guava/${version.jersey}</bundle>
-        <bundle>mvn:org.glassfish.jersey.media/jersey-media-jaxb/${version.jersey}</bundle>
-        <bundle>mvn:org.glassfish.jersey.media/jersey-media-multipart/${version.jersey}</bundle>
-
-        <bundle>mvn:org.jvnet.mimepull/mimepull/1.9.6</bundle>
-        <bundle>mvn:javax.validation/validation-api/1.1.0.Final</bundle>
-        <bundle>mvn:javax.annotation/javax.annotation-api/1.2</bundle>
-        <bundle>mvn:org.glassfish.jersey.bundles.repackaged/jersey-guava/${version.jersey}</bundle>
-
-        <bundle>mvn:org.glassfish.hk2/hk2-api/2.5.0-b05</bundle>
-        <bundle>mvn:org.glassfish.hk2/hk2-utils/2.5.0-b05</bundle>
-        <bundle>mvn:org.glassfish.hk2.external/aopalliance-repackaged/2.5.0-b05</bundle>
-        <bundle>mvn:org.glassfish.hk2.external/javax.inject/2.5.0-b05</bundle>
-        <bundle>mvn:org.glassfish.hk2/hk2-locator/2.5.0-b05</bundle>
-        <bundle>mvn:org.glassfish.hk2/osgi-resource-locator/1.0.1</bundle>
-    </feature>
-
-    <!--  Vaadin -->
-    <feature name="vaadin" version="${version.vaadin}">
-        <feature>http</feature>
-
-        <bundle>mvn:com.vaadin/vaadin-server/${version.vaadin}</bundle>
-        <bundle>mvn:com.vaadin/vaadin-sass-compiler/0.9.13</bundle>
-        <bundle>wrap:mvn:org.w3c.css/sac/1.3</bundle>
-        <bundle>mvn:com.vaadin.external.flute/flute/1.3.0.gg2</bundle>
-        <bundle>mvn:com.vaadin/vaadin-shared/${version.vaadin}</bundle>
-        <bundle>mvn:org.jsoup/jsoup/1.8.3</bundle>
-        <bundle>mvn:com.vaadin/vaadin-client-compiled/${version.vaadin}</bundle>
-        <bundle>mvn:com.vaadin/vaadin-themes/${version.vaadin}</bundle>
-        <bundle>mvn:com.vaadin/vaadin-push/${version.vaadin}</bundle>
-        <bundle>mvn:com.vaadin.external.atmosphere/atmosphere-runtime/2.2.9.vaadin2</bundle>
-        <bundle>mvn:com.vaadin.external.slf4j/vaadin-slf4j-jdk14/1.6.1</bundle>
-
-        <bundle>wrap:mvn:com.yahoo.platform.yui/yuicompressor/2.4.8</bundle>
-
-        <!--
-        <bundle>mvn:com.vaadin/vaadin-server/${version.vaadin}</bundle>
-        <bundle>mvn:com.vaadin.external.google/guava/16.0.1.vaadin1</bundle>
-        <bundle>mvn:com.vaadin/vaadin-sass-compiler/0.9.13</bundle>
-        <bundle>wrap:mvn:org.w3c.css/sac/1.3</bundle>
-        <bundle>mvn:com.vaadin.external.flute/flute/1.3.0.gg2</bundle>
-        <bundle>wrap:mvn:com.yahoo.platform.yui/yuicompressor/2.4.8</bundle>
-        <bundle>wrap:mvn:rhino/js/1.7R2</bundle>
-        <bundle>mvn:com.vaadin/vaadin-shared/${version.vaadin}</bundle>
-        <bundle>mvn:com.vaadin.external.streamhtmlparser/streamhtmlparser-jsilver/0.0.10.vaadin1</bundle>
-        <bundle>mvn:org.jsoup/jsoup/1.8.3</bundle>
-        <bundle>mvn:com.vaadin/vaadin-client-compiled/${version.vaadin}</bundle>
-        <bundle>mvn:com.vaadin/vaadin-themes/${version.vaadin}</bundle>
-        <bundle>mvn:com.vaadin/vaadin-push/${version.vaadin}</bundle>
-        <bundle>mvn:com.vaadin.external.atmosphere/atmosphere-runtime/2.2.7.vaadin1</bundle>
-        <bundle>mvn:com.vaadin.external.slf4j/vaadin-slf4j-jdk14/1.6.1</bundle>
-        -->
-    </feature>
-
-
-    <!-- Selenium -->
-
-    <feature name="selenium-base" version="${version.selenium}">
-        <feature>guava</feature>
-        <feature>commons-codec</feature>
-        <feature>commons-logging</feature>
-        <feature>commons-exec</feature>
-        <feature>commons-io</feature>
-
-
-        <!--  Now included in the service
-        <bundle>wrap:mvn:org.seleniumhq.selenium/selenium-remote-driver/${version.selenium}</bundle>
-        <bundle>wrap:mvn:org.seleniumhq.selenium/selenium-api/${version.selenium}</bundle>
-        <bundle>wrap:mvn:org.seleniumhq.selenium/selenium-firefox-driver/${version.selenium}</bundle>
-        <bundle>wrap:mvn:org.seleniumhq.selenium/selenium-chrome-driver/${version.selenium}</bundle>
-        <bundle>wrap:mvn:org.seleniumhq.selenium/selenium-support/${version.selenium}</bundle>
-        -->
-
-        <bundle>wrap:mvn:cglib/cglib-nodep/3.2.4</bundle>
-        <!-- <bundle>mvn:org.apache.commons/commons-exec/1.3</bundle> -->
-        <bundle>mvn:com.google.code.gson/gson/2.3.1</bundle>
-        <!-- <bundle>mvn:com.google.guava/guava/19.0</bundle> -->
-        <bundle>wrap:mvn:org.apache.httpcomponents/httpmime/4.5.2</bundle>
-        <bundle>wrap:mvn:org.apache.httpcomponents/httpclient/4.5.2</bundle>
-        <bundle>wrap:mvn:org.apache.httpcomponents/httpcore/4.4.4</bundle>
-        <!--<bundle>mvn:commons-logging/commons-logging/1.2</bundle> -->
-        <!-- <bundle>mvn:commons-codec/commons-codec/1.9</bundle> -->
-        <bundle>mvn:net.java.dev.jna/jna-platform/4.1.0</bundle>
-        <bundle>mvn:net.java.dev.jna/jna/4.1.0</bundle>
-
-        <bundle>wrap:mvn:junit/junit/4.12</bundle>
-        <bundle>wrap:mvn:org.hamcrest/hamcrest-core/1.3</bundle>
-
-
-    </feature>
 
 
     <feature name="pdfbox" version="${version.pdfbox}">
@@ -442,7 +350,4 @@
         <bundle>mvn:commons-net/commons-net/${version.commons-net}</bundle>
     </feature>
 
-    <feature name="jansi" version="${version.jansi}">
-        <bundle>mvn:org.fusesource.jansi/jansi/${version.jansi}</bundle>
-    </feature>
 </features>

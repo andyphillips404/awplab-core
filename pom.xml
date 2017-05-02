@@ -91,15 +91,15 @@
         <version.core.admin>1.0.0-SNAPSHOT</version.core.admin>
 
 
-        <version.karaf>4.1.1</version.karaf>
+        <!-- karaf specific versions and supplied tools -->
+        <version.karaf>4.0.9</version.karaf>
+        <version.pax.logging>1.8.5</version.pax.logging>
+        <version.pax.web>4.3.0</version.pax.web>
 
-        <version.pax.logging>1.9.1</version.pax.logging>
-
-        <version.pax.web>6.0.3</version.pax.web>
+        <version.jansi>1.14</version.jansi>
 
         <version.javax.servlet>3.1.0</version.javax.servlet>
 
-        <version.jansi>1.15</version.jansi>
 
         <version.osgi.core>5.0.0</version.osgi.core>
         <version.osgi.compendium>5.0.0</version.osgi.compendium>
@@ -111,9 +111,9 @@
 
         <version.ehcache>3.3.1</version.ehcache>
 
-        <version.quartz>2.3.0</version.quartz>
+        <version.quartz>2.2.3</version.quartz>
 
-        <version.jackson>2.8.6</version.jackson>
+        <version.jackson>2.8.8</version.jackson>
 
         <version.jersey>2.25.1</version.jersey>
 
@@ -330,6 +330,7 @@
             </dependency>
 
             <!-- Jackson -->
+            <!-- Jackson Core -->
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
@@ -348,6 +349,8 @@
                 <version>${version.jackson}</version>
             </dependency>
 
+
+            <!-- Jackson Dataformats -->
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-xml</artifactId>
@@ -361,11 +364,13 @@
             </dependency>
 
             <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-xml-provider</artifactId>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>${version.jackson}</version>
             </dependency>
 
+
+            <!-- Jackson Modules -->
             <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-jaxb-annotations</artifactId>
@@ -373,8 +378,8 @@
             </dependency>
 
             <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-json-provider</artifactId>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-parameter-names</artifactId>
                 <version>${version.jackson}</version>
             </dependency>
 
@@ -390,19 +395,25 @@
                 <version>${version.jackson}</version>
             </dependency>
 
+
+            <!-- Jackson Jaxrs Providers -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <artifactId>jackson-jaxrs-xml-provider</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <artifactId>jackson-jaxrs-json-provider</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-yaml-provider</artifactId>
                 <version>${version.jackson}</version>
             </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-yaml</artifactId>
-                <version>${version.jackson}</version>
-            </dependency>
-
-
 
             <!-- swagger.io -->
             <dependency>
@@ -444,9 +455,16 @@
 
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
-                <artifactId>jersey-container-servlet-core</artifactId>
+                <artifactId>jersey-container-servlet</artifactId>
                 <version>${version.jersey}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.glassfish.jersey.ext</groupId>
+                <artifactId>jersey-entity-filtering</artifactId>
+                <version>${version.jersey}</version>
+            </dependency>
+
 
 
             <!-- Selenium -->
@@ -480,6 +498,7 @@
                 <artifactId>selenium-chrome-driver</artifactId>
                 <version>${version.selenium}</version>
             </dependency>
+
 
             <dependency>
                 <groupId>org.seleniumhq.selenium</groupId>

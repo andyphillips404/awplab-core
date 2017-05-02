@@ -29,6 +29,8 @@
                         </Bundle-SymbolicName>
                         <Export-Package>com.awplab.core.admin</Export-Package>
                         <Private-Package>com.awplab.core.admin.*</Private-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package>
+
                     </instructions>
                 </configuration>
             </plugin>

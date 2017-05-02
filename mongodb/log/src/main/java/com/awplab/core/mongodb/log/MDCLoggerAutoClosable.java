@@ -1,7 +1,5 @@
 package com.awplab.core.mongodb.log;
 
-import org.apache.log4j.MDC;
-
 /**
  * Created by andyphillips404 on 5/31/16.
  */

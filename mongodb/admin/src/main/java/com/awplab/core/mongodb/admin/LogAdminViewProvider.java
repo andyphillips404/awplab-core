@@ -109,18 +109,6 @@ public class LogAdminViewProvider extends AdminViewProvider implements EventHand
             refreshBar.addItem("Refresh", FontAwesome.REFRESH, (MenuBar.Command) selectedItem -> logViewer.getLogMongoDataProvider().refreshAll());
             refreshBar.setSizeUndefined();
 
-            MenuBar fault = new MenuBar();
-            refreshBar.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
-            refreshBar.addStyleName(ValoTheme.MENUBAR_SMALL);
-            MenuBar.MenuItem faultItem = refreshBar.addItem("Fault Detail", FontAwesome.AMBULANCE, (MenuBar.Command) selectedItem -> logViewer.showFaultWindow());
-            refreshBar.setSizeUndefined();
-
-            MenuBar file = new MenuBar();
-            refreshBar.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
-            refreshBar.addStyleName(ValoTheme.MENUBAR_SMALL);
-            MenuBar.MenuItem fileItem = refreshBar.addItem("Files", FontAwesome.FILE, (MenuBar.Command) selectedItem -> logViewer.showFilesWindow());
-            refreshBar.setSizeUndefined();
-
 
             final DateField date = new DateField();
             date.setValue(LocalDate.now().minusDays(180));
@@ -148,23 +136,18 @@ public class LogAdminViewProvider extends AdminViewProvider implements EventHand
             });
             clearAll.setSizeUndefined();
 
-            logViewer.getGrid().addSelectionListener(event -> {
-                Log log = event.getAllSelectedItems().iterator().next();
-                faultItem.setEnabled(log != null && log.getThrowableStrRep() != null && log.getThrowableStrRep().length > 0);
-                fileItem.setEnabled(log != null && log.getLogFiles() != null && log.getLogFiles().size() > 0);
-            });
-
             CssLayout spacer1 = new CssLayout();
             spacer1.setWidth(100, Unit.PERCENTAGE);
 
             HorizontalLayout toolbar = new HorizontalLayout();
-            toolbar.addComponents(refreshBar, file, fault, spacer1, clearBefore, date, clearAll); //date, clearBefore);
+            toolbar.addComponents(refreshBar, spacer1, clearBefore, date, clearAll); //date, clearBefore);
             toolbar.setExpandRatio(spacer1, 1);
             toolbar.setWidth(100, Unit.PERCENTAGE);
             toolbar.setHeightUndefined();
 
             this.addComponent(toolbar);
             this.addComponent(logViewer);
+            this.setMargin(false);
 
             logViewer.setSizeFull();
             setExpandRatio(logViewer, 1);

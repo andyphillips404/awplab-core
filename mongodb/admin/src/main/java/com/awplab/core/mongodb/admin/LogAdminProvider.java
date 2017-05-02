@@ -1,9 +1,7 @@
 package com.awplab.core.mongodb.admin;
 
 import com.awplab.core.admin.AdminProvider;
-import com.awplab.core.admin.AdminViewProvider;
 import com.awplab.core.admin.IPOJOAdminProvider;
-import com.awplab.core.mongodb.service.MongoService;
 import org.apache.felix.ipojo.annotations.*;
 
 import java.util.Timer;

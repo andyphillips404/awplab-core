@@ -8,8 +8,6 @@ import com.mongodb.client.model.Filters;
 import com.vaadin.server.StreamResource;
 import org.bson.types.ObjectId;
 
-import java.io.InputStream;
-
 /**
  * Created by andyphillips404 on 9/27/16.
  */
