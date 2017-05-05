@@ -9,15 +9,14 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.apache.felix.ipojo.annotations.*;
 import org.apache.log4j.MDC;
+import org.ops4j.pax.logging.PaxLogger;
 import org.ops4j.pax.logging.PaxLoggingService;
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by andyphillips404 on 3/6/15.
@@ -51,8 +50,6 @@ public class MongoLogAppender implements PaxAppender {
 
 
 
-
-
     @Override
     public synchronized void doAppend(PaxLoggingEvent paxLoggingEvent) {
 
@@ -66,6 +63,22 @@ public class MongoLogAppender implements PaxAppender {
 
             String database = (props.containsKey(Log.MDC_KEY_DATABASE) && props.get(Log.MDC_KEY_DATABASE) != null ? props.get(Log.MDC_KEY_DATABASE).toString() : defaultDatabase);
             if (database == null) return;
+
+            Map loggerLevelsMap = ((Map)props.getOrDefault(Log.MDC_KEY_LOGGER_LEVELS, new HashMap<>()));
+            Optional<Object> loggerOptional = loggerLevelsMap.keySet().stream()
+                    .filter(o -> o.toString().equals(paxLoggingEvent.getLoggerName()) || paxLoggingEvent.getLoggerName().startsWith(o.toString() + "."))
+                    .sorted(Comparator.comparingInt(String::length)).findFirst();
+
+            if (loggerOptional.isPresent()) {
+                try {
+                    Integer level = Integer.parseInt(loggerLevelsMap.get(loggerOptional.get()).toString());
+                    if (paxLoggingEvent.getLevel().toInt() >= level)
+                        return;
+                }
+                catch (Exception ignored) {
+
+                }
+            }
 
             String collection = (props.containsKey(Log.MDC_KEY_COLLECTION) && props.get(Log.MDC_KEY_COLLECTION) != null ? props.get(Log.MDC_KEY_COLLECTION).toString() : defaultCollection);
             String gridFSCollection = (props.containsKey(Log.MDC_KEY_GRIDFS_COLLECTION) && props.get(Log.MDC_KEY_GRIDFS_COLLECTION) != null ? props.get(Log.MDC_KEY_GRIDFS_COLLECTION).toString() : defaultGridFSCollection);

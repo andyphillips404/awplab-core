@@ -28,7 +28,7 @@ public class GetScreenshot implements Action {
 
         try (AutoClosableWebDriver webDriver = seleniumService.getWebDriver()) {
             webDriver.get(url);
-            TemporaryFile file = webDriver.getScreenshot();
+            TemporaryFile file = seleniumService.takeScreenshot(webDriver);
             System.out.println("Saved: " + file.toString());
 
         }

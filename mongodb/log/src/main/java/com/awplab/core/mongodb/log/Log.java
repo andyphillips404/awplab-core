@@ -15,6 +15,7 @@ public class Log {
     public static String MDC_KEY_DATABASE = "mongodb-database";
     public static String MDC_KEY_COLLECTION = "mongodb-collection";
     public static String MDC_KEY_GRIDFS_COLLECTION = "mongodb-gridfs-collection";
+    public static String MDC_KEY_LOGGER_LEVELS = "mongodb-logger-levels";
 
     @BeanCodecKey(value = "_id")
     private ObjectId id;

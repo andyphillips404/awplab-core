@@ -79,6 +79,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.assertthat</groupId>
+            <artifactId>selenium-shutterbug</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!--
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>

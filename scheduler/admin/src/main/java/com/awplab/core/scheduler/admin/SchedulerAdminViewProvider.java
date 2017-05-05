@@ -10,13 +10,18 @@ import com.awplab.core.vaadin.service.VaadinProvider;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.data.ValueProvider;
+import com.vaadin.data.provider.DataChangeEvent;
+import com.vaadin.data.provider.DataProviderListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
 import com.vaadin.server.SystemError;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
+import com.vaadin.ui.components.grid.DetailsGenerator;
 import com.vaadin.ui.components.grid.HeaderRow;
+import com.vaadin.ui.renderers.ButtonRenderer;
 import com.vaadin.ui.renderers.DateRenderer;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.themes.ValoTheme;
@@ -32,10 +37,7 @@ import org.quartz.impl.matchers.GroupMatcher;
 
 import javax.security.auth.Subject;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Created by andyphillips404 on 8/31/16.
@@ -118,9 +120,14 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
 
         ObjectMapper objectMapper = new ObjectMapper();
 
+        private Set<String> detailInstanceIds = new HashSet<>();
+
         public SchedulerAdminView() {
 
-            objectMapper.setDateFormat(SimpleDateFormat.getDateTimeInstance());
+
+
+
+            //objectMapper.setDateFormat(SimpleDateFormat.getDateTimeInstance());
 
             ValueProvider<AbstractSchedulerBean, String> jobDetailValueProvider = (ValueProvider<AbstractSchedulerBean, String>) schedulerJobDetailTriggers -> {
                 String tags = "";
@@ -131,42 +138,74 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
             };
 
 
-            ValueProvider<AbstractSchedulerBean, String> jobDataValueProvider = (ValueProvider<AbstractSchedulerBean, String>) context -> {
-                if (context.getJobDataMap() == null) return "";
-                try {
-                    JobDataMap jobDataMap = new JobDataMap(context.getJobDataMap());
-                    jobDataMap.remove(IPOJOJobFactory.INSTANCE_MANAGER_KEY);
-                    AdminViewProvider.jacksonHtml(objectMapper, jobDataMap, true, 0); //objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jobDataMap).replaceAll("\n", "<br>").replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;").replaceAll(" ", "&nbsp;"), ContentMode.HTML);
-                } catch (JsonProcessingException ex) {
-                    throw new RuntimeException("Exception processing object job data map!", ex);
-                    //return new Label("<font color=\"red\">Exception process job data map!</font>", ContentMode.HTML);
+            DetailsGenerator<AbstractSchedulerBean> jobDataDetails = context -> {
+                VerticalLayout verticalLayout = new VerticalLayout();
+                verticalLayout.setMargin(false);
+
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("<b>Job Data:<b><br>");
+                if (!(context.getJobDataMap() == null)) {
+                    try {
+                        JobDataMap jobDataMap = new JobDataMap(context.getJobDataMap());
+                        jobDataMap.remove(IPOJOJobFactory.INSTANCE_MANAGER_KEY);
+                        stringBuilder.append(AdminViewProvider.jacksonHtml(objectMapper, jobDataMap, true, 0)); //objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jobDataMap).replaceAll("\n", "<br>").replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;").replaceAll(" ", "&nbsp;"), ContentMode.HTML);
+                    } catch (JsonProcessingException ex) {
+                        //throw new RuntimeException("Exception processing object job data map!", ex);
+                        //return new Label("<font color=\"red\">Exception process job data map!</font>", ContentMode.HTML);
+                        stringBuilder.append("<font color=\"red\">Exception processing job data map!</font>");
+                    }
                 }
-                return "";
+                stringBuilder.append("<br><br><b>Job Status:<b><br>");
+                if (context instanceof SchedulerJobExecutionContext) {
+                    Job job = ((SchedulerJobExecutionContext) context).getJobExecutionContext().getJobInstance();
+                    if ((job instanceof StatusJob)) {
+                        try {
+                            String cancelRequested = "";
+                            if (job instanceof AbstractStatusInterruptableJob && ((AbstractStatusInterruptableJob) job).isInterruptRequested())
+                                cancelRequested = "<br><font color=\"red\">Interrupt Requested!</font>";
+                            stringBuilder.append(AdminViewProvider.jacksonHtml(objectMapper, ((StatusJob) job).getJobStatus(), true, 0)).append(cancelRequested);
+                        } catch (JsonProcessingException ex) {
+                            //throw new RuntimeException("Exception processing object status!", ex);
+                            stringBuilder.append("<font color=\"red\">Exception processing job status!</font>");
+                        }
+                    }
+
+                    verticalLayout.setHeight(25, Unit.EM);
+                }
+                else {
+                    verticalLayout.setHeight(10, Unit.EM);
+                }
+                verticalLayout.addComponent(new Label(stringBuilder.toString(), ContentMode.HTML));
+                return verticalLayout;
+
             };
+
 
             runningGrid = new Grid<>();
             runningGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
-            runningGrid.addColumn(context ->
-                            "<b>" + new SimpleDateFormat().format(context.getFireTime()).replaceAll(" ", "&nbsp;") + "</b><br>" + context.getFireInstanceId()
-                    , new HtmlRenderer()).setCaption("Trigger");
-            runningGrid.addColumn(context ->
-                            "<b>" + new SimpleDateFormat().format(context.getFireTime()).replaceAll(" ", "&nbsp;") + "</b><br>" + context.getFireInstanceId()
-                    , new HtmlRenderer()).setCaption("Job Detail");
-            runningGrid.addColumn(jobDataValueProvider::apply, new HtmlRenderer()).setCaption("Job Data");
+            runningGrid.addColumn(schedulerJobExecutionContext -> "Details", new ButtonRenderer<>(event -> {
+                if (runningGrid.isDetailsVisible(event.getItem())) detailInstanceIds.remove(event.getItem().getFireInstanceId());
+                else detailInstanceIds.add(event.getItem().getFireInstanceId());
 
+                runningGrid.setDetailsVisible(event.getItem(), !runningGrid.isDetailsVisible(event.getItem()));
+
+            })).setSortable(false);
+            runningGrid.addColumn(SchedulerJobExecutionContext::getFireTime, new DateRenderer(new SimpleDateFormat())).setCaption("Fired").setSortable(false);
+            runningGrid.addColumn(SchedulerJobExecutionContext::getScheduler).setCaption("Scheduler").setSortable(false);
+            runningGrid.addColumn(SchedulerJobExecutionContext::getJobKeyName).setCaption("Job Key").setSortable(false);
+            runningGrid.addColumn(SchedulerJobExecutionContext::getJobKeyGroup).setCaption("Job Group").setSortable(false);
+            runningGrid.addColumn(SchedulerJobExecutionContext::getBundleName).setCaption("Bundle").setSortable(false);
+            runningGrid.addColumn(SchedulerJobExecutionContext::getBundleVersion).setCaption("Bundle Version").setSortable(false);
+            runningGrid.addColumn(SchedulerJobExecutionContext::getJobClass).setCaption("Job Class").setSortable(false);
             runningGrid.addColumn(schedulerJobExecutionContext -> {
-                Job job = schedulerJobExecutionContext.getJobExecutionContext().getJobInstance();
-                if (!(job instanceof StatusJob)) return "";
-                try {
-                    String cancelRequested = "";
-                    if (job instanceof AbstractStatusInterruptableJob && ((AbstractStatusInterruptableJob) job).isInterruptRequested()) cancelRequested = "<br><font color=\"red\">Interrupt Requested!</font>";
-                    return AdminViewProvider.jacksonHtml(objectMapper, ((StatusJob) job).getJobStatus(), true, 0) + cancelRequested;
-                }
-                catch (JsonProcessingException ex) {
-                    throw new RuntimeException("Exception processing object status!", ex);
-                }
-            }, new HtmlRenderer()).setCaption("Job Status");
+                String tags = "";
+                Class jobClass = schedulerJobExecutionContext.getJobDetail().getJobClass();
+                if (StatusJob.class.isAssignableFrom(jobClass)) tags = "Provides Status";
+                if (InterruptableJob.class.isAssignableFrom(jobClass)) tags += (tags.length() > 0 ? ",&nbsp;" : "") + "Interruptable";
+                return tags;
+            }, new HtmlRenderer()).setCaption("Tags").setSortable(false);
 
+            runningGrid.setDetailsGenerator(jobDataDetails::apply);
 
 
             MenuBar refreshRunningBar = new MenuBar();
@@ -211,9 +250,14 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
             });
             interruptBar.setSizeUndefined();
 
+
+
             runningGrid.addSelectionListener(selectionEvent -> {
                 interrupt.setEnabled(false);
-                selectionEvent.getFirstSelectedItem().ifPresent(schedulerJobExecutionContext -> {interrupt.setEnabled(schedulerJobExecutionContext.getJobExecutionContext().getJobInstance() instanceof InterruptableJob);});
+                selectionEvent.getFirstSelectedItem().ifPresent(schedulerJobExecutionContext -> {
+                    interrupt.setEnabled(schedulerJobExecutionContext.getJobExecutionContext().getJobInstance() instanceof InterruptableJob);
+                });
+
             });
 
 
@@ -235,9 +279,27 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
 
             jobsGrid = new Grid<>();
             jobsGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
-            jobsGrid.addColumn(SchedulerJobDetailTriggers::getNextFireTime, new DateRenderer()).setCaption("Next Fire");
-            jobsGrid.addColumn(jobDetailValueProvider::apply, new HtmlRenderer()).setCaption("Job Detail");
-            jobsGrid.addColumn(jobDataValueProvider::apply, new HtmlRenderer()).setCaption("Job Data");
+
+            jobsGrid.addColumn(schedulerJobDetailTriggers -> "Details", new ButtonRenderer<>(event -> {
+                jobsGrid.setDetailsVisible(event.getItem(), !jobsGrid.isDetailsVisible(event.getItem()));
+            })).setSortable(false);
+            jobsGrid.addColumn(SchedulerJobDetailTriggers::getNextFireTime, new DateRenderer(new SimpleDateFormat())).setCaption("Next Fire").setSortable(false);
+            jobsGrid.addColumn(SchedulerJobDetailTriggers::getScheduler).setCaption("Scheduler").setSortable(false);
+            jobsGrid.addColumn(SchedulerJobDetailTriggers::getJobKeyName).setCaption("Job Key").setSortable(false);
+            jobsGrid.addColumn(SchedulerJobDetailTriggers::getJobKeyGroup).setCaption("Job Group").setSortable(false);
+            jobsGrid.addColumn(SchedulerJobDetailTriggers::getBundleName).setCaption("Bundle").setSortable(false);
+            jobsGrid.addColumn(SchedulerJobDetailTriggers::getBundleVersion).setCaption("Bundle Version").setSortable(false);
+            jobsGrid.addColumn(SchedulerJobDetailTriggers::getJobClass).setCaption("Job Class").setSortable(false);
+            jobsGrid.addColumn(schedulerJobDetailTriggers -> {
+                String tags = "";
+                Class jobClass = schedulerJobDetailTriggers.getJobDetail().getJobClass();
+                if (StatusJob.class.isAssignableFrom(jobClass)) tags = "Provides Status";
+                if (InterruptableJob.class.isAssignableFrom(jobClass)) tags += (tags.length() > 0 ? ",&nbsp;" : "") + "Interruptable";
+                return tags;
+            }, new HtmlRenderer()).setCaption("Tags").setSortable(false);
+
+            jobsGrid.setDetailsGenerator(jobDataDetails::apply);
+
 
             MenuBar refreshJobsBar = new MenuBar();
             //refreshJobsBar.setImmediate(true);
@@ -331,13 +393,18 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
             List<SchedulerJobExecutionContext> running = new ArrayList<>();
             List<SchedulerJobDetailTriggers> jobs = new ArrayList<>();
 
+            HashMap<String, SchedulerJobExecutionContext> newDetailInstanceIds = new HashMap<>();
+
             try {
                 for (String s : schedulerManager.getSchedulerNames()) {
                     Scheduler scheduler = schedulerManager.getScheduler(s);
                     for (JobExecutionContext context : scheduler.getCurrentlyExecutingJobs()) {
                         if (context.getJobInstance() instanceof InterruptableJob) interruptAll.setEnabled(true);
-
-                        running.add(new SchedulerJobExecutionContext(s, context));
+                        SchedulerJobExecutionContext newContext = new SchedulerJobExecutionContext(s, context);
+                        running.add(newContext);
+                        if (detailInstanceIds.contains(context.getFireInstanceId())) {
+                            newDetailInstanceIds.put(context.getFireInstanceId(), newContext);
+                        }
                     }
 
                     for (JobKey key : scheduler.getJobKeys(GroupMatcher.anyGroup())) {
@@ -349,6 +416,12 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
 
                 runningGrid.setItems(running);
                 jobsGrid.setItems(jobs);
+
+                detailInstanceIds.clear();
+                for (String key: newDetailInstanceIds.keySet()) {
+                    runningGrid.setDetailsVisible(newDetailInstanceIds.get(key), true);
+                }
+                detailInstanceIds.addAll(newDetailInstanceIds.keySet());
             }
             catch (SchedulerException ex) {
                 throw new RuntimeException("Scheduler exception creating list!", ex);

@@ -99,6 +99,8 @@
 
         <bundle>mvn:com.awplab.core/selenium.service/${version.core.selenium.service}</bundle>
         <bundle>mvn:com.awplab.core/selenium.command/${version.core.selenium.command}</bundle>
+        <bundle>wrap:mvn:com.assertthat/selenium-shutterbug/${version.selenium-shutterbug}</bundle>
+
     </feature>
 
     <feature name="core-ipojo" version="${parent.version}">

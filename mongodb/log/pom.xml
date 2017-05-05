@@ -66,6 +66,10 @@
             <artifactId>pax-logging-api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-service</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.awplab.core</groupId>

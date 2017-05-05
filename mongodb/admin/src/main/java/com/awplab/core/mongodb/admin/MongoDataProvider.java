@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 /**
  * Created by andyphillips404 on 4/26/17.
  */
-public class MongoDataProvider<T> extends AbstractBackEndDataProvider<T, Bson> {
+public class MongoDataProvider<T> extends AbstractBackEndDataProvider<T, Bson>  {
 
     final private MongoCollection<T> mongoCollection;
 
@@ -71,6 +71,9 @@ public class MongoDataProvider<T> extends AbstractBackEndDataProvider<T, Bson> {
             if (baseFilter == null) return query.getFilter().get();
             return Filters.and(baseFilter, query.getFilter().get());
         }
+
+        if (baseFilter != null) return baseFilter;
+
         return null;
     }
 

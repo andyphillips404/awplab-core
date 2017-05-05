@@ -1,5 +1,8 @@
 package com.awplab.core.selenium.service.provider;
 
+import com.assertthat.selenium_shutterbug.core.Shutterbug;
+import com.assertthat.selenium_shutterbug.utils.web.ScrollStrategy;
+import com.awplab.core.common.TemporaryFile;
 import com.awplab.core.selenium.service.AutoClosableWebDriver;
 import com.awplab.core.selenium.service.SeleniumService;
 import org.apache.felix.ipojo.annotations.Component;
@@ -219,5 +222,12 @@ public class SeleniumProvider implements SeleniumService {
         }
 
         return autoClosableWebDriver;
+    }
+
+    @Override
+    public TemporaryFile takeScreenshot(WebDriver webDriver) {
+        TemporaryFile temporaryFile = TemporaryFile.randomFile();
+        Shutterbug.shootPage(webDriver, ScrollStrategy.BOTH_DIRECTIONS).save(temporaryFile.getPath());
+        return temporaryFile;
     }
 }

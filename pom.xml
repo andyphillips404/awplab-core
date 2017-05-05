@@ -119,7 +119,8 @@
 
         <version.swagger>1.5.13</version.swagger>
 
-        <version.mongodb>3.4.0</version.mongodb>
+        <!-- unfortunetly we have to use a snapshot version due to a codec bug with the flaot type -->
+        <version.mongodb>3.5.0-SNAPSHOT</version.mongodb>
 
         <!--
         <version.felix.http.base>2.3.0</version.felix.http.base>
@@ -130,7 +131,8 @@
         -->
 
         <version.selenium>3.4.0</version.selenium>
-
+        <version.selenium-shutterbug>0.6</version.selenium-shutterbug>
+        
         <version.pdfbox>2.0.5</version.pdfbox>
 
         <version.javassist>3.20.0-GA</version.javassist>
@@ -149,7 +151,8 @@
 
         <version.typetools>0.4.9</version.typetools>
 
-        <version.vaadin>8.0.5</version.vaadin>
+        <!-- PRERELESE TO GET GRID TREE -->
+        <version.vaadin>8.1.0.alpha6</version.vaadin>
 
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -298,6 +301,12 @@
                 <scope>provided</scope>
             </dependency>
 
+            <dependency>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-service</artifactId>
+                <version>${version.pax.logging}</version>
+                <scope>provided</scope>
+            </dependency>
 
 
             <!-- OSGI -->
@@ -506,6 +515,13 @@
                 <version>${version.selenium}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.assertthat</groupId>
+                <artifactId>selenium-shutterbug</artifactId>
+                <version>${version.selenium-shutterbug}</version>
+            </dependency>
+
+
             <!-- Vaadin -->
             <dependency>
                 <groupId>com.vaadin</groupId>
@@ -634,6 +650,7 @@
                 <artifactId>jansi</artifactId>
                 <version>${version.jansi}</version>
             </dependency>
+
 
         </dependencies>
     </dependencyManagement>
@@ -853,6 +870,19 @@
             <name>JBoss Snapshots</name>
             <url>https://repository.jboss.org/nexus/content/repositories/snapshots/</url>
         </repository>
+
+        <repository>
+            <id>sonatype-snapshot</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+
+        <repository>
+            <id>vaadin-prereleases</id>
+            <name>Vaadin Pre-releases</name>
+            <url>https://maven.vaadin.com/vaadin-prereleases</url>
+        </repository>
+
+
     </repositories>
 
 </project>
