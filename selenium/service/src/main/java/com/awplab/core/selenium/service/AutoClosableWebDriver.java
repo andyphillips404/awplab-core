@@ -1,5 +1,7 @@
 package com.awplab.core.selenium.service;
 
+import com.assertthat.selenium_shutterbug.core.Shutterbug;
+import com.assertthat.selenium_shutterbug.utils.web.ScrollStrategy;
 import com.awplab.core.common.TemporaryFile;
 import org.openqa.selenium.*;
 import org.openqa.selenium.remote.Augmenter;
@@ -251,7 +253,9 @@ public class AutoClosableWebDriver implements WebDriver, AutoCloseable {
         return this.findElements(by).stream().findFirst();
     }
 
+
     public TemporaryFile getScreenshot() {
+        /*
         if (webDriver instanceof TakesScreenshot) {
             return TemporaryFile.wrapByAbsolutePath(((TakesScreenshot) webDriver).getScreenshotAs(OutputType.FILE));
         }
@@ -259,6 +263,11 @@ public class AutoClosableWebDriver implements WebDriver, AutoCloseable {
             WebDriver augmentedDriver = new Augmenter().augment(webDriver);
             return TemporaryFile.wrapByAbsolutePath(((TakesScreenshot) augmentedDriver).getScreenshotAs(OutputType.FILE));
         }
+        */
+        TemporaryFile temporaryFile = TemporaryFile.randomFile();
+        Shutterbug.shootPage(webDriver, ScrollStrategy.BOTH_DIRECTIONS).withName(temporaryFile.getName()).save(temporaryFile.getParentFile().getPath());
+        temporaryFile = new TemporaryFile(temporaryFile.getPath() + ".png");
+        return temporaryFile;
 
     }
 

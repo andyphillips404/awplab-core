@@ -28,7 +28,7 @@ public class Log {
     private LocationInfo locationInfo;
     private Date timeStamp;
     private String FQNOfLoggerClass;
-    private Map properties;
+    private Map<String, Object> properties;
     private Set<LogFile> logFiles = new HashSet<>();
 
     private String level;
@@ -44,6 +44,21 @@ public class Log {
     public Log() {
     }
 
+    private Map<String, Object> correctMapKeys(Map map) {
+        HashMap<String, Object> newMap = new HashMap<>();
+
+        for (Object rawKey : map.keySet()) {
+            Object value = map.get(rawKey);
+            String newKey = rawKey.toString().replaceAll("\\.", "-").replaceAll("\\$", "#");
+            if (value instanceof Map) {
+                newMap.put(newKey, correctMapKeys((Map)value));
+            }
+            else {
+                newMap.put(newKey, value);
+            }
+        }
+        return newMap;
+    }
     public Log(PaxLoggingEvent loggingEvent) {
         this.loggerName = loggingEvent.getLoggerName();
         this.message = loggingEvent.getMessage();
@@ -53,13 +68,7 @@ public class Log {
         this.locationInfo = new LocationInfo(loggingEvent.getLocationInformation());
         this.timeStamp = new Date(loggingEvent.getTimeStamp());
         this.FQNOfLoggerClass = loggingEvent.getFQNOfLoggerClass();
-        this.properties = new HashMap<>();
-        for (Object key : loggingEvent.getProperties().keySet()) {
-            if (key instanceof String) {
-                properties.put(((String) key).replaceAll("\\.", "\\-"), loggingEvent.getProperties().get(key));
-            }
-        }
-
+        this.properties = correctMapKeys(loggingEvent.getProperties());
         level = loggingEvent.getLevel().toString();
 
     }

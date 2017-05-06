@@ -103,7 +103,7 @@ public class MongoLogAppender implements PaxAppender {
                         logFiles.add(key);
                     }
                     catch (IOException ex) {
-                        LoggerFactory.getLogger(MongoLogAppender.class).error("Exception attempting to write to grid fs log from file: " + ((TemporaryFile) value).getAbsolutePath() + "!", ex);
+                        LoggerFactory.getLogger(MongoLogAppender.class).error("Exception attempting to write to grid fs log from file: " + ((TemporaryFile) ((LogFile) value).getTemporaryFile()).getAbsolutePath() + "!", ex);
                     }
 
 

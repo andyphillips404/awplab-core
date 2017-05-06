@@ -131,7 +131,7 @@
         -->
 
         <version.selenium>3.4.0</version.selenium>
-        <version.selenium-shutterbug>0.6</version.selenium-shutterbug>
+        <version.selenium-shutterbug>0.6.1</version.selenium-shutterbug>
         
         <version.pdfbox>2.0.5</version.pdfbox>
 

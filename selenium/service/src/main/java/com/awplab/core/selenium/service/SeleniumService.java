@@ -26,7 +26,6 @@ public interface SeleniumService {
 
     AutoClosableWebDriver wrapDriver(WebDriver webDriver);
 
-    TemporaryFile takeScreenshot(WebDriver webDriver);
 
     String CONFIG_MANAGED_SERVICE_NAME = "com.awplab.core.selenium.service";
 

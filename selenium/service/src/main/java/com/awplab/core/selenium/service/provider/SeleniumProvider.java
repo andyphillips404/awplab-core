@@ -224,10 +224,5 @@ public class SeleniumProvider implements SeleniumService {
         return autoClosableWebDriver;
     }
 
-    @Override
-    public TemporaryFile takeScreenshot(WebDriver webDriver) {
-        TemporaryFile temporaryFile = TemporaryFile.randomFile();
-        Shutterbug.shootPage(webDriver, ScrollStrategy.BOTH_DIRECTIONS).save(temporaryFile.getPath());
-        return temporaryFile;
-    }
+
 }

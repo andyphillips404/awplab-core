@@ -50,22 +50,16 @@
     </feature>
 
 
-    <feature name="core-rest" version="${parent.version}">
-        <feature>ipojo</feature>
-        <feature>http</feature>
 
-        <feature>javax-ws-rs</feature>
-        <feature>javassist</feature>
-
-        <bundle>mvn:com.awplab.core/rest.service/${version.core.rest.service}</bundle>
-        <bundle>mvn:com.awplab.core/rest.command/${version.core.rest.command}</bundle>
-    </feature>
 
     <feature name="core-rest-jackson" version="${parent.version}">
         <feature>core-rest</feature>
         <bundle>mvn:com.awplab.core/rest.jackson/${version.core.rest.jackson}</bundle>
         <feature>jackson-jaxrs</feature>
         <feature>jackson-jdk8</feature>
+        <feature>jackson-jaxrs-json</feature>
+        <feature>jackson-jaxrs-xml</feature>
+
     </feature>
     
     <feature name="core-rest-swagger" version="${parent.version}">
@@ -84,6 +78,17 @@
         <bundle>mvn:io.swagger/swagger-annotations/${version.swagger}</bundle>
 
         <bundle>mvn:com.awplab.core/rest.swagger/${version.core.rest.swagger}</bundle>
+    </feature>
+
+    <feature name="core-rest" version="${parent.version}">
+        <feature>ipojo</feature>
+        <feature>http</feature>
+
+        <feature>javax-ws-rs</feature>
+        <feature>javassist</feature>
+
+        <bundle>mvn:com.awplab.core/rest.service/${version.core.rest.service}</bundle>
+        <bundle>mvn:com.awplab.core/rest.command/${version.core.rest.command}</bundle>
     </feature>
 
     <feature name="core-selenium" version="${parent.version}">
@@ -237,10 +242,10 @@
 
     <feature name="jackson-xml" version="${version.jackson}">
         <feature>jackson</feature>
+        <feature>jackson-jaxb</feature>
+
         <bundle>mvn:org.codehaus.woodstox/stax2-api/3.1.4</bundle>
-        <bundle>mvn:org.codehaus.woodstox/stax-api/1.0-2</bundle>
-        <bundle>mvn:org.codehaus.woodstox/woodstox-core-asl/4.4.1</bundle>
-        <bundle>mvn:org.codehaus.woodstox/woodstox-core/5.0.3</bundle>
+        <bundle>mvn:com.fasterxml.woodstox/woodstox-core/5.0.3</bundle>
 
         <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-xml/${version.jackson}</bundle>
     </feature>
