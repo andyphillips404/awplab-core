@@ -1,5 +1,6 @@
 package com.awplab.core.mongodb.log.events;
 
+import com.awplab.core.common.EventAdminHelper;
 import com.awplab.core.mongodb.log.Log;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -25,18 +26,7 @@ public final class LogEventTopics {
 
 
     public static void postEntryAdded(Log log, String database, String collection) {
-        BundleContext bundleContext = FrameworkUtil.getBundle(LogEventTopics.class).getBundleContext();
-
-        ServiceReference ref = bundleContext.getServiceReference(EventAdmin.class.getName());
-        if (ref != null)
-        {
-            EventAdmin eventAdmin = (EventAdmin) bundleContext.getService(ref);
-            HashMap<String, Object> eventData = new HashMap<>();
-            if (log != null) eventData.put(LogEventData.LOG_ENTRY, log);
-            if (database != null) eventData.put(LogEventData.DATABASE, database);
-            if (collection != null) eventData.put(LogEventData.COLLECTION, collection);
-            eventAdmin.postEvent(new Event(ENTRY_ADDED, eventData));
-        }
+        EventAdminHelper.postEvent(ENTRY_ADDED, LogEventData.LOG_ENTRY, log, LogEventData.COLLECTION, collection, LogEventData.DATABASE, database);
     }
 
 }

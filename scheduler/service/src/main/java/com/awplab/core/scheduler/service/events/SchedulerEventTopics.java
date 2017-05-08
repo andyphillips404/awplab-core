@@ -1,5 +1,6 @@
 package com.awplab.core.scheduler.service.events;
 
+import com.awplab.core.common.EventAdminHelper;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -67,16 +68,9 @@ public final class SchedulerEventTopics {
     }
 
     public static void postEvent(Scheduler scheduler, String topic, Map<String, Object> data) {
-        BundleContext bundleContext = FrameworkUtil.getBundle(SchedulerEventTopics.class).getBundleContext();
-
-        ServiceReference ref = bundleContext.getServiceReference(EventAdmin.class.getName());
-        if (ref != null)
-        {
-            EventAdmin eventAdmin = (EventAdmin) bundleContext.getService(ref);
-            HashMap<String, Object> eventData = new HashMap<>(data);
-            if (scheduler != null) eventData.put(SchedulerEventData.SCHEDULER, scheduler);
-            eventAdmin.postEvent(new Event(topic, eventData));
-        }
+        Map<String, Object> newData = new HashMap<>();
+        newData.put(SchedulerEventData.SCHEDULER, scheduler);
+        EventAdminHelper.postEvent(topic, newData);
     }
 
 }

@@ -65,6 +65,11 @@
         </dependency>
 
 
+        <dependency>
+            <groupId>com.awplab.core</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+
     </dependencies>
 
 

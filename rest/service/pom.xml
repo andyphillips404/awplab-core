@@ -29,8 +29,8 @@
                         </Bundle-SymbolicName>
                         <Export-Package>
                             com.awplab.core.rest.service,
-                            !com.awplab.core.rest.service.manager,
-                            com.awplab.core.rest.service.*
+                            com.awplab.core.rest.service.events,
+                            com.awplab.core.rest.service.security
                         </Export-Package>
                         <Private-Package>com.awplab.core.rest.service.manager</Private-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
@@ -94,6 +94,11 @@
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-multipart</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.awplab.core</groupId>
+            <artifactId>common</artifactId>
         </dependency>
 
     </dependencies>
