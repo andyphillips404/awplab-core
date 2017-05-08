@@ -26,6 +26,7 @@ public class LogAdminProvider extends IPOJOAdminProvider<LogAdminViewProvider> {
     @Property(name = PROPERTY_COLLECTION, mandatory = true)
     private String collection;
 
+
     @Override
     public Class<LogAdminViewProvider> getAdminViewProviderClass() {
         return LogAdminViewProvider.class;

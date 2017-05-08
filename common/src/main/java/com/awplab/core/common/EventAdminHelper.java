@@ -21,11 +21,7 @@ public class EventAdminHelper {
     }
 
     public static void postEvent(String topic, Object... keysAndData) {
-        Map<String, Object> data = new HashMap<>();
-        for (int x = 0; x < keysAndData.length; x+=2) {
-            data.put(keysAndData[x].toString(), keysAndData[x+1]);
-        }
-        postEvent(topic, data);
+        postEvent(topic, MapUtils.createDataMap(keysAndData));
     }
 
     public static void postEvent(String topic, Map<String, Object> data) {

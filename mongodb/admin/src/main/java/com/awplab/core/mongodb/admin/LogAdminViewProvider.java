@@ -40,6 +40,16 @@ import java.util.Optional;
 @Provides(specifications = {EventHandler.class})
 public class LogAdminViewProvider extends AdminViewProvider implements EventHandler {
 
+    @Override
+    public Optional<Integer> getPositionInCategory() {
+        return Optional.of(1);
+    }
+
+    @Override
+    public Optional<String> getCategory() {
+        return Optional.of("System");
+    }
+
     @Requires
     MongoService mongoService;
 

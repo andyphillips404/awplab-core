@@ -59,6 +59,16 @@ public class SchedulerAdminViewProvider extends AdminViewProvider implements Eve
     }
 
     @Override
+    public Optional<Integer> getPositionInCategory() {
+        return Optional.of(0);
+    }
+
+    @Override
+    public Optional<String> getCategory() {
+        return Optional.of("System");
+    }
+
+    @Override
     public String getName() {
         return "scheduler";
     }
