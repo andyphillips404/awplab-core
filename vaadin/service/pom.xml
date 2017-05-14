@@ -28,14 +28,15 @@
                             ${project.artifactId}
                         </Bundle-SymbolicName>
                         <Export-Package>
-                            com.awplab.core.vaadin.service
+                            com.awplab.core.vaadin.service,
+                            com.google.gwt.*
                         </Export-Package>
                         <Private-Package>com.awplab.core.vaadin.service.*</Private-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                         <Import-Package>*;resolution:=optional</Import-Package>
                         <!--<_exportcontents>*</_exportcontents> -->
                         <!-- <_exportcontents>com.vaadin.*, elemental.json, org.w3c.css.sac, org.atmosphere.*, org.jsoup.*</_exportcontents> -->
-                        <_exportcontents>*;scope=!provided;optional=false</_exportcontents>
+                        <_exportcontents>*;scope=!provided;optional=false;</_exportcontents>
 
                         <Embed-Dependency>*;scope=!provided;optional=false;type=!pom;inline=false</Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>

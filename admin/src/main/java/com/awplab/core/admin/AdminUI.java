@@ -73,7 +73,7 @@ public class AdminUI extends UI {
     @Bind(optional = true, aggregate = true)
     private void bindAdminViewProvider(AdminProvider adminProvider) {
         AdminViewProvider viewProvider = adminProvider.createViewProvider(this);
-        if (providers.values().stream().filter(adminViewProvider -> {return adminViewProvider.getName().equals(viewProvider.getName());}).findAny().isPresent()) {
+        if (providers.values().stream().anyMatch(adminViewProvider -> adminViewProvider.getName().equals(viewProvider.getName()))) {
             LoggerFactory.getLogger(AdminUI.class).error("Unable to add provider, duplicate name: " + viewProvider.getName());
             return;
         }
