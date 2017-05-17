@@ -1,6 +1,7 @@
 package com.awplab.core.vaadin.service;
 
 import com.vaadin.server.*;
+import com.vaadin.ui.UI;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,6 +13,7 @@ import java.util.Set;
 public abstract class VaadinUIProvider extends UIProvider {
 
     private static Set<VaadinSession> vaadinSessions = Collections.synchronizedSet(new HashSet<>());
+
 
     public void sessionDestroy(SessionDestroyEvent sessionDestroyEvent) {
         vaadinSessions.remove(sessionDestroyEvent.getSession());
@@ -25,10 +27,6 @@ public abstract class VaadinUIProvider extends UIProvider {
         for (VaadinSession vaadinSession : vaadinSessions) {
             vaadinSession.close();
         }
-
     }
-
-
-
 
 }

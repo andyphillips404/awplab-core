@@ -3,6 +3,7 @@ package com.awplab.core.rest.jackson;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.base.ProviderBase;
 import org.apache.felix.ipojo.annotations.*;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
@@ -58,6 +59,8 @@ public class JacksonJaxrsProvider implements JacksonJaxrsService, BundleListener
         if (providerBaseClassName == null || objectMapperClassName == null) {
             return;
         }
+
+        if (bundleEvent.getBundle().getState() == Bundle.UNINSTALLED) return;
 
         Set<String> classNamesOfCurrentBundle = JacksonManagerService.getClassNames(bundleEvent.getBundle());
 

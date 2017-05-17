@@ -15,7 +15,7 @@ import javax.security.auth.Subject;
  */
 @Component(immediate = true, managedservice = AdminServletConfiguration.CONFIG_MANAGED_SERVICE_NAME)
 @Instantiate
-@Provides(specifications = VaadinProvider.class)
+@Provides(specifications = {VaadinProvider.class})
 public class AdminVaadinProvider implements VaadinProvider, BasicAuthRequired {
 
     @ServiceController
@@ -70,8 +70,11 @@ public class AdminVaadinProvider implements VaadinProvider, BasicAuthRequired {
         return true;
     }
 
+
     @Override
     public VaadinUIProvider createUIProvider() {
         return new IPOJOVaadinUIProvider(AdminUI.class);
     }
+
+
 }

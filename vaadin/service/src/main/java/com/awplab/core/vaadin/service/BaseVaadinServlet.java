@@ -1,4 +1,4 @@
-package com.awplab.core.vaadin.service.provider;
+package com.awplab.core.vaadin.service;
 
 import com.awplab.core.vaadin.service.VaadinProvider;
 import com.awplab.core.vaadin.service.VaadinUIProvider;

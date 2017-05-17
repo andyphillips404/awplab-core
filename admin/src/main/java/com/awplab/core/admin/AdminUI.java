@@ -12,6 +12,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
@@ -29,7 +30,7 @@ import java.util.*;
  */
 
 @Push
-@PreserveOnRefresh
+//@PreserveOnRefresh
 @Component(immediate = true, managedservice = AdminUIConfiguration.CONFIG_MANAGED_SERVICE_NAME)
 @Theme("valo")
 public class AdminUI extends UI {
@@ -83,6 +84,7 @@ public class AdminUI extends UI {
             navigator.addProvider(providers.get(adminProvider));
             doAccess(this::updateMenuAndNavigator);
         }
+
     }
 
     @Unbind(optional = true, aggregate = true)

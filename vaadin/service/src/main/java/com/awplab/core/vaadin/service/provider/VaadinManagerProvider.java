@@ -1,9 +1,6 @@
 package com.awplab.core.vaadin.service.provider;
 
-import com.awplab.core.vaadin.service.BasicAuthHttpContext;
-import com.awplab.core.vaadin.service.BasicAuthRequired;
-import com.awplab.core.vaadin.service.VaadinManager;
-import com.awplab.core.vaadin.service.VaadinProvider;
+import com.awplab.core.vaadin.service.*;
 import com.vaadin.server.VaadinServlet;
 import org.apache.felix.ipojo.annotations.*;
 import org.ops4j.pax.web.service.WebContainer;
@@ -80,12 +77,12 @@ public class VaadinManagerProvider implements VaadinManager {
     }
 
     @Override
-    public Set<VaadinServlet> getServlets() {
+    public Set<BaseVaadinServlet> getServlets() {
         return Collections.unmodifiableSet(servlets);
     }
 
 
-    private Optional<BaseVaadinServlet> findServlet(VaadinProvider vaadinProvider) {
+    public Optional<BaseVaadinServlet> findServlet(VaadinProvider vaadinProvider) {
         for (BaseVaadinServlet baseVaadinServlet : servlets) {
             if (baseVaadinServlet.getVaadinProvider().equals(vaadinProvider)) {
                 return Optional.of(baseVaadinServlet);

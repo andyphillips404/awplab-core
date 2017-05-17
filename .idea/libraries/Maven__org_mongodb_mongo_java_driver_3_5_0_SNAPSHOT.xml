@@ -1,13 +1,13 @@
 <component name="libraryTable">
   <library name="Maven: org.mongodb:mongo-java-driver:3.5.0-SNAPSHOT">
     <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/mongodb/mongo-java-driver/3.5.0-SNAPSHOT/mongo-java-driver-3.5.0-20170505.112734-54.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/mongodb/mongo-java-driver/3.5.0-SNAPSHOT/mongo-java-driver-3.5.0-20170515.114136-55.jar!/" />
     </CLASSES>
     <JAVADOC>
-      <root url="jar://$MAVEN_REPOSITORY$/org/mongodb/mongo-java-driver/3.5.0-SNAPSHOT/mongo-java-driver-3.5.0-20170505.112734-54-javadoc.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/mongodb/mongo-java-driver/3.5.0-SNAPSHOT/mongo-java-driver-3.5.0-20170515.114136-55-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/mongodb/mongo-java-driver/3.5.0-SNAPSHOT/mongo-java-driver-3.5.0-20170505.112734-54-sources.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/mongodb/mongo-java-driver/3.5.0-SNAPSHOT/mongo-java-driver-3.5.0-20170515.114136-55-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

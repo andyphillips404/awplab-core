@@ -474,7 +474,17 @@
                 <version>${version.jersey}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.glassfish.jersey.security</groupId>
+                <artifactId>oauth1-client</artifactId>
+                <version>${version.jersey}</version>
+            </dependency>
 
+            <dependency>
+                <groupId>org.glassfish.jersey.security</groupId>
+                <artifactId>oauth2-client</artifactId>
+                <version>${version.jersey}</version>
+            </dependency>
 
             <!-- Selenium -->
             <!--
@@ -572,7 +582,6 @@
                 <artifactId>pax-web-jetty</artifactId>
                 <version>${version.pax.web}</version>
             </dependency>
-
 
             <!-- PDFBox -->
             <dependency>
