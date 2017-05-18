@@ -14,9 +14,7 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by andyphillips404 on 5/27/16.
@@ -36,6 +34,8 @@ public class MongoProvider implements MongoService, CodecProvider {
 
     private Map<Class, Codec> codecs = Collections.synchronizedMap(new HashMap<>());
 
+    private List<CodecProvider> codecProviders = Collections.synchronizedList(new ArrayList<>());
+
     @Bind(aggregate = true, optional = true)
     private void bindCodec(Codec codec) {
 
@@ -54,6 +54,20 @@ public class MongoProvider implements MongoService, CodecProvider {
         logger.info("Unregistered codec service for class: " + codec.getEncoderClass());
     }
 
+    @Bind(aggregate = true, optional = true)
+    private void bindCodecProvider(CodecProvider codecProvider) {
+        registerCodecProvider(codecProvider);
+
+        logger.info("Registered codec provider class: " + codecProvider.getClass());
+    }
+
+    @Unbind(aggregate = true, optional = true)
+    private void unbindCodecProvider(CodecProvider codecProvider) {
+        unregisterCodecProvider(codecProvider);
+
+        logger.info("Unregistered codec provider class: " + codecProvider.getClass());
+    }
+
     @Validate
     private void start() {
         try {
@@ -62,6 +76,7 @@ public class MongoProvider implements MongoService, CodecProvider {
 
                 CodecRegistry codecRegistry = CodecRegistries.fromRegistries(
                         CodecRegistries.fromProviders(this),
+                        CodecRegistries.fromProviders(codecProviders),
                         MongoClient.getDefaultCodecRegistry(),
                         CodecRegistries.fromProviders(new BeanCodecProvider()));
 
@@ -107,7 +122,7 @@ public class MongoProvider implements MongoService, CodecProvider {
 
     @Updated
     private void updated() {
-        // don't update if the service has been started already
+        // don't update if the service has not been started already
         if (mongoClient != null) {
             logger.info("Restarting mongo client due to reconfiguration!");
             stop();
@@ -123,11 +138,26 @@ public class MongoProvider implements MongoService, CodecProvider {
     @Override
     public <T> void registerCodec(Class<T> clazz, Codec<T> codec) {
         codecs.put(clazz, codec);
+        updated();
     }
 
     @Override
     public void unregisterCodec(Class clazz) {
         codecs.remove(clazz);
+        updated();
+    }
+
+    @Override
+    public <T> void registerCodecProvider(CodecProvider codecProvider) {
+        codecProviders.add(codecProvider);
+        updated();
+    }
+
+    @Override
+    public void unregisterCodecProvider(CodecProvider codecProvider) {
+        codecProviders.remove(codecProvider);
+        updated();
+
     }
 
     @Override
