@@ -15,10 +15,6 @@ public interface MongoService {
 
     void unregisterCodec(Class clazz);
 
-    <T> void registerCodecProvider(CodecProvider codecProvider);
-
-    void unregisterCodecProvider(CodecProvider codecProvider);
-
 
     String CONFIG_FACTORY_NAME = "com.awplab.core.mongodb";
 
