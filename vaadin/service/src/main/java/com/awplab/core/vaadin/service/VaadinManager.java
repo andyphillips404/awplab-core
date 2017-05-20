@@ -1,7 +1,6 @@
 package com.awplab.core.vaadin.service;
 
 import javax.servlet.ServletException;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -11,13 +10,9 @@ public interface VaadinManager {
 
     Set<VaadinProvider> getProviders();
 
-    Set<BaseVaadinServlet> getServlets();
+    void registerProvider(VaadinProvider vaadinProvider) throws ServletException, InvalidVaadinProvider;
 
-    void registerProvider(VaadinProvider vaadinProvider) throws ServletException;
-
-    void unregisterProvider(VaadinProvider vaadinProvider);
-
-    Optional<BaseVaadinServlet> findServlet(VaadinProvider vaadinProvider);
+    void unregisterProvider(VaadinProvider vaadinProvider) throws VaadinProviderNotFound;
 
 
 }

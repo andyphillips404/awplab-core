@@ -36,7 +36,7 @@ public class MDCLoggerLevelsAutoClosable implements AutoCloseable  {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (oldLoggingLevels == null) {
             MDC.remove(Log.MDC_KEY_LOGGER_LEVELS);
         }

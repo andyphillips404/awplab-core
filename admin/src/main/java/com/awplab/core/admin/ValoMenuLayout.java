@@ -1,4 +1,4 @@
-package com.awplab.core.admin.provider;
+package com.awplab.core.admin;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;

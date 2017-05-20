@@ -1,6 +1,5 @@
 package com.awplab.core.selenium.service;
 
-import com.awplab.core.common.TemporaryFile;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;

@@ -132,8 +132,8 @@ public class BeanCodec<T> implements CollectibleCodec<T> {
             }
             else {
                 // assumed to be a collection of some type, find the parent type if able to...
-                if (genericTypeIfKnown instanceof ParameterizedType) {
-                    return readList(reader, decoderContext, (Class)((ParameterizedType) genericTypeIfKnown).getActualTypeArguments()[0]);
+                if (setType.equals(Object.class) || genericTypeIfKnown instanceof ParameterizedType) {
+                    return readList(reader, decoderContext, setType.equals(Object.class) ? Object.class : (Class)((ParameterizedType) genericTypeIfKnown).getActualTypeArguments()[0]);
                 }
 
                 Class<?>[] args = TypeResolver.resolveRawArguments(Collection.class, setType);

@@ -152,7 +152,7 @@
         <version.typetools>0.4.9</version.typetools>
 
         <!-- PRERELESE TO GET GRID TREE -->
-        <version.vaadin>8.1.0.alpha6</version.vaadin>
+        <version.vaadin>8.1.0.alpha8</version.vaadin>
 
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

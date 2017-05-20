@@ -8,7 +8,6 @@ import com.mongodb.client.gridfs.model.GridFSFile;
 import com.mongodb.client.model.Sorts;
 import com.vaadin.external.org.slf4j.Logger;
 import com.vaadin.external.org.slf4j.LoggerFactory;
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.StreamResource;
 import com.vaadin.shared.ui.ContentMode;
@@ -16,7 +15,6 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.renderers.ButtonRenderer;
 import com.vaadin.ui.renderers.DateRenderer;
 import com.vaadin.ui.renderers.HtmlRenderer;
-import com.vaadin.ui.renderers.ImageRenderer;
 import org.bson.conversions.Bson;
 
 import java.text.SimpleDateFormat;

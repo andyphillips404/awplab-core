@@ -27,8 +27,8 @@
                         <Bundle-SymbolicName>
                             ${project.artifactId}
                         </Bundle-SymbolicName>
-                        <Export-Package>com.awplab.core.admin</Export-Package>
-                        <Private-Package>com.awplab.core.admin.*</Private-Package>
+                        <Export-Package>com.awplab.core.admin, com.awplab.core.admin.events</Export-Package>
+                        <Private-Package>com.awplab.core.admin.provider</Private-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
 
                     </instructions>
@@ -68,6 +68,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.awplab.core</groupId>
+            <artifactId>common</artifactId>
         </dependency>
 
 

@@ -1,9 +1,10 @@
 package com.awplab.core.admin;
 
-import com.awplab.core.admin.provider.ValoMenuLayout;
+import com.awplab.core.admin.events.AdminEventTopics;
+import com.awplab.core.admin.provider.AdminVaadinProvider;
+import com.awplab.core.common.EventAdminHelper;
 import com.awplab.core.vaadin.service.BasicAuthRequired;
 import com.awplab.core.vaadin.service.VaadinProvider;
-import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.Navigator;
@@ -12,13 +13,11 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import org.apache.felix.ipojo.annotations.*;
-import org.apache.felix.ipojo.annotations.Component;
-import org.slf4j.LoggerFactory;
+import org.osgi.framework.*;
+import org.osgi.service.event.EventHandler;
 
 import javax.security.auth.Subject;
 import java.util.*;
@@ -31,9 +30,8 @@ import java.util.*;
 
 @Push
 //@PreserveOnRefresh
-@Component(immediate = true, managedservice = AdminUIConfiguration.CONFIG_MANAGED_SERVICE_NAME)
 @Theme("valo")
-public class AdminUI extends UI {
+public class AdminUI extends UI implements EventHandler {
 
 
     ValoMenuLayout root = new ValoMenuLayout();
@@ -54,50 +52,40 @@ public class AdminUI extends UI {
         VaadinProvider.doAccess(this, runnable);
     }
 
-    @Property(name = AdminUIConfiguration.PROPERTY_TITLE, value = "Admin Portal")
-    private String title;
-
-    @Property(name = AdminUIConfiguration.PROPERTY_CATEGORIES)
-    private String[] categories;
-
-
-    @Updated
-    private void update() {
-    }
-
 
     private Subject subject;
 
+    private Map<AdminProvider, Button> buttons = Collections.synchronizedMap(new HashMap<>());
 
-    private Map<AdminProvider, AdminViewProvider> providers = Collections.synchronizedMap(new HashMap<>());
-
-    @Bind(optional = true, aggregate = true)
-    private void bindAdminViewProvider(AdminProvider adminProvider) {
-        AdminViewProvider viewProvider = adminProvider.createViewProvider(this);
-        if (providers.values().stream().anyMatch(adminViewProvider -> adminViewProvider.getName().equals(viewProvider.getName()))) {
-            LoggerFactory.getLogger(AdminUI.class).error("Unable to add provider, duplicate name: " + viewProvider.getName());
-            return;
-        }
-
-        providers.put(adminProvider, adminProvider.createViewProvider(this));
-        if (navigator != null) {
-            navigator.addProvider(providers.get(adminProvider));
-            doAccess(this::updateMenuAndNavigator);
+    private Optional<AdminVaadinProvider> getVaadinProvider() {
+        String filterString = "(" + Constants.OBJECTCLASS + "=" + AdminVaadinProvider.class.getName() + ")";
+        try {
+            BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
+            Optional<ServiceReference<VaadinProvider>> optional = context.getServiceReferences(VaadinProvider.class, filterString).stream().findFirst();
+            if (optional.isPresent()) {
+                AdminVaadinProvider adminVaadinProvider = (AdminVaadinProvider)context.getService(optional.get());
+                return Optional.of(adminVaadinProvider);
+            }
+            return Optional.empty();
+        } catch (InvalidSyntaxException e) {
+            throw new RuntimeException(e);
         }
 
     }
 
-    @Unbind(optional = true, aggregate = true)
-    private void unbindAdminViewProvider(AdminProvider adminProvider) {
-        AdminViewProvider adminViewProvider = providers.remove(adminProvider);
-        if (adminViewProvider == null) return;
-
-        if (navigator != null) {
-            navigator.removeProvider(adminViewProvider);
-            doAccess(this::updateMenuAndNavigator);
+    private Set<AdminProvider> getProviders() {
+        Optional<AdminVaadinProvider> adminVaadinProvider = getVaadinProvider();
+        if (adminVaadinProvider.isPresent()) {
+            return adminVaadinProvider.get().getProviders();
         }
+        return Collections.emptySet();
     }
 
+
+    @Override
+    public void handleEvent(org.osgi.service.event.Event event) {
+        updateMenuAndNavigator();
+    }
 
     public Subject getSubject() {
         return subject;
@@ -109,14 +97,17 @@ public class AdminUI extends UI {
 
 
         String selectedViewName = navigator.getState(); //(navigator.getCurrentView() != null && !(navigator.getCurrentView() instanceof NoAdminErrorView)) ? ((AdminViewProvider) navigator.getCurrentView()).getName() : null;
-        boolean foundSelection = false;
+        //boolean foundSelection = false;
 
-        ArrayList<AdminViewProvider> viewProviders = new ArrayList<AdminViewProvider>(providers.values());
+        ArrayList<AdminProvider> viewProviders = new ArrayList<>(getProviders());
+        List<String> categories = new ArrayList<>();
+        getVaadinProvider().ifPresent(adminVaadinProvider -> categories.addAll(Arrays.asList(adminVaadinProvider.getCategories())));
+
         viewProviders.sort((o1, o2) -> {
 
             int o1CatPos = o1.getCategory().isPresent() ? Integer.MAX_VALUE : Integer.MIN_VALUE;
             int o2CatPos = o2.getCategory().isPresent() ? Integer.MAX_VALUE : Integer.MIN_VALUE;
-            if (categories != null && categories.length > 0) {
+            if (categories.size() > 0) {
                 if (o1.getCategory().isPresent() && Arrays.asList(categories).contains(o1.getCategory().get())) {
                     o1CatPos = Arrays.asList(categories).indexOf(o1.getCategory().get());
                 }
@@ -136,45 +127,47 @@ public class AdminUI extends UI {
         });
 
         menuItemsLayout.removeAllComponents();
+        buttons.clear();
 
-        Label label = null;
+        Label label;
         String lastCategory = null;
-        for (AdminViewProvider adminViewProvider : viewProviders) {
-            if (adminViewProvider.getCategory().isPresent() &&
-                    (lastCategory == null || !adminViewProvider.getCategory().get().equals(lastCategory))) {
+        for (AdminProvider adminProvider : viewProviders) {
+            if (adminProvider.getCategory().isPresent() &&
+                    (lastCategory == null || !adminProvider.getCategory().get().equals(lastCategory))) {
 
-                label = new Label(adminViewProvider.getCategory().get(), ContentMode.HTML);
+                label = new Label(adminProvider.getCategory().get(), ContentMode.HTML);
                 label.setPrimaryStyleName(ValoTheme.MENU_SUBTITLE);
                 label.addStyleName(ValoTheme.LABEL_H4);
                 label.setSizeUndefined();
                 menuItemsLayout.addComponent(label);
-                lastCategory = adminViewProvider.getCategory().get();
+                lastCategory = adminProvider.getCategory().get();
             }
 
             Button b = new Button();
-            b.addClickListener((Button.ClickListener) event -> navigator.navigateTo(adminViewProvider.getName()));
+            b.addClickListener((Button.ClickListener) event -> navigator.navigateTo(adminProvider.getName()));
 
-            adminViewProvider.setMenuButton(b);
-            adminViewProvider.updateMenuButton();
-            b.setHtmlContentAllowed(true);
+            buttons.put(adminProvider, b);
+            updateMenuButton(adminProvider);
+
             b.setPrimaryStyleName(ValoTheme.MENU_ITEM);
-            if (selectedViewName != null && selectedViewName.equals(adminViewProvider.getName())) {
-                foundSelection = true;
+            if (selectedViewName != null && selectedViewName.equals(adminProvider.getName())) {
                 b.addStyleName("selected");
             }
             menuItemsLayout.addComponent(b);
 
         }
 
-        /*
-        if (viewProviders.size() > 0) {
-            String f = Page.getCurrent().getUriFragment();
-            if ((selectedViewName != null && !foundSelection) || (f == null || f.equals(""))) {
-                navigator.navigateTo(viewProviders.get(0).getName());
-            }
-        }
-        */
+    }
 
+    public void updateMenuButton(AdminProvider adminProvider) {
+        if (buttons.containsKey(adminProvider)) {
+            if (adminProvider.getMenuBadge().isPresent()) {
+                buttons.get(adminProvider).setCaption(adminProvider.getMenuTitle() + "<span class=\"valo-menu-badge\">" + adminProvider.getMenuBadge().get() + "</span>");
+            } else {
+                buttons.get(adminProvider).setCaption(adminProvider.getMenuTitle());
+            }
+            if (adminProvider.getMenuIcon().isPresent()) buttons.get(adminProvider).setIcon(adminProvider.getMenuIcon().get());
+        }
     }
 
 
@@ -218,14 +211,15 @@ public class AdminUI extends UI {
             @Override
             public void afterViewChange(ViewChangeEvent event) {
 
-                for (AdminViewProvider adminView : providers.values()) {
-                    if (adminView == null) continue;
+                for (AdminProvider adminProvider : getProviders()) {
+                    if (adminProvider == null) continue;
 
-                    if (adminView.getName().equals(event.getViewName())) {
-                        adminView.getMenuButton().addStyleName("selected");
+                    if (adminProvider.getName().equals(event.getViewName())) {
+                        buttons.get(adminProvider).addStyleName("selected");
+
                     }
                     else {
-                        adminView.getMenuButton().removeStyleName("selected");
+                        buttons.get(adminProvider).removeStyleName("selected");
                     }
                 }
 
@@ -234,13 +228,14 @@ public class AdminUI extends UI {
 
         navigator.setErrorView(new NoAdminErrorView());
 
-        for (AdminViewProvider adminViewProvider : providers.values()) {
-            navigator.addProvider(adminViewProvider);
+        for (AdminProvider adminProvider : getProviders()) {
+            navigator.addProvider(adminProvider);
         }
 
         root.addMenu(buildMenu());
 
-        //updateMenuAndNavigator();
+        EventAdminHelper.registerForEvent(this, AdminEventTopics.ANY);
+
     }
 
     private CssLayout buildMenu() {
@@ -264,7 +259,9 @@ public class AdminUI extends UI {
         showMenu.setIcon(FontAwesome.LIST);
         menu.addComponent(showMenu);
 
-        Label title = new Label("<h3>" + this.title + "</h3>",
+        String titleString = getVaadinProvider().map(AdminVaadinProvider::getTitle).orElse("Admin Title");
+
+        Label title = new Label("<h3>" + titleString + "</h3>",
                 ContentMode.HTML);
         title.setSizeUndefined();
         top.addComponent(title);

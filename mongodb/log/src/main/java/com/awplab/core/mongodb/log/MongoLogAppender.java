@@ -9,7 +9,6 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.apache.felix.ipojo.annotations.*;
 import org.apache.log4j.MDC;
-import org.ops4j.pax.logging.PaxLogger;
 import org.ops4j.pax.logging.PaxLoggingService;
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
@@ -97,7 +96,8 @@ public class MongoLogAppender implements PaxAppender {
 
                 if (value instanceof LogFile) {
                     try {
-                        if (!((LogFile) value).isSaved()) ((LogFile) value).save(mongoDatabase, gridFSCollection);
+                        if (((LogFile) value).getBucket() == null) ((LogFile) value).setBucket(gridFSCollection);
+                        if (!((LogFile) value).isSaved()) ((LogFile) value).save(mongoDatabase);
                         ((LogFile) value).setKey((String)key);
                         log.getLogFiles().add(((LogFile) value));
                         logFiles.add(key);

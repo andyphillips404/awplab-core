@@ -1,13 +1,12 @@
-package com.awplab.core.vaadin.service;
+package com.awplab.core.vaadin.service.provider;
 
 import com.awplab.core.vaadin.service.VaadinProvider;
-import com.awplab.core.vaadin.service.VaadinUIProvider;
 import com.vaadin.server.*;
 
 import javax.servlet.ServletException;
 
 /**
- * Created by andyphillips404 on 8/11/16.
+ * Created by andyphillips404 on 5/20/17.
  */
 public class BaseVaadinServlet extends VaadinServlet implements SessionInitListener, SessionDestroyListener {
 
@@ -17,7 +16,7 @@ public class BaseVaadinServlet extends VaadinServlet implements SessionInitListe
 
     public BaseVaadinServlet(VaadinProvider vaadinProvider) {
         this.vaadinProvider = vaadinProvider;
-        this.uiProvider = vaadinProvider.createUIProvider();
+        this.uiProvider = new VaadinUIProvider(vaadinProvider, this);
     }
 
 
@@ -31,13 +30,13 @@ public class BaseVaadinServlet extends VaadinServlet implements SessionInitListe
 
     @Override
     public void sessionDestroy(SessionDestroyEvent sessionDestroyEvent) {
-        uiProvider.sessionDestroy(sessionDestroyEvent);
+        //uiProvider.sessionDestroy(sessionDestroyEvent);
     }
 
     @Override
     public void sessionInit(SessionInitEvent sessionInitEvent) throws ServiceException {
         sessionInitEvent.getSession().addUIProvider(uiProvider);
-        uiProvider.sessionInit(sessionInitEvent);
+        //uiProvider.sessionInit(sessionInitEvent);
     }
 
     @Override
@@ -50,6 +49,4 @@ public class BaseVaadinServlet extends VaadinServlet implements SessionInitListe
 
 
     }
-
-
 }

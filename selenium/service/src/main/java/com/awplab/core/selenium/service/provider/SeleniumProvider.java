@@ -1,8 +1,5 @@
 package com.awplab.core.selenium.service.provider;
 
-import com.assertthat.selenium_shutterbug.core.Shutterbug;
-import com.assertthat.selenium_shutterbug.utils.web.ScrollStrategy;
-import com.awplab.core.common.TemporaryFile;
 import com.awplab.core.selenium.service.AutoClosableWebDriver;
 import com.awplab.core.selenium.service.SeleniumService;
 import org.apache.felix.ipojo.annotations.Component;

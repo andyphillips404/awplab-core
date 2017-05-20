@@ -1,7 +1,8 @@
 package com.awplab.core.vaadin.service;
 
 
-import com.vaadin.server.*;
+import com.vaadin.server.UIProvider;
+import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.communication.PushMode;
 import com.vaadin.ui.UI;
 
@@ -10,7 +11,7 @@ import java.util.Optional;
 /**
  * Created by andyphillips404 on 8/11/16.
  */
-public interface VaadinProvider  {
+public interface VaadinProvider{
 
 
     String getPath();
@@ -33,15 +34,23 @@ public interface VaadinProvider  {
         return Optional.empty();
     }
 
-    VaadinUIProvider createUIProvider();
-
-
     static void doAccess(UI ui, Runnable runnable) {
 
         if (ui != null && ui.isAttached()) {
             ui.access(runnable);
         } else {
             runnable.run();
+        }
+    }
+
+    Class<? extends UI> getUIClass();
+
+    default UI getUI() {
+        try {
+            return getUIClass().newInstance();
+        }
+        catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
     }
 

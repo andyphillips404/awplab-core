@@ -37,7 +37,7 @@ public class MDCAutoClosable implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close()  {
         while (!keys.empty()) {
             Key key = keys.pop();
             if (key.getOldValue() != null) MDC.put(key.getKey(), key.getOldValue());

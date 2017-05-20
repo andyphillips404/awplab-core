@@ -1,11 +1,6 @@
 package com.awplab.core.rest.service.events;
 
 import com.awplab.core.common.EventAdminHelper;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
 
 import java.util.HashMap;
 import java.util.Map;

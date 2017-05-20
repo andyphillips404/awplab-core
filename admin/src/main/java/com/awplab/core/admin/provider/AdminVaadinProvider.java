@@ -1,19 +1,26 @@
 package com.awplab.core.admin.provider;
 
-import com.awplab.core.admin.AdminServletConfiguration;
+import com.awplab.core.admin.AdminConfiguration;
+import com.awplab.core.admin.AdminProvider;
 import com.awplab.core.admin.AdminUI;
+import com.awplab.core.admin.events.AdminEventData;
+import com.awplab.core.admin.events.AdminEventTopics;
+import com.awplab.core.common.EventAdminHelper;
 import com.awplab.core.vaadin.service.BasicAuthRequired;
-import com.awplab.core.vaadin.service.IPOJOVaadinUIProvider;
 import com.awplab.core.vaadin.service.VaadinProvider;
-import com.awplab.core.vaadin.service.VaadinUIProvider;
+import com.vaadin.ui.UI;
 import org.apache.felix.ipojo.annotations.*;
+import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by andyphillips404 on 8/12/16.
  */
-@Component(immediate = true, managedservice = AdminServletConfiguration.CONFIG_MANAGED_SERVICE_NAME)
+@Component(immediate = true, managedservice = AdminConfiguration.CONFIG_MANAGED_SERVICE_NAME)
 @Instantiate
 @Provides(specifications = {VaadinProvider.class})
 public class AdminVaadinProvider implements VaadinProvider, BasicAuthRequired {
@@ -21,7 +28,7 @@ public class AdminVaadinProvider implements VaadinProvider, BasicAuthRequired {
     @ServiceController
     boolean serviceController;
 
-    @Property(name = AdminServletConfiguration.PROPERTY_URL_PATH)
+    @Property(name = AdminConfiguration.PROPERTY_URL_PATH)
     private void updatePath(String path) {
         this.path = path;
         serviceController = false;
@@ -30,17 +37,31 @@ public class AdminVaadinProvider implements VaadinProvider, BasicAuthRequired {
 
     private String path = "/admin";
 
-    @Property(name = AdminServletConfiguration.PROPERTY_REQUIRE_SECURE, value = "true")
+    @Property(name = AdminConfiguration.PROPERTY_REQUIRE_SECURE, value = "true")
     private boolean requireSecure;
 
-    @Property(name = AdminServletConfiguration.PROPERTY_LOGIN_LIMIT_TO_ROLES)
+    @Property(name = AdminConfiguration.PROPERTY_LOGIN_LIMIT_TO_ROLES)
     private String[] loginLimitToRoles;
 
-    @Property(name = AdminServletConfiguration.PROPERTY_LOGIN_KARAF_REALM, value = "karaf")
+    @Property(name = AdminConfiguration.PROPERTY_LOGIN_KARAF_REALM, value = "karaf")
     private String karafRealm;
 
-    @Property(name = AdminServletConfiguration.PROPERTY_LOGIN_LIMIT_TO_GROUPS)
+    @Property(name = AdminConfiguration.PROPERTY_LOGIN_LIMIT_TO_GROUPS)
     private String[] loginLimitToGroups;
+
+    @Property(name = AdminConfiguration.PROPERTY_TITLE, value = "Admin Portal")
+    private String title;
+
+    @Property(name = AdminConfiguration.PROPERTY_CATEGORIES)
+    private String[] categories;
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String[] getCategories() {
+        return categories;
+    }
 
     @Override
     public String karafRealm() {
@@ -71,10 +92,64 @@ public class AdminVaadinProvider implements VaadinProvider, BasicAuthRequired {
     }
 
 
-    @Override
-    public VaadinUIProvider createUIProvider() {
-        return new IPOJOVaadinUIProvider(AdminUI.class);
+    @Validate
+    private  void started() {
+        EventAdminHelper.postEvent(AdminEventTopics.ADMIN_PROVIDER_STARTED);
+    }
+
+    @Invalidate
+    private  void stop() {
+        EventAdminHelper.postEvent(AdminEventTopics.ADMIN_PROVIDER_STOPED);
     }
 
 
+    private Set<AdminProvider> providers = Collections.synchronizedSet(new HashSet<>());
+
+    @Bind(optional = true, aggregate = true)
+    private void bindAdminProvider(AdminProvider adminProvider) {
+
+        if (providers.stream().anyMatch(adminProvider2 -> adminProvider2.getName().equals(adminProvider.getName()))) {
+            LoggerFactory.getLogger(AdminUI.class).error("Unable to add provider, duplicate name: " + adminProvider.getName());
+            return;
+        }
+
+        providers.add(adminProvider);
+
+        /*
+        if (navigator != null) {
+            navigator.addProvider(adminProvider);
+            doAccess(this::updateMenuAndNavigator);
+        }
+        */
+
+        EventAdminHelper.postEvent(AdminEventTopics.PROVIDER_ADDED, AdminEventData.ADMIN_PROVIDER, adminProvider);
+
+
+    }
+
+    @Unbind(optional = true, aggregate = true)
+    private void unbindAdminProvider(AdminProvider adminProvider) {
+        if (providers.remove(adminProvider)) {
+            EventAdminHelper.postEvent(AdminEventTopics.PROVIDER_REMOVED, AdminEventData.ADMIN_PROVIDER, adminProvider);
+
+            /*
+            if (navigator != null) {
+                navigator.removeProvider(adminProvider);
+                doAccess(this::updateMenuAndNavigator);
+            }
+            */
+        }
+
+        //buttons.remove(adminProvider);
+    }
+
+
+    @Override
+    public Class<? extends UI> getUIClass() {
+        return AdminUI.class;
+    }
+
+    public Set<AdminProvider> getProviders() {
+        return Collections.unmodifiableSet(providers);
+    }
 }

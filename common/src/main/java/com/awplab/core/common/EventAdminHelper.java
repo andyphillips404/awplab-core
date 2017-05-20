@@ -5,8 +5,12 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
 /**
@@ -35,4 +39,18 @@ public class EventAdminHelper {
             eventAdmin.postEvent(new Event(topic, eventData));
         }
     }
+
+
+    public static void registerForEvent(EventHandler eventHandler, String... topics) {
+        BundleContext bundleContext = FrameworkUtil.getBundle(EventAdminHelper.class).getBundleContext();
+
+        ServiceReference ref = bundleContext.getServiceReference(EventAdmin.class.getName());
+        if (ref != null)
+        {
+            Dictionary props = new Hashtable();
+            props.put(EventConstants.EVENT_TOPIC, topics);
+            bundleContext.registerService(EventHandler.class.getName(), eventHandler, props);
+        }
+    }
+
 }

@@ -1,5 +1,6 @@
-package com.awplab.core.vaadin.service;
+package com.awplab.core.vaadin.service.provider;
 
+import com.awplab.core.vaadin.service.BasicAuthRequired;
 import org.osgi.service.http.HttpContext;
 
 import javax.security.auth.Subject;

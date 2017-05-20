@@ -30,15 +30,14 @@ public class ProvidersCommand implements Action {
         table.column("Path");
         table.column("Bundle Id");
         table.column("Bundle");
-        table.column("Provider");
-        table.column("UI Provider");
+        table.column("UI Class");
         table.column("Production Mode");
         //table.column("Bundle Id");
         //table.column("State");
 
         for (VaadinProvider vaadinProvider : vaadinManager.getProviders()) {
             Bundle bundle = FrameworkUtil.getBundle(vaadinProvider.getClass());
-            table.addRow().addContent(vaadinProvider.getPath(), bundle.getBundleId(), bundle.getSymbolicName(), vaadinProvider.createUIProvider().getClass().getSimpleName(), vaadinProvider.createUIProvider().getUIClass(null).getSimpleName(), vaadinProvider.productionMode());
+            table.addRow().addContent(vaadinProvider.getPath(), bundle.getBundleId(), bundle.getSymbolicName(), vaadinProvider.getUIClass().getSimpleName(), vaadinProvider.productionMode());
         }
 
         table.print(System.out);

@@ -1,6 +1,9 @@
 package com.awplab.core.vaadin.service.provider;
 
+import com.awplab.core.common.EventAdminHelper;
 import com.awplab.core.vaadin.service.*;
+import com.awplab.core.vaadin.service.events.VaadinEventData;
+import com.awplab.core.vaadin.service.events.VaadinEventTopics;
 import com.vaadin.server.VaadinServlet;
 import org.apache.felix.ipojo.annotations.*;
 import org.ops4j.pax.web.service.WebContainer;
@@ -18,12 +21,15 @@ import java.util.*;
 @Provides(specifications = {VaadinManager.class})
 public class VaadinManagerProvider implements VaadinManager {
 
-    Set<BaseVaadinServlet> servlets = Collections.synchronizedSet(new HashSet<>());
-
     @Requires
     WebContainer webContainer;
 
     private VaadinServlet bootstrapVaadinServlet;
+
+    private Logger logger = LoggerFactory.getLogger(VaadinManagerProvider.class);
+
+    private Set<VaadinProvider> providers = Collections.synchronizedSet(new HashSet<>());
+    private Map<VaadinProvider, VaadinServlet> servlets = Collections.synchronizedMap(new HashMap<>());
 
     @Validate
     private void start() {
@@ -34,19 +40,29 @@ public class VaadinManagerProvider implements VaadinManager {
         catch (ServletException ex) {
             logger.error("Exception registering boostrapVaadinServlet!", ex);
         }
-        logger.info("Registered boostrapVaadinServlet!");
+        logger.info("VaadinManager started, Registered boostrapVaadinServlet!");
+
+        EventAdminHelper.postEvent(VaadinEventTopics.MANAGER_STARTED);
     }
 
     @Invalidate
     private void stop() {
+
         if (bootstrapVaadinServlet != null) webContainer.unregisterServlet(bootstrapVaadinServlet);
-        new HashSet<BaseVaadinServlet>(servlets).forEach(baseVaadinServlet -> {
-            unregisterProvider(baseVaadinServlet.getVaadinProvider());
+        providers.forEach(vaadinProvider -> {
+            try {
+                unregisterProvider(vaadinProvider);
+            }
+            catch (Exception ex) {
+                logger.error("Exception unregistering provider at path " + vaadinProvider.getPath(), ex);
+            }
         });
+
+        logger.info("VaadinManager stoped");
+        EventAdminHelper.postEvent(VaadinEventTopics.MANAGER_STOPED);
 
     }
 
-    private Logger logger = LoggerFactory.getLogger(VaadinManagerProvider.class);
 
     @Bind(optional = true, aggregate = true)
     public void bindProvider(VaadinProvider vaadinProvider) {
@@ -71,53 +87,50 @@ public class VaadinManagerProvider implements VaadinManager {
 
     @Override
     public Set<VaadinProvider> getProviders() {
-        HashSet<VaadinProvider> providers = new HashSet<>();
-        servlets.forEach(baseVaadinServlet -> {providers.add(baseVaadinServlet.getVaadinProvider());});
         return Collections.unmodifiableSet(providers);
     }
 
-    @Override
-    public Set<BaseVaadinServlet> getServlets() {
-        return Collections.unmodifiableSet(servlets);
-    }
-
-
-    public Optional<BaseVaadinServlet> findServlet(VaadinProvider vaadinProvider) {
-        for (BaseVaadinServlet baseVaadinServlet : servlets) {
-            if (baseVaadinServlet.getVaadinProvider().equals(vaadinProvider)) {
-                return Optional.of(baseVaadinServlet);
-            }
-        }
-
-        return Optional.empty();
-    }
 
     @Override
-    public void registerProvider(VaadinProvider vaadinProvider) throws ServletException {
+    public void registerProvider(VaadinProvider vaadinProvider) throws ServletException, InvalidVaadinProvider {
         if (vaadinProvider.getPath() == null || !vaadinProvider.getPath().startsWith("/") || vaadinProvider.getPath().endsWith("/")) {
-            throw new RuntimeException("Invalid path, path must not be null, start with a / and end with no /");
+            throw new InvalidVaadinProvider("Invalid path, path must not be null, start with a / and end with no /");
         }
 
-        if (findServlet(vaadinProvider).isPresent()) {
-            throw new RuntimeException("Vaadin provider is already registered.  Aborting!");
-        }
+        //if (!(vaadinProvider instanceof VaadinServlet)) {
+        //    throw new InvalidVaadinProvider("Vaading provider must extend vaadin servlet");
+        //}
+        if (providers.contains(vaadinProvider)) throw new InvalidVaadinProvider("VaadinProvider already registerd");
 
-        BaseVaadinServlet baseVaadinServlet = new BaseVaadinServlet(vaadinProvider);
+        VaadinServlet vaadinServlet = new BaseVaadinServlet(vaadinProvider);
+
         Dictionary<String, Object> initParams = new Hashtable<String, Object>();
         initParams.put("productionMode", vaadinProvider.productionMode() ? "true" : "false");
         vaadinProvider.heartbeatInterval().ifPresent(integer -> {initParams.put("heartbeatInterval", Integer.toString(integer)); });
         vaadinProvider.closeIdleSessions().ifPresent(close -> {initParams.put("closeIdleSessions", close ? "true" : "false"); });
         vaadinProvider.pushMode().ifPresent(pushMode -> {initParams.put("pushmode", pushMode.toString().toLowerCase());});
-        webContainer.registerServlet(baseVaadinServlet, new String[] { vaadinProvider.getPath() + "/*"}, initParams, 0, true, (baseVaadinServlet.getVaadinProvider() instanceof BasicAuthRequired ? new BasicAuthHttpContext(webContainer.getDefaultSharedHttpContext(), (BasicAuthRequired)baseVaadinServlet.getVaadinProvider()) : webContainer.getDefaultSharedHttpContext()));
-        servlets.add(baseVaadinServlet);
+        //initParams.put("UIProvider", new VaadinUIProvider(vaadinProvider, vaadinServlet));
+
+        webContainer.registerServlet(vaadinServlet, new String[] { vaadinProvider.getPath() + "/*"}, initParams, 0, true, (vaadinProvider instanceof BasicAuthRequired ? new BasicAuthHttpContext(webContainer.getDefaultSharedHttpContext(), (BasicAuthRequired)vaadinProvider) : webContainer.getDefaultSharedHttpContext()));
+
+        servlets.put(vaadinProvider, vaadinServlet);
+
+        EventAdminHelper.postEvent(VaadinEventTopics.PROVIDER_ADDED, VaadinEventData.VAADIN_PROVIDER, vaadinProvider);
+
+
     }
 
     @Override
-    public void unregisterProvider(VaadinProvider vaadinProvider) {
-        BaseVaadinServlet vaadinServlet = findServlet(vaadinProvider).orElseThrow(() -> new RuntimeException("Vaadin provider is not registered.  Aborting!"));
-        vaadinServlet.getUiProvider().shutdown();
-        webContainer.unregisterServlet(vaadinServlet);
-        servlets.remove(vaadinServlet);
+    public void unregisterProvider(VaadinProvider vaadinProvider) throws VaadinProviderNotFound {
+        if (!providers.contains(vaadinProvider)) throw new VaadinProviderNotFound();
+
+        webContainer.unregisterServlet(servlets.get(vaadinProvider));
+        providers.remove(vaadinProvider);
+        servlets.remove(vaadinProvider);
+
+        EventAdminHelper.postEvent(VaadinEventTopics.PROVIDER_REMOVED, VaadinEventData.VAADIN_PROVIDER, vaadinProvider);
     }
+
+
 
 }

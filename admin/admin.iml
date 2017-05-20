@@ -5,8 +5,8 @@
       <configuration manifestGenerationMode="OsmorcControlled" manifestLocation="" jarfileLocation="admin-1.0.0-SNAPSHOT.jar" outputPathType="CompilerOutputPath" bndFileLocation="" bundlorFileLocation="" bundleActivator="" bundleSymbolicName="admin" bundleVersion="1.0.0.SNAPSHOT" ignoreFilePattern="" useProjectDefaultManifestFileLocation="true" alwaysRebuildBundleJAR="false" doNotSynchronizeWithMaven="false">
         <additionalProperties>
           <property key="Bundle-Description" value="A library used with OSGI/Karaf supporting a improved quartz scheduler OSGI implementation and Jersey rest service impelementation with Jackson and OpenAPI/Swagger support." />
-          <property key="Export-Package" value="com.awplab.core.admin" />
-          <property key="Private-Package" value="com.awplab.core.admin.*" />
+          <property key="Export-Package" value="com.awplab.core.admin, com.awplab.core.admin.events" />
+          <property key="Private-Package" value="com.awplab.core.admin.provider" />
           <property key="DynamicImport-Package" value="*" />
           <property key="Bundle-Name" value="AWPLab Core - Admin Portal" />
         </additionalProperties>
@@ -30,21 +30,24 @@
     <orderEntry type="library" name="Maven: org.apache.felix:org.apache.felix.ipojo.annotations:1.12.1" level="project" />
     <orderEntry type="library" name="Maven: org.ow2.asm:asm-all:5.0.2" level="project" />
     <orderEntry type="module" module-name="vaadin.service" />
-    <orderEntry type="library" name="Maven: com.vaadin:vaadin-server:8.1.0.alpha6" level="project" />
+    <orderEntry type="library" name="Maven: com.vaadin:vaadin-server:8.1.0.alpha8" level="project" />
     <orderEntry type="library" name="Maven: com.vaadin:vaadin-sass-compiler:0.9.13" level="project" />
     <orderEntry type="library" name="Maven: org.w3c.css:sac:1.3" level="project" />
     <orderEntry type="library" name="Maven: com.vaadin.external.flute:flute:1.3.0.gg2" level="project" />
-    <orderEntry type="library" name="Maven: com.vaadin:vaadin-shared:8.1.0.alpha6" level="project" />
+    <orderEntry type="library" name="Maven: com.vaadin:vaadin-shared:8.1.0.alpha8" level="project" />
     <orderEntry type="library" name="Maven: org.jsoup:jsoup:1.8.3" level="project" />
-    <orderEntry type="library" name="Maven: com.googlecode.gentyref:gentyref:1.2.0" level="project" />
-    <orderEntry type="library" name="Maven: com.vaadin:vaadin-client-compiled:8.1.0.alpha6" level="project" />
-    <orderEntry type="library" name="Maven: com.vaadin:vaadin-themes:8.1.0.alpha6" level="project" />
-    <orderEntry type="library" name="Maven: com.vaadin:vaadin-push:8.1.0.alpha6" level="project" />
+    <orderEntry type="library" name="Maven: com.vaadin.external:gentyref:1.2.0.vaadin1" level="project" />
+    <orderEntry type="library" name="Maven: com.vaadin:vaadin-client-compiled:8.1.0.alpha8" level="project" />
+    <orderEntry type="library" name="Maven: com.vaadin:vaadin-themes:8.1.0.alpha8" level="project" />
+    <orderEntry type="library" name="Maven: com.vaadin:vaadin-push:8.1.0.alpha8" level="project" />
     <orderEntry type="library" name="Maven: com.vaadin.external.atmosphere:atmosphere-runtime:2.4.5.vaadin2" level="project" />
     <orderEntry type="library" name="Maven: com.vaadin.external.slf4j:vaadin-slf4j-jdk14:1.6.1" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.8.8" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.8.8" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.8.8" level="project" />
+    <orderEntry type="module" module-name="common" />
+    <orderEntry type="library" name="Maven: commons-io:commons-io:2.5" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.5" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.slf4j:slf4j-api:1.7.21" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.osgi:org.osgi.core:5.0.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.osgi:org.osgi.compendium:5.0.0" level="project" />

@@ -75,7 +75,7 @@ public class LogFile {
         return (fileObjectId != null);
     }
 
-    public void save(MongoDatabase database, String bucket) throws IOException {
+    public void save(MongoDatabase database) throws IOException {
         if (temporaryFile == null) return;
 
         try (FileInputStream fileInputStream = new FileInputStream(temporaryFile)) {

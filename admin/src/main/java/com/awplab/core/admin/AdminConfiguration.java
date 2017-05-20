@@ -3,7 +3,7 @@ package com.awplab.core.admin;
 /**
  * Created by andyphillips404 on 8/10/16.
  */
-public final class AdminServletConfiguration {
+public final class AdminConfiguration {
     public static final String CONFIG_MANAGED_SERVICE_NAME = "com.awplab.core.admin";
 
     public static final String PROPERTY_URL_PATH = "com.awplab.core.urlPath";
@@ -16,7 +16,13 @@ public final class AdminServletConfiguration {
 
     public static final String PROPERTY_LOGIN_KARAF_REALM = "com.awplab.core.admin.login.karafRealm";
 
-    private AdminServletConfiguration() {
+
+    public static final String PROPERTY_TITLE = "com.awplab.core.admin.ui.title";
+
+    public static final String PROPERTY_CATEGORIES = "com.awplab.core.admin.ui.categories";
+
+
+    private AdminConfiguration() {
 
     }
 }
