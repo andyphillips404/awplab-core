@@ -1,6 +1,7 @@
 package com.awplab.core.scheduler.admin;
 
 import com.awplab.core.admin.AdminProvider;
+import com.awplab.core.admin.events.AdminEventTopics;
 import com.awplab.core.common.EventAdminHelper;
 import com.awplab.core.scheduler.service.AbstractStatusInterruptableJob;
 import com.awplab.core.scheduler.service.SchedulerManager;
@@ -86,7 +87,7 @@ public class SchedulerAdminProvider implements AdminProvider {
     }
 
     @Override
-    public View getView(Subject subject) {
+    public View createView(Subject subject) {
         return new SchedulerAdminView();
     }
 
@@ -95,13 +96,17 @@ public class SchedulerAdminProvider implements AdminProvider {
         @Override
         public void enter(ViewChangeListener.ViewChangeEvent event) {
             refresh();
-            getAdminUI().updateMenuButton(SchedulerAdminProvider.this);
+            //getAdminUI().updateMenuButton(SchedulerAdminProvider.this);
+            EventAdminHelper.postEvent(AdminEventTopics.UPDATE_MENU_REQUESTED);
         }
 
         @Override
         public void handleEvent(org.osgi.service.event.Event event) {
-            refresh();
-            getAdminUI().updateMenuButton(SchedulerAdminProvider.this);
+            VaadinProvider.doAccess(getUI(), () -> {
+                refresh();
+                //getAdminUI().updateMenuButton(SchedulerAdminProvider.this);
+                EventAdminHelper.postEvent(AdminEventTopics.UPDATE_MENU_REQUESTED);
+            });
         }
 
         private MenuBar.MenuItem interrupt;
@@ -125,6 +130,8 @@ public class SchedulerAdminProvider implements AdminProvider {
         private Panel detailsPanelScheduled = new Panel("Details");
 
         public SchedulerAdminView() {
+
+            objectMapper.setDateFormat(new SimpleDateFormat());
 
             Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -218,13 +225,14 @@ public class SchedulerAdminProvider implements AdminProvider {
 
             runningGrid.setSizeFull();
 
+            detailsPanelRunning.setSizeFull();
             VerticalSplitPanel runningSplitPanel = new VerticalSplitPanel(runningGrid, detailsPanelRunning);
             runningSplitPanel.setSizeFull();
             runningSplitPanel.setSplitPosition(70, Unit.PERCENTAGE);
 
             VerticalLayout runningHolder = new VerticalLayout(runningToolbar, runningSplitPanel);
             runningHolder.setSizeFull();
-            runningHolder.setExpandRatio(runningGrid, 1);
+            runningHolder.setExpandRatio(runningSplitPanel, 1);
             runningHolder.setMargin(false);
 
             jobsGrid = new Grid<>();
@@ -300,12 +308,13 @@ public class SchedulerAdminProvider implements AdminProvider {
             jobsToolbar.setExpandRatio(spacer2, 1);
             jobsGrid.setSizeFull();
 
+            detailsPanelScheduled.setSizeFull();
             VerticalSplitPanel jobsSplitPanel = new VerticalSplitPanel(jobsGrid, detailsPanelScheduled);
             jobsSplitPanel.setSizeFull();
             jobsSplitPanel.setSplitPosition(70, Unit.PERCENTAGE);
 
             VerticalLayout jobsHolder = new VerticalLayout(jobsToolbar, jobsSplitPanel);
-            jobsHolder.setExpandRatio(jobsGrid, 1);
+            jobsHolder.setExpandRatio(jobsSplitPanel, 1);
             jobsHolder.setSizeFull();
             jobsHolder.setMargin(false);
 
@@ -327,8 +336,8 @@ public class SchedulerAdminProvider implements AdminProvider {
             //runningGrid.setItems();
             //jobsGrid.setItems();
 
-            String selectedFireInstanceId = runningGrid.getSelectedItems().stream().findFirst().map(SchedulerJobExecutionContext::getFireInstanceId).orElseGet(null);
-            JobKey selectedJobKey = jobsGrid.getSelectedItems().stream().findFirst().map(schedulerJobDetailTriggers -> schedulerJobDetailTriggers.getJobDetail().getKey()).orElseGet(null);
+            String selectedFireInstanceId = runningGrid.getSelectedItems().stream().findFirst().map(SchedulerJobExecutionContext::getFireInstanceId).orElseGet(() -> null);
+            JobKey selectedJobKey = jobsGrid.getSelectedItems().stream().findFirst().map(schedulerJobDetailTriggers -> schedulerJobDetailTriggers.getJobDetail().getKey()).orElseGet(() -> null);
 
             deleteBar.setComponentError(null);
             interruptBar.setComponentError(null);
@@ -398,9 +407,10 @@ public class SchedulerAdminProvider implements AdminProvider {
             });
 
         }
-        private VerticalLayout refreshDetails(AbstractSchedulerBean context) {
-            VerticalLayout verticalLayout = new VerticalLayout();
-            verticalLayout.setMargin(false);
+
+        private Label refreshDetails(AbstractSchedulerBean context) {
+            //VerticalLayout verticalLayout = new VerticalLayout();
+            //verticalLayout.setMargin(false);
 
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("<b>Job Data:<b><br>");
@@ -433,9 +443,10 @@ public class SchedulerAdminProvider implements AdminProvider {
                 //verticalLayout.setHeight(25, Unit.EM);
             }
 
-            verticalLayout.addComponent(new Label(stringBuilder.toString(), ContentMode.HTML));
-            verticalLayout.setSizeFull();
-            return verticalLayout;
+            Label label = new Label(stringBuilder.toString(), ContentMode.HTML);;
+            label.setSizeFull();
+            label.setHeightUndefined();
+            return label;
 
 
         }

@@ -32,17 +32,14 @@ public interface AdminProvider extends ViewProvider {
     @Override
     default View getView(String viewName) {
         if (getName().equals(viewName)) {
-            View currentView = getView(((AdminUI) UI.getCurrent()).getSubject());
+            View currentView = createView(((AdminUI) UI.getCurrent()).getSubject());
             return currentView;
         }
         return null;
     }
 
-    default AdminUI getAdminUI() {
-        return ((AdminUI)UI.getCurrent());
-    }
 
-    View getView(Subject subject);
+    View createView(Subject subject);
 
     String getMenuTitle();
 

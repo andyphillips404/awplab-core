@@ -6,6 +6,7 @@ import com.awplab.core.mongodb.log.Log;
 import com.awplab.core.mongodb.log.events.LogEventData;
 import com.awplab.core.mongodb.log.events.LogEventTopics;
 import com.awplab.core.mongodb.service.MongoService;
+import com.awplab.core.vaadin.service.VaadinProvider;
 import com.mongodb.Block;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -105,7 +106,7 @@ public class LogAdminProvider implements AdminProvider {
     }
 
     @Override
-    public View getView(Subject subject) {
+    public View createView(Subject subject) {
         return new LogAdminView();
     }
 
@@ -119,10 +120,11 @@ public class LogAdminProvider implements AdminProvider {
 
         @Override
         public void handleEvent(org.osgi.service.event.Event event) {
-
-            if (database != null && collection != null && database.equals(event.getProperty(LogEventData.DATABASE)) && collection.equals(event.getProperty(LogEventData.COLLECTION))) {
-                logViewer.getLogMongoDataProvider().refreshAll();
-            }
+            VaadinProvider.doAccess(getUI(), () -> {
+                if (database != null && collection != null && database.equals(event.getProperty(LogEventData.DATABASE)) && collection.equals(event.getProperty(LogEventData.COLLECTION))) {
+                    logViewer.getLogMongoDataProvider().refreshAll();
+                }
+            });
         }
 
         private LogViewer logViewer = null;

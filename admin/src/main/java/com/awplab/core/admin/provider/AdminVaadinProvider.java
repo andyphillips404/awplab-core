@@ -115,13 +115,6 @@ public class AdminVaadinProvider implements VaadinProvider, BasicAuthRequired {
 
         providers.add(adminProvider);
 
-        /*
-        if (navigator != null) {
-            navigator.addProvider(adminProvider);
-            doAccess(this::updateMenuAndNavigator);
-        }
-        */
-
         EventAdminHelper.postEvent(AdminEventTopics.PROVIDER_ADDED, AdminEventData.ADMIN_PROVIDER, adminProvider);
 
 
@@ -131,16 +124,7 @@ public class AdminVaadinProvider implements VaadinProvider, BasicAuthRequired {
     private void unbindAdminProvider(AdminProvider adminProvider) {
         if (providers.remove(adminProvider)) {
             EventAdminHelper.postEvent(AdminEventTopics.PROVIDER_REMOVED, AdminEventData.ADMIN_PROVIDER, adminProvider);
-
-            /*
-            if (navigator != null) {
-                navigator.removeProvider(adminProvider);
-                doAccess(this::updateMenuAndNavigator);
-            }
-            */
         }
-
-        //buttons.remove(adminProvider);
     }
 
 

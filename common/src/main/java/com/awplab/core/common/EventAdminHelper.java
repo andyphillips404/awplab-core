@@ -31,6 +31,8 @@ public class EventAdminHelper {
     public static void postEvent(String topic, Map<String, Object> data) {
         BundleContext bundleContext = FrameworkUtil.getBundle(EventAdminHelper.class).getBundleContext();
 
+        if (bundleContext == null) return;
+
         ServiceReference ref = bundleContext.getServiceReference(EventAdmin.class.getName());
         if (ref != null)
         {
@@ -43,6 +45,8 @@ public class EventAdminHelper {
 
     public static void registerForEvent(EventHandler eventHandler, String... topics) {
         BundleContext bundleContext = FrameworkUtil.getBundle(EventAdminHelper.class).getBundleContext();
+
+        if (bundleContext == null) return;
 
         ServiceReference ref = bundleContext.getServiceReference(EventAdmin.class.getName());
         if (ref != null)

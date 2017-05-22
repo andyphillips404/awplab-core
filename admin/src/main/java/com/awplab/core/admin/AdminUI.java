@@ -61,7 +61,8 @@ public class AdminUI extends UI implements EventHandler {
         String filterString = "(" + Constants.OBJECTCLASS + "=" + AdminVaadinProvider.class.getName() + ")";
         try {
             BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-            Optional<ServiceReference<VaadinProvider>> optional = context.getServiceReferences(VaadinProvider.class, filterString).stream().findFirst();
+            Optional<ServiceReference<VaadinProvider>> optional = context.getServiceReferences(VaadinProvider.class, null).stream().filter(vaadinProviderServiceReference -> vaadinProviderServiceReference.getProperty("factory.name").toString().equals(AdminVaadinProvider.class.getName())).findFirst();
+            //Optional<ServiceReference<VaadinProvider>> optional = context.getServiceReferences(VaadinProvider.class, filterString).stream().findFirst();
             if (optional.isPresent()) {
                 AdminVaadinProvider adminVaadinProvider = (AdminVaadinProvider)context.getService(optional.get());
                 return Optional.of(adminVaadinProvider);
@@ -84,7 +85,12 @@ public class AdminUI extends UI implements EventHandler {
 
     @Override
     public void handleEvent(org.osgi.service.event.Event event) {
-        updateMenuAndNavigator();
+        if (event.getTopic().equals(AdminEventTopics.UPDATE_MENU_REQUESTED)) {
+            doAccess(this::updateMenuButtons);
+        }
+        else {
+            doAccess(this::updateMenuAndNavigator);
+        }
     }
 
     public Subject getSubject() {
@@ -101,7 +107,11 @@ public class AdminUI extends UI implements EventHandler {
 
         ArrayList<AdminProvider> viewProviders = new ArrayList<>(getProviders());
         List<String> categories = new ArrayList<>();
-        getVaadinProvider().ifPresent(adminVaadinProvider -> categories.addAll(Arrays.asList(adminVaadinProvider.getCategories())));
+        getVaadinProvider().ifPresent(adminVaadinProvider -> {
+            if (adminVaadinProvider.getCategories() != null) {
+                categories.addAll(Arrays.asList(adminVaadinProvider.getCategories()));
+            }
+        });
 
         viewProviders.sort((o1, o2) -> {
 
@@ -145,6 +155,7 @@ public class AdminUI extends UI implements EventHandler {
 
             Button b = new Button();
             b.addClickListener((Button.ClickListener) event -> navigator.navigateTo(adminProvider.getName()));
+            b.setCaptionAsHtml(true);
 
             buttons.put(adminProvider, b);
             updateMenuButton(adminProvider);
@@ -159,14 +170,23 @@ public class AdminUI extends UI implements EventHandler {
 
     }
 
-    public void updateMenuButton(AdminProvider adminProvider) {
+    private void updateMenuButtons() {
+        getProviders().forEach(this::updateMenuButton);
+    }
+
+    private void updateMenuButton(AdminProvider adminProvider) {
         if (buttons.containsKey(adminProvider)) {
+
+            String newCaption = null;
             if (adminProvider.getMenuBadge().isPresent()) {
-                buttons.get(adminProvider).setCaption(adminProvider.getMenuTitle() + "<span class=\"valo-menu-badge\">" + adminProvider.getMenuBadge().get() + "</span>");
+                newCaption = adminProvider.getMenuTitle() + "<span class=\"valo-menu-badge\">" + adminProvider.getMenuBadge().get() + "</span>";
             } else {
-                buttons.get(adminProvider).setCaption(adminProvider.getMenuTitle());
+                newCaption = adminProvider.getMenuTitle();
             }
-            if (adminProvider.getMenuIcon().isPresent()) buttons.get(adminProvider).setIcon(adminProvider.getMenuIcon().get());
+
+            if (buttons.get(adminProvider).getCaption() == null || !buttons.get(adminProvider).getCaption().equals(newCaption)) buttons.get(adminProvider).setCaption(newCaption);
+
+            if (adminProvider.getMenuIcon().isPresent() && !adminProvider.getMenuIcon().get().equals(buttons.get(adminProvider).getIcon())) buttons.get(adminProvider).setIcon(adminProvider.getMenuIcon().get());
         }
     }
 

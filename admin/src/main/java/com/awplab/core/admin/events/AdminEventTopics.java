@@ -18,5 +18,7 @@ public final class AdminEventTopics {
     public static final String PROVIDER_REMOVED = BASE + "/PROVIDER_REMOVED";
 
 
+    public static final String UPDATE_MENU_REQUESTED = BASE + "/UPDATE_MENU_REQUESTED";
+
 
 }
