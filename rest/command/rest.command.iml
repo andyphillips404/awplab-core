@@ -28,7 +28,7 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: jline:jline:2.14.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.karaf.jaas:org.apache.karaf.jaas.boot:4.0.9" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.sshd:sshd-core:0.14.0" level="project" />
-    <orderEntry type="module" module-name="rest.service" />
+    <orderEntry type="library" name="Maven: com.awplab.core:rest.service:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.glassfish.jersey.containers:jersey-container-servlet:2.25.1" level="project" />
     <orderEntry type="library" name="Maven: org.glassfish.jersey.containers:jersey-container-servlet-core:2.25.1" level="project" />
     <orderEntry type="library" name="Maven: org.glassfish.jersey.core:jersey-common:2.25.1" level="project" />
