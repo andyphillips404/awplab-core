@@ -311,7 +311,7 @@ public class SchedulerAdminProvider implements AdminProvider {
             detailsPanelScheduled.setSizeFull();
             VerticalSplitPanel jobsSplitPanel = new VerticalSplitPanel(jobsGrid, detailsPanelScheduled);
             jobsSplitPanel.setSizeFull();
-            jobsSplitPanel.setSplitPosition(70, Unit.PERCENTAGE);
+            jobsSplitPanel.setSplitPosition(40, Unit.PERCENTAGE);
 
             VerticalLayout jobsHolder = new VerticalLayout(jobsToolbar, jobsSplitPanel);
             jobsHolder.setExpandRatio(jobsSplitPanel, 1);
