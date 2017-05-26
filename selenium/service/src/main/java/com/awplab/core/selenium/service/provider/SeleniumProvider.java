@@ -1,5 +1,6 @@
 package com.awplab.core.selenium.service.provider;
 
+import com.assertthat.selenium_shutterbug.utils.web.Browser;
 import com.awplab.core.selenium.service.AutoClosableWebDriver;
 import com.awplab.core.selenium.service.SeleniumService;
 import org.apache.felix.ipojo.annotations.Component;
@@ -13,6 +14,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.remote.BrowserType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
@@ -99,10 +101,24 @@ public class SeleniumProvider implements SeleniumService {
 
     @Override
     public DesiredCapabilities getRemoteDesiredCapabilities() {
-        DesiredCapabilities desiredCapabilities = new DesiredCapabilities(remoteDesiredBrowser, remoteDesiredVersion, (remoteDesiredPlatform == null ? Platform.ANY : Enum.valueOf(Platform.class, remoteDesiredPlatform)));
+        return getRemoteDesiredCapabilities(remoteDesiredBrowser, remoteDesiredVersion, (remoteDesiredPlatform == null ? Platform.ANY : Enum.valueOf(Platform.class, remoteDesiredPlatform)));
+    }
+
+    @Override
+    public DesiredCapabilities getRemoteDesiredCapabilities(String desiredBrowser, String desiredVersion, Platform desiredPlatform ) {
+
+        DesiredCapabilities desiredCapabilities = new DesiredCapabilities(
+                (desiredBrowser == null ? remoteDesiredBrowser : desiredBrowser),
+                (desiredVersion == null ? remoteDesiredVersion : desiredVersion),
+                desiredPlatform);
         desiredCapabilities.setCapability(FirefoxDriver.PROFILE, getFirefoxProfile());
         desiredCapabilities.setCapability(ChromeOptions.CAPABILITY, getChromeOptions());
         return desiredCapabilities;
+    }
+
+    @Override
+    public DesiredCapabilities getRemoteDesiredCapabilities(String desiredBrowser) {
+        return getRemoteDesiredCapabilities(desiredBrowser, null, Platform.ANY);
     }
 
     private interface ProcessOption {

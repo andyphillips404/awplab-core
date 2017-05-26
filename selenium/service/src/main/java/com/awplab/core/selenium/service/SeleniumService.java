@@ -1,7 +1,9 @@
 package com.awplab.core.selenium.service;
 
+import org.openqa.selenium.Platform;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
@@ -12,6 +14,10 @@ public interface SeleniumService {
 
 
     DesiredCapabilities getRemoteDesiredCapabilities();
+
+    DesiredCapabilities getRemoteDesiredCapabilities(String desiredBrowser, String desiredVersion, Platform desiredPlatform );
+
+    DesiredCapabilities getRemoteDesiredCapabilities(String desiredBrowser);
 
     FirefoxProfile getFirefoxProfile();
 
@@ -24,7 +30,6 @@ public interface SeleniumService {
     AutoClosableWebDriver getLocalDriver();
 
     AutoClosableWebDriver wrapDriver(WebDriver webDriver);
-
 
     String CONFIG_MANAGED_SERVICE_NAME = "com.awplab.core.selenium.service";
 
