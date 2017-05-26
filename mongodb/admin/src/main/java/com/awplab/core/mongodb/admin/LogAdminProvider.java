@@ -36,11 +36,12 @@ import java.util.TimerTask;
 /**
  * Created by andyphillips404 on 8/31/16.
  */
-@Component(immediate = true, name = LogAdminProvider.CONFIG_FACTORY_NAME)
+@Component(immediate = true, managedservice = LogAdminProvider.CONFIG_MANAGED_SERVICE)
 @Provides(specifications = {AdminProvider.class})
+@Instantiate
 public class LogAdminProvider implements AdminProvider {
 
-    public static final String CONFIG_FACTORY_NAME = "com.awplab.core.mongodb.admin.log";
+    public static final String CONFIG_MANAGED_SERVICE= "com.awplab.core.mongodb.admin.log";
 
     public static final String PROPERTY_DATABASE = "com.awplab.core.mongodb.admin.log.database";
 
