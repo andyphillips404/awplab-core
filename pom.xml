@@ -760,6 +760,7 @@
                     <version>1.10</version>
                 </plugin>
 
+                <!--
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
@@ -768,6 +769,7 @@
                         <arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments>
                     </configuration>
                 </plugin>
+                -->
 
             </plugins>
 
@@ -854,16 +856,26 @@
 
     <distributionManagement>
         <repository>
-            <id>sonatype-nexus-staging</id>
-            <name>Sonatype Nexus release repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>awplab-repository</id>
+            <name>Releases</name>
+            <url>https://awplab.com/nexus/content/repositories/releases/</url>
         </repository>
-
         <snapshotRepository>
             <id>awplab-repository</id>
             <name>snapshots</name>
             <url>https://awplab.com/nexus/content/repositories/snapshots/</url>
         </snapshotRepository>
+
+        <!--
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <name>Sonatype Nexus release repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+        -->
+
+
+
 
     </distributionManagement>
 
