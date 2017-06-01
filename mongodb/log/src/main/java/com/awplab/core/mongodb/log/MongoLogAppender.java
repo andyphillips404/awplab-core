@@ -28,17 +28,17 @@ import java.util.*;
 @Instantiate
 public class MongoLogAppender implements PaxAppender {
 
-    public static final String CONFIG_MANAGED_SERVICE_NAME = "com.awplab.core.log.appender";
+    public static final String CONFIG_MANAGED_SERVICE_NAME = "com.awplab.core.mongodb.log.appender";
 
-    public static final String PROPERTY_DEFAULT_DATABASE = "com.awplab.core.log.appender.defaultDatabase";
+    public static final String PROPERTY_DEFAULT_DATABASE = "com.awplab.core.mongodb.log.appender.defaultDatabase";
     @ServiceProperty(name = PROPERTY_DEFAULT_DATABASE)
     private String defaultDatabase;
 
-    public static final String PROPERTY_DEFAULT_COLLECTION = "com.awplab.core.log.appender.defaultCollection";
+    public static final String PROPERTY_DEFAULT_COLLECTION = "com.awplab.core.mongodb.log.appender.defaultCollection";
     @ServiceProperty(name = PROPERTY_DEFAULT_COLLECTION, value = "log")
     private String defaultCollection;
 
-    public static final String PROPERTY_DEFAULT_GRIDFS_COLLECTION = "com.awplab.core.log.appender.defaultGridFSCollection";
+    public static final String PROPERTY_DEFAULT_GRIDFS_COLLECTION = "com.awplab.core.mongodb.log.appender.defaultGridFSCollection";
     @ServiceProperty(name = PROPERTY_DEFAULT_GRIDFS_COLLECTION, value = "log-fs")
     private String defaultGridFSCollection;
 

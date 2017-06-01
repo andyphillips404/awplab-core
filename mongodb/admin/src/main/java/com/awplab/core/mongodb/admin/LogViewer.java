@@ -6,6 +6,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.mongodb.client.model.Sorts;
+import com.vaadin.data.provider.DataProvider;
 import com.vaadin.external.org.slf4j.Logger;
 import com.vaadin.external.org.slf4j.LoggerFactory;
 import com.vaadin.server.FontAwesome;
@@ -22,29 +23,48 @@ import java.text.SimpleDateFormat;
 /**
  * Created by andyphillips404 on 8/15/16.
  */
-public class LogViewer extends VerticalLayout {
+public class LogViewer extends Grid<Log> {
 
     private final MongoDatabase mongoDatabase;
-    private final MongoDataProvider<Log> logMongoDataProvider;
-    private final Grid<Log> grid;
+    //private final MongoDataProvider<Log> logMongoDataProvider;
+    //private final Grid<Log> grid;
 
     Logger logger = LoggerFactory.getLogger(LogViewer.class);
 
     public LogViewer(MongoDatabase mongoDatabase, MongoCollection<Log> collection, Bson filter) {
+        super(new MongoDataProvider<Log>(collection, filter));
         this.mongoDatabase = mongoDatabase;
-        this.logMongoDataProvider = new MongoDataProvider<Log>(collection, filter);
-        grid = new Grid<>(logMongoDataProvider);
         start();
-
     }
 
+    @Override
+    public MongoDataProvider<Log> getDataProvider() {
+        //noinspection unchecked
+        return (MongoDataProvider<Log>)super.getDataProvider();
+    }
+
+    @Deprecated
+    public void setDataProvider(DataProvider<Log, ?> dataProvider) {
+        if (MongoDataProvider.class.isAssignableFrom(dataProvider.getClass())) {
+            super.setDataProvider(dataProvider);
+        }
+        else throw new IllegalArgumentException("Data provider must be a MongoDataProvider");
+    }
+
+
+
+    public void setDataProvider(MongoDataProvider<Log> dataProvider) {
+        super.setDataProvider(dataProvider);
+    }
+
+
     private void start() {
-        grid.setSizeFull();
+        this.setSizeFull();
 
-        grid.setSelectionMode(Grid.SelectionMode.NONE);
+        this.setSelectionMode(Grid.SelectionMode.NONE);
 
-        grid.addColumn(Log::getTimeStamp, new DateRenderer(new SimpleDateFormat())).setCaption("Date").setSortProperty("timeStamp");
-        grid.addColumn(log -> {
+        this.addColumn(Log::getTimeStamp, new DateRenderer(new SimpleDateFormat())).setCaption("Date").setSortProperty("timeStamp");
+        this.addColumn(log -> {
             StringBuilder stringBuilder = new StringBuilder();
             final String[] color = {"black"};
             if (log.getLevel() != null) {
@@ -65,7 +85,7 @@ public class LogViewer extends VerticalLayout {
         }).setCaption("Files").setSortable(false);
         */
 
-        grid.addColumn(log -> "Details", new ButtonRenderer<Log>(event -> {
+        this.addColumn(log -> "Details", new ButtonRenderer<Log>(event -> {
             Log log = event.getItem();
 
 
@@ -165,13 +185,10 @@ public class LogViewer extends VerticalLayout {
 
         })).setSortable(false);
 
-        grid.addColumn(Log::getMessage).setSortProperty("message");
+        this.addColumn(Log::getMessage).setSortProperty("message");
 
-        logMongoDataProvider.setDefaultSort(Sorts.descending("timeStamp"));
+        getDataProvider().setDefaultSort(Sorts.descending("timeStamp"));
 
-        this.addComponent(grid);
-
-        this.setMargin(false);
     }
 
 
@@ -179,12 +196,15 @@ public class LogViewer extends VerticalLayout {
 
 
 
+
+    @Deprecated
     public MongoDataProvider<Log> getLogMongoDataProvider() {
-        return logMongoDataProvider;
+        return getDataProvider();
     }
 
+    @Deprecated
     public Grid<Log> getGrid() {
-        return grid;
+        return this;
     }
 
     public MongoDatabase getMongoDatabase() {

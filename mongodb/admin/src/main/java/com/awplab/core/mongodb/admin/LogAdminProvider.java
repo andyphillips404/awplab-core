@@ -37,20 +37,20 @@ import java.util.TimerTask;
  * Created by andyphillips404 on 8/31/16.
  */
 @Component(immediate = true, managedservice = LogAdminProvider.CONFIG_MANAGED_SERVICE)
-@Provides(specifications = {AdminProvider.class})
+@Provides
 @Instantiate
 public class LogAdminProvider implements AdminProvider {
 
-    public static final String CONFIG_MANAGED_SERVICE= "com.awplab.core.mongodb.admin.log";
+    public static final String CONFIG_MANAGED_SERVICE= "com.awplab.core.mongodb.admin";
 
-    public static final String PROPERTY_DATABASE = "com.awplab.core.mongodb.admin.log.database";
+    public static final String PROPERTY_DATABASE = "com.awplab.core.mongodb.admin.database";
 
-    public static final String PROPERTY_COLLECTION = "com.awplab.core.mongodb.admin.log.collection";
+    public static final String PROPERTY_COLLECTION = "com.awplab.core.mongodb.admin.collection";
 
-    @Property(name = PROPERTY_DATABASE, mandatory = true)
+    @ServiceProperty(name = PROPERTY_DATABASE)
     private String database;
 
-    @Property(name = PROPERTY_COLLECTION, mandatory = true)
+    @ServiceProperty(name = PROPERTY_COLLECTION)
     private String collection;
 
     @ServiceController(value = false, specification = AdminProvider.class)
@@ -58,6 +58,7 @@ public class LogAdminProvider implements AdminProvider {
 
     @Requires
     MongoService mongoService;
+
 
     private Timer timer = new Timer();
     @Updated
@@ -68,8 +69,12 @@ public class LogAdminProvider implements AdminProvider {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (database != null && collection != null && !serviceController) {
-                    serviceController = true;
+                if (database != null && collection != null) {
+
+                    if (!serviceController) serviceController = true;
+                }
+                else if (serviceController) {
+                    serviceController = false;
                 }
             }
         }, 3000);
@@ -101,10 +106,10 @@ public class LogAdminProvider implements AdminProvider {
         return "Log<br>(" + database + "." + collection + ")";
     }
 
-    public void setConnection(String database, String collection) {
-        this.database = database;
-        this.collection = collection;
-    }
+    //public void setConnection(String database, String collection) {
+    //    this.database = database;
+    //    this.collection = collection;
+    //}
 
     @Override
     public View createView(Subject subject) {
@@ -116,14 +121,14 @@ public class LogAdminProvider implements AdminProvider {
 
         @Override
         public void enter(ViewChangeListener.ViewChangeEvent event) {
-            logViewer.getLogMongoDataProvider().refreshAll();
+            logViewer.getDataProvider().refreshAll();
         }
 
         @Override
         public void handleEvent(org.osgi.service.event.Event event) {
             VaadinProvider.doAccess(getUI(), () -> {
                 if (database != null && collection != null && database.equals(event.getProperty(LogEventData.DATABASE)) && collection.equals(event.getProperty(LogEventData.COLLECTION))) {
-                    logViewer.getLogMongoDataProvider().refreshAll();
+                    logViewer.getDataProvider().refreshAll();
                 }
             });
         }
@@ -157,7 +162,7 @@ public class LogAdminProvider implements AdminProvider {
             clearBefore.addItem("Clear Before", FontAwesome.TRASH, (MenuBar.Command) selectedItem -> {
                 deleteLog(new Date(date.getValue().toEpochDay()));
                 //logViewer.refreshData();
-                logViewer.getLogMongoDataProvider().refreshAll();
+                logViewer.getDataProvider().refreshAll();
             });
             clearBefore.setSizeUndefined();
 
@@ -167,7 +172,7 @@ public class LogAdminProvider implements AdminProvider {
             clearAll.addStyleName(ValoTheme.MENUBAR_SMALL);
             clearAll.addItem("Clear All", FontAwesome.TRASH, (MenuBar.Command) selectedItem -> {
                 deleteLog(new Date());
-                logViewer.getLogMongoDataProvider().refreshAll();
+                logViewer.getDataProvider().refreshAll();
             });
             clearAll.setSizeUndefined();
 
