@@ -36,6 +36,29 @@ public class JsoupSession  {
 
     private int retryTimeoutMinutes = 10;
 
+    public void setTimeoutMilliSeconds(int timeoutMilliSeconds) {
+        this.timeoutMilliSeconds = timeoutMilliSeconds;
+    }
+
+    public void setRetryMaxExponentialWaitMinutes(int retryMaxExponentialWaitMinutes) {
+        this.retryMaxExponentialWaitMinutes = retryMaxExponentialWaitMinutes;
+    }
+
+    public void setRetryTimeoutMinutes(int retryTimeoutMinutes) {
+        this.retryTimeoutMinutes = retryTimeoutMinutes;
+    }
+
+    public int getTimeoutMilliSeconds() {
+        return timeoutMilliSeconds;
+    }
+
+    public int getRetryMaxExponentialWaitMinutes() {
+        return retryMaxExponentialWaitMinutes;
+    }
+
+    public int getRetryTimeoutMinutes() {
+        return retryTimeoutMinutes;
+    }
 
     public JsoupSession(int timeoutMilliSeconds, int retryMaxExponentialWaitMinutes, int retryTimeoutMinutes) {
         this.timeoutMilliSeconds = timeoutMilliSeconds;
@@ -207,10 +230,9 @@ public class JsoupSession  {
 
         //noinspection PackageAccessibility
         Retryer<Connection.Response> retryer = RetryerBuilder.<Connection.Response>newBuilder()
-                .withWaitStrategy(WaitStrategies.exponentialWait(100, retryMaxExponentialWaitMinutes, TimeUnit.MINUTES))
+                .withWaitStrategy(WaitStrategies.exponentialWait(retryMaxExponentialWaitMinutes, TimeUnit.MINUTES))
                 .withStopStrategy(StopStrategies.stopAfterDelay(retryTimeoutMinutes, TimeUnit.MINUTES))
-                .retryIfRuntimeException()
-                .retryIfException()
+                .retryIfException(throwable -> !(throwable instanceof InterruptedException))
                 .retryIfResult(response -> {
                     if (response == null) return true;
 
