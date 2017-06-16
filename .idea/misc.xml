@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
-    <entry_points version="2.0" />
     <list size="2">
       <item index="0" class="java.lang.String" itemvalue="org.apache.felix.ipojo.annotations.Requires" />
       <item index="1" class="java.lang.String" itemvalue="org.apache.felix.ipojo.annotations.ServiceProperty" />
@@ -11,6 +10,7 @@
     <file type="Osmorc" url="file://$PROJECT_DIR$/admin" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/common" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/ipojo" />
+    <file type="Osmorc" url="file://$PROJECT_DIR$/jsoup" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/mongodb" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/pdf/command" />
     <file type="Osmorc" url="file://$PROJECT_DIR$/pdf/parser" />

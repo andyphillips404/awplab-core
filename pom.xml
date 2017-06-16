@@ -53,12 +53,13 @@
         <module>mongodb</module>
         <module>admin</module>
         <module>vaadin</module>
+        <module>jsoup</module>
     </modules>
 
 
     <properties>
 
-        <version.core.features>1.0.1</version.core.features>
+        <version.core.features>1.0.2-SNAPSHOT</version.core.features>
 
         <version.core.common>1.0.1</version.core.common>
 
@@ -91,6 +92,8 @@
         <version.core.admin>1.0.0</version.core.admin>
 
 
+        <version.core.jsoup>1.0.0-SNAPSHOT</version.core.jsoup>
+
         <!-- karaf specific versions and supplied tools -->
         <version.karaf>4.0.9</version.karaf>
         <version.pax.logging>1.8.5</version.pax.logging>
@@ -122,6 +125,8 @@
         <!-- unfortunetly we have to use a snapshot version due to a codec bug with the flaot type -->
         <version.mongodb>3.5.0-SNAPSHOT</version.mongodb>
 
+        <version.jsoup>1.10.3</version.jsoup>
+
         <!--
         <version.felix.http.base>2.3.0</version.felix.http.base>
         <version.felix.http.api>2.3.0</version.felix.http.api>
@@ -148,6 +153,7 @@
         <version.commons-exec>1.3</version.commons-exec>
         <version.commons-io>2.5</version.commons-io>
         <version.commons-net>3.6</version.commons-net>
+        <version.commons-compress>1.14</version.commons-compress>
 
         <version.typetools>0.4.9</version.typetools>
 
@@ -242,6 +248,12 @@
                 <groupId>com.awplab.core</groupId>
                 <artifactId>admin</artifactId>
                 <version>${version.core.admin}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.awplab.core</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>${version.core.jsoup}</version>
             </dependency>
 
             <!-- MongoDB -->
@@ -645,6 +657,19 @@
                 <groupId>commons-net</groupId>
                 <artifactId>commons-net</artifactId>
                 <version>${version.commons-net}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${version.commons-compress}</version>
+            </dependency>
+
+            <!-- JSoup -->
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>${version.jsoup}</version>
             </dependency>
 
             <!-- J Halterman TypeTools used for reflection help in MongoDb BeanCodec -->

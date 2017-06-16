@@ -169,6 +169,20 @@
     </feature>
 
 
+    <feature name="core-jsoup" version="${parent.version}">
+        <feature>ipojo</feature>
+        <feature>core-common</feature>
+        <feature>guava-retrying</feature>
+        <feature>jsoup</feature>
+
+        <bundle>mvn:com.awplab.core/jsoup/${version.core.jsoup}</bundle>
+
+    </feature>
+
+    <feature name="jsoup" version="${version.jsoup}">
+        <bundle>mvn:org.jsoup/jsoup/${version.jsoup}</bundle>
+    </feature>
+
     <feature name="ipojo" version="${version.ipojo}">
         <!-- <feature>eventadmin</feature> -->
         <!-- <feature>shell-compat</feature> -->
@@ -355,6 +369,10 @@
 
     <feature name="commons-net" version="${version.commons-net}">
         <bundle>mvn:commons-net/commons-net/${version.commons-net}</bundle>
+    </feature>
+
+    <feature name="commons-compress" version="${version.commons-compress}">
+        <bundle>mvn:org.apache.commons/commons-compress/${version.commons-compress}</bundle>
     </feature>
 
 </features>
