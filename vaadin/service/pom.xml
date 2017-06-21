@@ -40,7 +40,7 @@
                         <!-- <_exportcontents>com.vaadin.*, elemental.json, org.w3c.css.sac, org.atmosphere.*, org.jsoup.*</_exportcontents> -->
                         <_exportcontents>*;scope=!provided;optional=false;</_exportcontents>
 
-                        <Embed-Dependency>*;scope=!provided;optional=false;type=!pom;inline=false</Embed-Dependency>
+                        <Embed-Dependency>*;scope=!provided;optional=false;type=!pom;inline=true</Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>

@@ -54,11 +54,14 @@ public class MongoProvider implements MongoService, CodecProvider {
         logger.info("Unregistered codec service for class: " + codec.getEncoderClass());
     }
 
+    @ServiceController(value = false, specification = MongoService.class)
+    private boolean serviceController;
+
     @Validate
     private void start() {
         try {
             if (mongoClient == null) {
-
+                serviceController = false;
 
                 CodecRegistry codecRegistry = CodecRegistries.fromRegistries(
                         CodecRegistries.fromProviders(this),
@@ -68,11 +71,7 @@ public class MongoProvider implements MongoService, CodecProvider {
                 MongoClientOptions.Builder clientOptions = MongoClientOptions.builder()
                         .codecRegistry(codecRegistry);
 
-                //if (connectionString == null) {
-                //    mongoClient = new MongoClient(new ServerAddress(), clientOptions.build());
-                //} else {
-                    mongoClient = new MongoClient(new MongoClientURI(connectionString, clientOptions));
-                //}
+                mongoClient = new MongoClient(new MongoClientURI(connectionString, clientOptions));
 
                 MongoDatabase adminDatabase = mongoClient.getDatabase("admin");
                 Document document = adminDatabase.runCommand(new Document("serverStatus", 1));
@@ -80,6 +79,8 @@ public class MongoProvider implements MongoService, CodecProvider {
                 logger.debug("Server Started: \n" + document.toJson());
 
                 logger.info("Started up MongoClient!");
+
+                serviceController = true;
             }
             else {
                 logger.warn("Unable to startup, MongoClient instance already exists?");
@@ -94,6 +95,9 @@ public class MongoProvider implements MongoService, CodecProvider {
     @Invalidate
     private void stop() {
         try {
+
+            serviceController = false;
+
             if (mongoClient != null) {
                 mongoClient.close();
                 mongoClient = null;

@@ -73,7 +73,7 @@
         <version.core.rest.command>1.0.0</version.core.rest.command>
 
         <version.core.selenium.command>1.0.0</version.core.selenium.command>
-        <version.core.selenium.service>1.0.0</version.core.selenium.service>
+        <version.core.selenium.service>1.0.1-SNAPSHOT</version.core.selenium.service>
 
         <version.core.pdf.command>1.0.0</version.core.pdf.command>
         <version.core.pdf.service>1.0.0</version.core.pdf.service>
@@ -81,12 +81,12 @@
 
         <version.core.ipojo>1.0.0</version.core.ipojo>
 
-        <version.core.mongodb.service>1.0.0</version.core.mongodb.service>
+        <version.core.mongodb.service>1.0.1-SNAPSHOT</version.core.mongodb.service>
         <version.core.mongodb.command>1.0.0</version.core.mongodb.command>
         <version.core.mongodb.log>1.0.1</version.core.mongodb.log>
         <version.core.mongodb.admin>1.0.1</version.core.mongodb.admin>
 
-        <version.core.vaadin.service>1.0.0</version.core.vaadin.service>
+        <version.core.vaadin.service>1.0.1-SNAPSHOT</version.core.vaadin.service>
         <version.core.vaadin.command>1.0.0</version.core.vaadin.command>
 
         <version.core.admin>1.0.0</version.core.admin>
@@ -158,7 +158,7 @@
         <version.typetools>0.4.9</version.typetools>
 
         <!-- PRERELESE TO GET GRID TREE -->
-        <version.vaadin>8.1.0.alpha8</version.vaadin>
+        <version.vaadin>8.1.0.beta2</version.vaadin>
 
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

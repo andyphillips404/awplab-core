@@ -271,6 +271,7 @@ public class AutoClosableWebDriver implements WebDriver, AutoCloseable {
         temporaryFile = new TemporaryFile(temporaryFile.getPath() + ".png");
         return temporaryFile;
 
+
     }
 
 

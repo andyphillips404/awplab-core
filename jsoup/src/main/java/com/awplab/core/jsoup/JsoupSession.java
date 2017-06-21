@@ -1,8 +1,8 @@
 package com.awplab.core.jsoup;
 
+import com.awplab.core.common.DelayRequestManager;
 import com.awplab.core.jsoup.impl.JsoupProvider;
 import com.github.rholder.retry.*;
-import com.google.common.base.Predicates;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.HttpConnection;
@@ -19,9 +19,11 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
@@ -64,6 +66,90 @@ public class JsoupSession  {
         this.timeoutMilliSeconds = timeoutMilliSeconds;
         this.retryMaxExponentialWaitMinutes = retryMaxExponentialWaitMinutes;
         this.retryTimeoutMinutes = retryTimeoutMinutes;
+    }
+
+
+    private StopStrategy stopStrategy = StopStrategies.stopAfterDelay(retryTimeoutMinutes, TimeUnit.MINUTES);
+
+    public StopStrategy getStopStrategy() {
+        return stopStrategy;
+    }
+
+    public void setStopStrategy(StopStrategy stopStrategy) {
+        this.stopStrategy = stopStrategy;
+    }
+
+    private WaitStrategy waitStrategy = WaitStrategies.exponentialWait(retryMaxExponentialWaitMinutes, TimeUnit.MINUTES);
+
+    public WaitStrategy getWaitStrategy() {
+        return waitStrategy;
+    }
+
+    public void setWaitStrategy(WaitStrategy waitStrategy) {
+        this.waitStrategy = waitStrategy;
+    }
+
+    public String httpProxyHost;
+    public Integer httpProxyPort;
+
+    public String getHttpProxyHost() {
+        return httpProxyHost;
+    }
+
+    public void setHttpProxyHost(String httpProxyHost) {
+        this.httpProxyHost = httpProxyHost;
+    }
+
+    public Integer getHttpProxyPort() {
+        return httpProxyPort;
+    }
+
+    public void setHttpProxyPort(Integer httpProxyPort) {
+        this.httpProxyPort = httpProxyPort;
+    }
+
+
+    private String referer = null;
+    private String userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/603.2.4 (KHTML, like Gecko) Version/10.1.1 Safari/603.2.4";
+    private String accept =	"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
+    private Map<String, String> sessonHeaders = new HashMap<>();
+
+    private boolean autoReferer = true;
+
+    public String getReferer() {
+        return referer;
+    }
+
+    public void setReferer(String referer) {
+        this.referer = referer;
+    }
+
+    public boolean isAutoReferer() {
+        return autoReferer;
+    }
+
+    public void setAutoReferer(boolean autoReferer) {
+        this.autoReferer = autoReferer;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
+    }
+
+    public String getAccept() {
+        return accept;
+    }
+
+    public void setAccept(String accept) {
+        this.accept = accept;
+    }
+
+    public Map<String, String> getSessonHeaders() {
+        return sessonHeaders;
     }
 
     public JsoupSession() {
@@ -189,6 +275,12 @@ public class JsoupSession  {
                                            final int timeoutMilliseconds, final int retryMaxExponentialWaitMinutes, final int retryTimeoutMinutes, final boolean ignoreHttpErrors) throws JsoupException {
         Logger logger = LoggerFactory.getLogger(JsoupProvider.class);
 
+        try {
+            if (delayRequestManager != null) delayRequestManager.waitForClear();
+        } catch (InterruptedException ex) {
+            throw new JsoupException(ex);
+        }
+
         Callable<Connection.Response> attempt = new Callable<Connection.Response>() {
             @Override
             public Connection.Response call() throws Exception {
@@ -214,14 +306,24 @@ public class JsoupSession  {
 
                     connection.data(keyValPairs);
                 }
-                if (headers != null) {
-                    for (String header : headers.keySet()) {
-                        connection.header(header, headers.get(header));
+                HashMap<String, String> combinedHeaders = new HashMap<>();
+                if (referer != null) combinedHeaders.put("Referer", referer);
+                if (userAgent != null) combinedHeaders.put("User-Agent", userAgent);
+                if (accept != null) combinedHeaders.put("Accept", accept);
+
+                combinedHeaders.putAll(sessonHeaders);
+                if (headers != null) combinedHeaders.putAll(sessonHeaders);
+
+                if (combinedHeaders.size() > 0) {
+                    for (String header : combinedHeaders.keySet()) {
+                        connection.header(header, combinedHeaders.get(header));
                     }
                 }
+
                 connection.method(method);
                 if (postDataCharset != null) connection.postDataCharset(postDataCharset);
                 connection.validateTLSCertificates(false);
+                if (httpProxyPort != null && httpProxyHost != null) connection.proxy(httpProxyHost, httpProxyPort);
                 connection.ignoreHttpErrors(ignoreHttpErrors);
                 return connection.execute();
             }
@@ -230,8 +332,8 @@ public class JsoupSession  {
 
         //noinspection PackageAccessibility
         Retryer<Connection.Response> retryer = RetryerBuilder.<Connection.Response>newBuilder()
-                .withWaitStrategy(WaitStrategies.exponentialWait(retryMaxExponentialWaitMinutes, TimeUnit.MINUTES))
-                .withStopStrategy(StopStrategies.stopAfterDelay(retryTimeoutMinutes, TimeUnit.MINUTES))
+                .withWaitStrategy(waitStrategy)
+                .withStopStrategy(stopStrategy)
                 .retryIfException(throwable -> !(throwable instanceof InterruptedException))
                 .retryIfResult(response -> {
                     if (response == null) return true;
@@ -270,6 +372,7 @@ public class JsoupSession  {
 
 
         setLastResponse(result);
+        if (autoReferer) referer = url;
 
         return result;
     }
@@ -307,6 +410,29 @@ public class JsoupSession  {
         return getCookies(Connection.Method.POST, url, data);
     }
 
+
+
+    public TextNode getPreviousNonEmptyTextNode(Node input) {
+        if (input == null) return null;
+
+        Node sibling = getPreviousNonEmptyNode(input);
+        while (sibling != null && !(sibling instanceof TextNode)) {
+            sibling = getPreviousNonEmptyNode(sibling);
+        }
+        return (TextNode)sibling;
+    }
+
+    public Node getPreviousNonEmptyNode(Node input) {
+        if (input == null) return null;
+
+        Node sibling = input.previousSibling();
+        if (sibling == null) return null;
+        if (sibling instanceof TextNode && ((TextNode) sibling).text().replaceAll("\u00A0", " ").trim().length() == 0) {
+            return getPreviousNonEmptyNode(sibling);
+        }
+        return sibling;
+    }
+
     public Node getNextNonEmptyNode(Node input) {
         if (input == null) return null;
 
@@ -317,7 +443,6 @@ public class JsoupSession  {
         }
         return sibling;
     }
-
 
     public TextNode getNextNonEmptyTextNode(Node input) {
         if (input == null) return null;
@@ -360,4 +485,16 @@ public class JsoupSession  {
         }
 
     }
+
+
+    private DelayRequestManager delayRequestManager;
+
+    public DelayRequestManager getDelayRequestManager() {
+        return delayRequestManager;
+    }
+
+    public void setDelayRequestManager(DelayRequestManager delayRequestManager) {
+        this.delayRequestManager = delayRequestManager;
+    }
+
 }
